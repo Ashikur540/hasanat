@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, BookOpen, Filter } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PRESET_DEEDS, CATEGORY_INFO, DIFFICULTY_INFO, type DeedCategory, type DeedDifficulty, type Deed } from "@/data/deeds";
 import DeedCard from "@/components/deeds/DeedCard";
 import CreateDeedDialog from "@/components/deeds/CreateDeedDialog";
@@ -32,9 +32,7 @@ const Deeds = () => {
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: allDeeds.length };
-    allDeeds.forEach((d) => {
-      counts[d.category] = (counts[d.category] || 0) + 1;
-    });
+    allDeeds.forEach((d) => { counts[d.category] = (counts[d.category] || 0) + 1; });
     return counts;
   }, [allDeeds]);
 
@@ -43,10 +41,23 @@ const Deeds = () => {
     setCreateOpen(false);
   };
 
+  // Use a key that changes when filters change to re-trigger stagger
+  const filterKey = `${category}-${difficulty}-${search}`;
+
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="container mx-auto px-4 py-6 space-y-6"
+    >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      >
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
             <BookOpen className="h-7 w-7 text-primary" /> Deed Library
@@ -58,21 +69,19 @@ const Deeds = () => {
         <Button className="gap-2" onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" /> Create Custom Deed
         </Button>
-      </div>
+      </motion.div>
 
       {/* Search & Filters */}
-      <div className="space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="space-y-4"
+      >
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search deeds by name or description..."
-            className="pl-10"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <Input placeholder="Search deeds by name or description..." className="pl-10" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-
-        {/* Category Tabs */}
         <div className="overflow-x-auto">
           <Tabs value={category} onValueChange={(v) => setCategory(v as DeedCategory | "All")}>
             <TabsList className="h-auto flex-wrap">
@@ -86,48 +95,57 @@ const Deeds = () => {
             </TabsList>
           </Tabs>
         </div>
-
-        {/* Difficulty Filter */}
         <div className="flex items-center gap-2 flex-wrap">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs text-muted-foreground mr-1">Difficulty:</span>
           {ALL_DIFFICULTIES.map((d) => (
-            <Button
-              key={d}
-              variant={difficulty === d ? "default" : "outline"}
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => setDifficulty(d)}
-            >
+            <Button key={d} variant={difficulty === d ? "default" : "outline"} size="sm" className="h-7 text-xs" onClick={() => setDifficulty(d)}>
               {d === "all" ? "All" : DIFFICULTY_INFO[d].label}
               {d !== "all" && <span className="ml-1 opacity-60">+{DIFFICULTY_INFO[d].points}</span>}
             </Button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Results */}
-      <div className="text-sm text-muted-foreground">
+      {/* Results count */}
+      <motion.div
+        key={filterKey + "-count"}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+        className="text-sm text-muted-foreground"
+      >
         Showing {filtered.length} deed{filtered.length !== 1 ? "s" : ""}
-      </div>
+      </motion.div>
 
-      {/* Deed Grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((deed) => (
-          <DeedCard key={deed.id} deed={deed} />
-        ))}
-      </div>
+      {/* Deed Grid with staggered animation */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={filterKey}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          {filtered.map((deed, i) => (
+            <DeedCard key={deed.id} deed={deed} index={i} />
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
       {filtered.length === 0 && (
-        <Card className="border-border bg-card">
-          <CardContent className="p-10 text-center">
-            <p className="text-muted-foreground">No deeds match your filters. Try adjusting your search.</p>
-          </CardContent>
-        </Card>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+          <Card className="border-border bg-card">
+            <CardContent className="p-10 text-center">
+              <p className="text-muted-foreground">No deeds match your filters. Try adjusting your search.</p>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       <CreateDeedDialog open={createOpen} onOpenChange={setCreateOpen} onCreate={handleCreate} />
-    </div>
+    </motion.div>
   );
 };
 
