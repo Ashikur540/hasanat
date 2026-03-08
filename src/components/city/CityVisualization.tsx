@@ -539,7 +539,7 @@ const BuildingWrapper = ({ position, cat, data, theme, isSelected, isHovered, on
 const BackgroundCity = ({ theme }: { theme: typeof skyColors.night }) => {
   const isDay = theme.ambientIntensity > 1;
   const buildings = useMemo(() => {
-    return Array.from({ length: 200 }, (_, i) => {
+    return Array.from({ length: 80 }, (_, i) => {
       const angle = sr(i * 3.7) * Math.PI * 2;
       const dist = 7 + sr(i * 7.3) * 28;
       const x = Math.cos(angle) * dist;
