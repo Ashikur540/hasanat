@@ -914,6 +914,20 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <Bee startPos={[0, 0.85, -5]} speed={0.62} />
         </>
       )}
+
+      {/* Vehicles on roads */}
+      <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
+      <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
+      <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
+      <Vehicle road="x" roadPos={0} startZ={10} speed={-1.6} color="#22cc66" type="car" seed={4} />
+      <Vehicle road="x" roadPos={6} startZ={-8} speed={2.0} color="#cc44ee" type="sedan" seed={5} />
+      <Vehicle road="x" roadPos={6} startZ={15} speed={-2.3} color="#ff6633" type="bus" seed={6} />
+      <Vehicle road="z" roadPos={-4} startZ={-18} speed={1.9} color="#44bbcc" type="car" seed={7} />
+      <Vehicle road="z" roadPos={-4} startZ={8} speed={-2.1} color="#cc3377" type="sedan" seed={8} />
+      <Vehicle road="z" roadPos={4} startZ={-5} speed={2.4} color="#88cc22" type="bus" seed={9} />
+      <Vehicle road="z" roadPos={4} startZ={12} speed={-1.7} color="#ff8844" type="car" seed={10} />
+      <Vehicle road="x" roadPos={-6} startZ={-2} speed={1.5} color="#ffffff" type="sedan" seed={11} />
+      <Vehicle road="z" roadPos={4} startZ={-15} speed={2.6} color="#2255cc" type="car" seed={12} />
     </group>
   );
 };
