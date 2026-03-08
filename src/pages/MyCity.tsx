@@ -3,8 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Share2, Camera, RotateCcw } from "lucide-react";
-import { motion } from "framer-motion";
+import { Share2, Camera, RotateCcw, Moon, Sun } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
 
@@ -48,7 +48,7 @@ const MyCity = () => {
       {/* Header */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">My City 🏙️</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Deed City 🏙️</h1>
           <p className="text-muted-foreground text-sm mt-1">
             <Badge variant="outline" className="mr-2 text-primary">{currentMilestone?.name}</Badge>
             {totalDeeds} deeds · {Object.keys(categoryData).length} districts — click a building to inspect
@@ -65,8 +65,8 @@ const MyCity = () => {
 
       {/* City Visualization */}
       <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-        <Card className="border-border bg-card overflow-hidden">
-          <CardContent className="p-3 md:p-5">
+        <Card className="border-border bg-card overflow-hidden rounded-xl">
+          <CardContent className="p-0">
             <CityVisualization
               categoryData={categoryData}
               selectedCategory={selectedCategory}
@@ -77,11 +77,36 @@ const MyCity = () => {
       </motion.div>
 
       {/* Building detail panel */}
-      <BuildingDetail
-        category={selectedCategory}
-        data={selectedCategory ? categoryData[selectedCategory] : null}
-        onClose={() => setSelectedCategory(null)}
-      />
+      <AnimatePresence>
+        <BuildingDetail
+          category={selectedCategory}
+          data={selectedCategory ? categoryData[selectedCategory] : null}
+          onClose={() => setSelectedCategory(null)}
+        />
+      </AnimatePresence>
+
+      {/* Quick district selector */}
+      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          {Object.entries(categoryData).map(([cat, data]) => (
+            <motion.button
+              key={cat}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
+              className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border transition-colors ${
+                selectedCategory === cat
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card hover:border-primary/40"
+              }`}
+            >
+              <span className="text-lg">{data.emoji}</span>
+              <span className="text-[10px] font-medium text-foreground">{data.element}</span>
+              <span className="text-[9px] text-muted-foreground">{data.count}</span>
+            </motion.button>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Milestone Progress */}
       {nextMilestone && (
@@ -98,29 +123,6 @@ const MyCity = () => {
           </Card>
         </motion.div>
       )}
-
-      {/* Quick district overview */}
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-          {Object.entries(categoryData).map(([cat, data]) => (
-            <motion.button
-              key={cat}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-colors ${
-                selectedCategory === cat
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/40"
-              }`}
-            >
-              <span className="text-lg">{data.emoji}</span>
-              <span className="text-[9px] font-medium text-foreground">{data.element}</span>
-              <span className="text-[8px] text-muted-foreground">{data.count}</span>
-            </motion.button>
-          ))}
-        </div>
-      </motion.div>
     </motion.div>
   );
 };
