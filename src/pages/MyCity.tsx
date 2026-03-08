@@ -103,7 +103,7 @@ const MyCity = () => {
             {/* Controls hint */}
             <div className="absolute bottom-3 left-3 z-10">
               <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">
-                🖱️ Drag to rotate · Right-drag to pan · Scroll to zoom
+                {t("cityDragHint")}
               </Badge>
             </div>
             <CityVisualization
