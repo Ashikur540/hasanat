@@ -891,6 +891,16 @@ const Vehicle = ({ road, roadPos, startZ, speed, color, type, seed }: {
 
 // ─── Pond ─────────────────────────────────────────────────────────
 
+const makeEllipseShape = (rx: number, rz: number, segs = 32) => {
+  const s = new THREE.Shape();
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * Math.PI * 2;
+    if (i === 0) s.moveTo(Math.cos(a) * rx, Math.sin(a) * rz);
+    else s.lineTo(Math.cos(a) * rx, Math.sin(a) * rz);
+  }
+  return s;
+};
+
 const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
   position: [number, number, number]; radiusX: number; radiusZ: number; theme: typeof skyColors.night; seed: number;
 }) => {
@@ -905,7 +915,9 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
     mat.opacity = 0.7 + Math.sin(clock.getElapsedTime() * 0.8 + seed) * 0.1;
   });
 
-  // Lily pads
+  const bankShape = useMemo(() => makeEllipseShape(radiusX + 0.15, radiusZ + 0.15), [radiusX, radiusZ]);
+  const waterShape = useMemo(() => makeEllipseShape(radiusX, radiusZ), [radiusX, radiusZ]);
+
   const lilies = useMemo(() =>
     Array.from({ length: 3 + Math.floor(sr(seed * 17) * 4) }, (_, i) => ({
       x: (sr(seed * 31 + i * 7) - 0.5) * radiusX * 1.2,
@@ -916,14 +928,12 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
 
   return (
     <group position={position}>
-      {/* Bank / edge */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]}>
-        <ellipse args={[radiusX + 0.15, radiusZ + 0.15, 32]} />
+        <shapeGeometry args={[bankShape]} />
         <meshStandardMaterial color={isDay ? "#8a7a5a" : "#2a2a1a"} />
       </mesh>
-      {/* Water surface */}
       <mesh ref={waterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <ellipse args={[radiusX, radiusZ, 32]} />
+        <shapeGeometry args={[waterShape]} />
         <meshStandardMaterial
           color={waterColor}
           emissive={waterEmissive}
@@ -934,14 +944,12 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
           roughness={0.2}
         />
       </mesh>
-      {/* Ripple rings */}
       {[0.4, 0.7, 1.0].map((s, i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[(sr(seed + i * 3) - 0.5) * radiusX * 0.6, 0.005, (sr(seed + i * 5) - 0.5) * radiusZ * 0.6]}>
           <ringGeometry args={[s * 0.15, s * 0.18, 24]} />
           <meshStandardMaterial color={isDay ? "#88ccee" : "#223355"} transparent opacity={0.3} />
         </mesh>
       ))}
-      {/* Lily pads */}
       {lilies.map((l, i) => (
         <group key={i} position={[l.x, 0.01, l.z]}>
           <mesh rotation={[-Math.PI / 2, sr(seed + i * 9) * Math.PI * 2, 0]}>
@@ -956,7 +964,6 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
           )}
         </group>
       ))}
-      {/* Rocks around edge */}
       {Array.from({ length: 6 }, (_, i) => {
         const a = (i / 6) * Math.PI * 2 + sr(seed + i * 20) * 0.5;
         return (
