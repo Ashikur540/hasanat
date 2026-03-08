@@ -72,14 +72,14 @@ const categories = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family",
 
 // Vibrant distinct palettes per category
 const catPalettes: Record<string, { walls: string; wallsLight: string; trim: string; roof: string; glow: string; emissive: string }> = {
-  Salah:     { walls: "#1a4a3a", wallsLight: "#e8f0e8", trim: "#2a9a5a", roof: "#44cc77", glow: "#44ffaa", emissive: "#22aa55" },
-  Quran:     { walls: "#1a2a4a", wallsLight: "#e0e8f5", trim: "#3377cc", roof: "#4499ee", glow: "#44aaff", emissive: "#2266bb" },
-  Sadaqah:   { walls: "#1a3a1a", wallsLight: "#e5f0e0", trim: "#44aa44", roof: "#66cc66", glow: "#66ff88", emissive: "#33aa33" },
-  Dhikr:     { walls: "#1a3a4a", wallsLight: "#e0f0f5", trim: "#33aacc", roof: "#44ccdd", glow: "#44eeff", emissive: "#22aacc" },
-  Character: { walls: "#2a1a4a", wallsLight: "#eee0f5", trim: "#8844cc", roof: "#aa66ee", glow: "#cc88ff", emissive: "#7733bb" },
-  Family:    { walls: "#4a2a1a", wallsLight: "#f5e8e0", trim: "#cc7733", roof: "#ee9944", glow: "#ffbb55", emissive: "#bb6622" },
-  Fasting:   { walls: "#3a1a4a", wallsLight: "#f0e0f5", trim: "#9944cc", roof: "#bb55ee", glow: "#dd88ff", emissive: "#8833bb" },
-  Knowledge: { walls: "#4a4a1a", wallsLight: "#f5f0e0", trim: "#ccaa33", roof: "#eecc44", glow: "#ffee55", emissive: "#bbaa22" },
+  Salah:     { walls: "#2a4a3a", wallsLight: "#d8cbb8", trim: "#5a9a6a", roof: "#7ab888", glow: "#44ffaa", emissive: "#4a9a6a" },
+  Quran:     { walls: "#2a3a4a", wallsLight: "#c8bba8", trim: "#5577aa", roof: "#7799bb", glow: "#44aaff", emissive: "#4477aa" },
+  Sadaqah:   { walls: "#2a4a2a", wallsLight: "#d0c8b0", trim: "#6a9a5a", roof: "#88bb77", glow: "#66ff88", emissive: "#5a9a4a" },
+  Dhikr:     { walls: "#2a4a4a", wallsLight: "#c8d0c0", trim: "#5a99aa", roof: "#77bbcc", glow: "#44eeff", emissive: "#4a99aa" },
+  Character: { walls: "#3a2a4a", wallsLight: "#d8c8d0", trim: "#8866aa", roof: "#aa88bb", glow: "#cc88ff", emissive: "#7755aa" },
+  Family:    { walls: "#4a3a2a", wallsLight: "#e0d0c0", trim: "#bb8855", roof: "#ccaa77", glow: "#ffbb55", emissive: "#aa7744" },
+  Fasting:   { walls: "#4a2a3a", wallsLight: "#d8c0c8", trim: "#9966aa", roof: "#bb88cc", glow: "#dd88ff", emissive: "#8855aa" },
+  Knowledge: { walls: "#4a4a2a", wallsLight: "#e0d8c0", trim: "#bbaa55", roof: "#ddcc77", glow: "#ffee55", emissive: "#aa9944" },
 };
 
 const sr = (seed: number) => {
