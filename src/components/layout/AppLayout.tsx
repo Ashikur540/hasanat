@@ -70,7 +70,7 @@ const AppLayout = () => {
         </div>
       </nav>
 
-      <main className="flex-1 pt-14 pb-20 md:pb-6">
+      <main className="flex-1 pt-14 pb-20 md:pb-6 relative z-10">
         <Outlet />
       </main>
 
