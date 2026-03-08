@@ -279,6 +279,24 @@ const Profile = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Dialogs */}
+      <EditProfileDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        profile={user}
+        onSave={setUser}
+      />
+      <ShareProfileDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        profileName={user.name}
+        stats={{
+          totalDeeds: stats.totalDeeds,
+          currentStreak: stats.currentStreak,
+          level: stats.level,
+        }}
+      />
     </motion.div>
   );
 };
