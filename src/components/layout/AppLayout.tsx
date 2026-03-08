@@ -74,7 +74,7 @@ const AppLayout = () => {
         <Outlet />
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-background/95 backdrop-blur-md">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-background/90 backdrop-blur-xl">
         <div className="flex items-center justify-around h-16 px-2">
           {mobileLinks.map((link) => (
             <Link
