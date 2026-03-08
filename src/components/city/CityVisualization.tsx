@@ -1512,6 +1512,8 @@ const CityScene = ({ categoryData, selectedCategory, onSelectCategory, timeOfDay
 
       <Environment theme={theme} />
       <BackgroundCity theme={theme} />
+      {/* Clouds during daytime */}
+      {theme.ambientIntensity > 0.7 && <DriftingClouds />}
 
       {categories.map((cat, i) => {
         const data = categoryData[cat];
