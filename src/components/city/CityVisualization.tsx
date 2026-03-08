@@ -1113,19 +1113,14 @@ const Firefly = ({ center, seed }: { center: [number, number, number]; seed: num
 };
 
 const FireflySwarm = () => {
-  // Cluster fireflies around ponds and garden areas
   const fireflies = useMemo(() => {
     const spots: [number, number, number][] = [
-      // Around ponds
       [10, 0.5, 8], [-12, 0.5, -7], [8, 0.5, -12], [-9, 0.5, 10],
-      // Along river
-      [-15, 0.5, 12.5], [-5, 0.5, 12], [5, 0.5, 12], [15, 0.5, 12.5],
-      // Garden/tree areas
-      [-3, 0.5, -1], [3, 0.5, 1], [-5, 0.5, 5], [5, 0.5, -5],
-      [0, 0.5, 6], [0, 0.5, -6], [-7, 0.5, 2], [7, 0.5, -2],
+      [-5, 0.5, 12], [5, 0.5, 12],
+      [-3, 0.5, -1], [3, 0.5, 1],
     ];
     return spots.flatMap((center, ci) =>
-      Array.from({ length: 4 + Math.floor(sr(ci * 7) * 4) }, (_, i) => ({
+      Array.from({ length: 2 + Math.floor(sr(ci * 7) * 2) }, (_, i) => ({
         center,
         seed: ci * 100 + i,
       }))
@@ -1136,10 +1131,6 @@ const FireflySwarm = () => {
     <group>
       {fireflies.map((f, i) => (
         <Firefly key={i} center={f.center} seed={f.seed} />
-      ))}
-      {/* Ambient glow point lights near ponds */}
-      {[[10, 0.8, 8], [-12, 0.8, -7], [8, 0.8, -12], [-9, 0.8, 10]].map((pos, i) => (
-        <pointLight key={i} position={pos as [number, number, number]} color="#aaff44" intensity={0.15} distance={4} />
       ))}
     </group>
   );
