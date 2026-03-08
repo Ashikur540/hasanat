@@ -10,16 +10,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Search, X, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PRESET_DEEDS, CATEGORY_INFO, DIFFICULTY_INFO, type Deed, type DeedCategory } from "@/data/deeds";
+import { useI18n } from "@/i18n/I18nProvider";
 
 interface TodayDeed {
-  id: string;
-  deedId: string;
-  emoji: string;
-  name: string;
-  category: DeedCategory;
-  difficulty: string;
-  points: number;
-  completed: boolean;
+  id: string; deedId: string; emoji: string; name: string; category: DeedCategory; difficulty: string; points: number; completed: boolean;
 }
 
 const initialDeeds: TodayDeed[] = [
@@ -32,10 +26,7 @@ const initialDeeds: TodayDeed[] = [
 ];
 
 const difficultyColors: Record<string, string> = {
-  EASY: "text-emerald-500 dark:text-emerald-400",
-  MEDIUM: "text-primary",
-  HARD: "text-orange-500 dark:text-orange-400",
-  EXCEPTIONAL: "text-amber-500 dark:text-amber-400",
+  EASY: "text-emerald-500 dark:text-emerald-400", MEDIUM: "text-primary", HARD: "text-orange-500 dark:text-orange-400", EXCEPTIONAL: "text-amber-500 dark:text-amber-400",
 };
 
 const categories: DeedCategory[] = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family", "Fasting", "Knowledge"];
@@ -45,9 +36,9 @@ const TodaysDeeds = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<DeedCategory | null>(null);
+  const { t } = useI18n();
 
   const completed = deeds.filter((d) => d.completed).length;
-  const totalPoints = deeds.filter(d => d.completed).reduce((s, d) => s + d.points, 0);
   const addedDeedIds = new Set(deeds.map(d => d.deedId));
 
   const filteredPresets = useMemo(() => {
@@ -59,39 +50,20 @@ const TodaysDeeds = () => {
     });
   }, [search, filterCat, addedDeedIds]);
 
-  const toggle = (id: string) => {
-    setDeeds((prev) => prev.map((d) => (d.id === id ? { ...d, completed: !d.completed } : d)));
-  };
-
+  const toggle = (id: string) => setDeeds((prev) => prev.map((d) => (d.id === id ? { ...d, completed: !d.completed } : d)));
   const addDeed = (preset: Deed) => {
     const diffInfo = DIFFICULTY_INFO[preset.difficulty];
-    const newDeed: TodayDeed = {
-      id: `t-${Date.now()}-${preset.id}`,
-      deedId: preset.id,
-      emoji: preset.emoji,
-      name: preset.name,
-      category: preset.category,
-      difficulty: diffInfo.label,
-      points: preset.basePoints,
-      completed: false,
-    };
-    setDeeds((prev) => [...prev, newDeed]);
+    setDeeds((prev) => [...prev, { id: `t-${Date.now()}-${preset.id}`, deedId: preset.id, emoji: preset.emoji, name: preset.name, category: preset.category, difficulty: diffInfo.label, points: preset.basePoints, completed: false }]);
   };
-
-  const removeDeed = (id: string) => {
-    setDeeds((prev) => prev.filter((d) => d.id !== id));
-  };
+  const removeDeed = (id: string) => setDeeds((prev) => prev.filter((d) => d.id !== id));
 
   return (
     <Card className="border-border bg-card">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold">Today's Deeds</CardTitle>
+          <CardTitle className="text-xl font-bold">{t("todaysDeedsTitle")}</CardTitle>
           <div className="flex items-center gap-3">
-            <Progress
-              value={deeds.length > 0 ? (completed / deeds.length) * 100 : 0}
-              className="w-24 h-2"
-            />
+            <Progress value={deeds.length > 0 ? (completed / deeds.length) * 100 : 0} className="w-24 h-2" />
             <span className="text-sm font-semibold text-muted-foreground">{completed}/{deeds.length}</span>
           </div>
         </div>
@@ -99,73 +71,34 @@ const TodaysDeeds = () => {
       <CardContent className="space-y-2 pt-0">
         <AnimatePresence mode="popLayout">
           {deeds.map((d) => (
-            <motion.div
-              key={d.id}
-              layout
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20, height: 0 }}
-              transition={{ duration: 0.25 }}
-              onClick={() => toggle(d.id)}
-              className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer group ${
-                d.completed
-                  ? "border-primary/20 bg-primary/5"
-                  : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
-              }`}
-            >
-              <Checkbox
-                checked={d.completed}
-                onCheckedChange={() => toggle(d.id)}
-                className="h-5 w-5 rounded-full border-2"
-              />
+            <motion.div key={d.id} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20, height: 0 }} transition={{ duration: 0.25 }} onClick={() => toggle(d.id)} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer group ${d.completed ? "border-primary/20 bg-primary/5" : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"}`}>
+              <Checkbox checked={d.completed} onCheckedChange={() => toggle(d.id)} className="h-5 w-5 rounded-full border-2" />
               <span className="text-xl shrink-0">{d.emoji}</span>
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium transition-colors ${
-                  d.completed ? "line-through text-muted-foreground" : "text-foreground"
-                }`}>
-                  {d.name}
-                </p>
+                <p className={`text-sm font-medium transition-colors ${d.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>{d.name}</p>
                 <p className="text-xs text-muted-foreground">{d.category}</p>
               </div>
-              <span className={`text-xs font-bold uppercase ${difficultyColors[d.difficulty]}`}>
-                {d.difficulty}
-              </span>
-              <span className={`text-sm font-bold min-w-[36px] text-right ${
-                d.completed ? "text-primary" : "text-muted-foreground"
-              }`}>
-                +{d.points}
-              </span>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-destructive/10"
-                onClick={(e) => { e.stopPropagation(); removeDeed(d.id); }}
-              >
-                <X className="h-3.5 w-3.5 text-destructive" />
-              </Button>
+              <span className={`text-xs font-bold uppercase ${difficultyColors[d.difficulty]}`}>{d.difficulty}</span>
+              <span className={`text-sm font-bold min-w-[36px] text-right ${d.completed ? "text-primary" : "text-muted-foreground"}`}>+{d.points}</span>
+              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); removeDeed(d.id); }}><X className="h-3.5 w-3.5 text-destructive" /></Button>
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* Add deed button */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full mt-2 gap-1.5 h-10 border-dashed">
-              <Plus className="h-4 w-4" /> Add Deed
-            </Button>
+            <Button variant="outline" size="sm" className="w-full mt-2 gap-1.5 h-10 border-dashed"><Plus className="h-4 w-4" /> {t("todaysDeedsAddDeed")}</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" /> Add Deeds to Today
-              </DialogTitle>
+              <DialogTitle className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> {t("todaysDeedsAddToToday")}</DialogTitle>
             </DialogHeader>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search deeds..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+              <Input placeholder={t("todaysDeedsSearch")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              <Button variant={filterCat === null ? "default" : "outline"} size="sm" className="h-7 text-xs rounded-full" onClick={() => setFilterCat(null)}>All</Button>
+              <Button variant={filterCat === null ? "default" : "outline"} size="sm" className="h-7 text-xs rounded-full" onClick={() => setFilterCat(null)}>{t("todaysDeedsAll")}</Button>
               {categories.map((cat) => {
                 const info = CATEGORY_INFO[cat];
                 return (
@@ -179,7 +112,7 @@ const TodaysDeeds = () => {
               <div className="space-y-1 px-1">
                 {filteredPresets.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">
-                    {search ? "No matching deeds found" : "All deeds from this category are already added!"}
+                    {search ? t("todaysDeedsNoMatch") : t("todaysDeedsAllAdded")}
                   </p>
                 ) : (
                   filteredPresets.map((preset) => {
@@ -192,9 +125,7 @@ const TodaysDeeds = () => {
                           <p className="text-[11px] text-muted-foreground truncate">{preset.description}</p>
                         </div>
                         <Badge variant="outline" className={`text-[9px] px-1.5 py-0 shrink-0 ${diffInfo.color}`}>{diffInfo.label}</Badge>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0 opacity-60 group-hover:opacity-100 hover:bg-primary/10" onClick={() => addDeed(preset)}>
-                          <Plus className="h-4 w-4 text-primary" />
-                        </Button>
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0 opacity-60 group-hover:opacity-100 hover:bg-primary/10" onClick={() => addDeed(preset)}><Plus className="h-4 w-4 text-primary" /></Button>
                       </motion.div>
                     );
                   })

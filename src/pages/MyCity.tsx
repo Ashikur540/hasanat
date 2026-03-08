@@ -36,28 +36,22 @@ const totalDeeds = Object.values(categoryData).reduce((sum, c) => sum + c.count,
 const currentMilestone = milestones.filter(m => totalDeeds >= m.req).pop();
 const nextMilestone = milestones.find(m => totalDeeds < m.req);
 
-const timeOptions: { value: TimeOfDay; label: string; emoji: string }[] = [
-  { value: "fajr", label: "Fajr", emoji: "🌅" },
-  { value: "morning", label: "Morning", emoji: "☀️" },
-  { value: "noon", label: "Noon", emoji: "🌤️" },
-  { value: "evening", label: "Evening", emoji: "🌇" },
-  { value: "night", label: "Night", emoji: "🌙" },
-];
-
 const MyCity = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
   const { enabled: soundEnabled, toggle: toggleSound } = useAmbientSounds(timeOfDay);
   const { t } = useI18n();
 
+  const timeOptions: { value: TimeOfDay; label: string; emoji: string }[] = [
+    { value: "fajr", label: t("timeFajr"), emoji: "🌅" },
+    { value: "morning", label: t("timeMorning"), emoji: "☀️" },
+    { value: "noon", label: t("timeNoon"), emoji: "🌤️" },
+    { value: "evening", label: t("timeEvening"), emoji: "🌇" },
+    { value: "night", label: t("timeNight"), emoji: "🌙" },
+  ];
+
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
-      className="container mx-auto px-4 py-6 space-y-5"
-    >
-      {/* Header */}
+    <motion.div initial="hidden" animate="visible" variants={stagger} className="container mx-auto px-4 py-6 space-y-5">
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("cityTitle")}</h1>
@@ -67,79 +61,42 @@ const MyCity = () => {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
-            <RotateCcw className="h-4 w-4" /> {t("cityReset")}
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>
-            {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            {soundEnabled ? t("citySoundOn") : t("citySoundOff")}
-          </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}><RotateCcw className="h-4 w-4" /> {t("cityReset")}</Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>{soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}{soundEnabled ? t("citySoundOn") : t("citySoundOff")}</Button>
           <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> {t("citySnapshot")}</Button>
           <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> {t("cityShare")}</Button>
         </div>
       </motion.div>
 
-      {/* Time of day toggle */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <div className="flex gap-1.5 justify-center flex-wrap">
-          {timeOptions.map((t) => (
-            <Button
-              key={t.value}
-              variant={timeOfDay === t.value ? "default" : "outline"}
-              size="sm"
-              className="gap-1.5 h-8 text-xs rounded-full px-3"
-              onClick={() => setTimeOfDay(t.value)}
-            >
-              {t.emoji} {t.label}
+          {timeOptions.map((opt) => (
+            <Button key={opt.value} variant={timeOfDay === opt.value ? "default" : "outline"} size="sm" className="gap-1.5 h-8 text-xs rounded-full px-3" onClick={() => setTimeOfDay(opt.value)}>
+              {opt.emoji} {opt.label}
             </Button>
           ))}
         </div>
       </motion.div>
 
-      {/* 3D City */}
       <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
         <Card className="border-border bg-card overflow-hidden rounded-xl relative">
           <CardContent className="p-0">
-            {/* Controls hint */}
             <div className="absolute bottom-3 left-3 z-10">
-              <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">
-                {t("cityDragHint")}
-              </Badge>
+              <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">{t("cityDragHint")}</Badge>
             </div>
-            <CityVisualization
-              categoryData={categoryData}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              timeOfDay={timeOfDay}
-            />
+            <CityVisualization categoryData={categoryData} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} timeOfDay={timeOfDay} />
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Building detail panel */}
       <AnimatePresence>
-        <BuildingDetail
-          category={selectedCategory}
-          data={selectedCategory ? categoryData[selectedCategory] : null}
-          onClose={() => setSelectedCategory(null)}
-        />
+        <BuildingDetail category={selectedCategory} data={selectedCategory ? categoryData[selectedCategory] : null} onClose={() => setSelectedCategory(null)} />
       </AnimatePresence>
 
-      {/* Quick district selector */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
           {Object.entries(categoryData).map(([cat, data]) => (
-            <motion.button
-              key={cat}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-              className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border transition-colors ${
-                selectedCategory === cat
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/40"
-              }`}
-            >
+            <motion.button key={cat} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)} className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border transition-colors ${selectedCategory === cat ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}>
               <span className="text-lg">{data.emoji}</span>
               <span className="text-[10px] font-medium text-foreground">{data.element}</span>
               <span className="text-[9px] text-muted-foreground">{data.count}</span>
@@ -148,7 +105,6 @@ const MyCity = () => {
         </div>
       </motion.div>
 
-      {/* Milestone Progress */}
       {nextMilestone && (
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
           <Card className="border-border bg-card">
