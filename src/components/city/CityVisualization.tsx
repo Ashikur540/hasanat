@@ -930,6 +930,19 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <meshStandardMaterial color={theme.grass} />
         </mesh>
       ))}
+
+      {/* Ponds */}
+      {[
+        { pos: [10, 0.02, 8] as [number, number, number], rx: 2.2, rz: 1.6 },
+        { pos: [-12, 0.02, -7] as [number, number, number], rx: 1.8, rz: 1.3 },
+        { pos: [8, 0.02, -12] as [number, number, number], rx: 1.4, rz: 1.0 },
+        { pos: [-9, 0.02, 10] as [number, number, number], rx: 1.6, rz: 2.0 },
+      ].map((pond, i) => (
+        <Pond key={`pond${i}`} position={pond.pos} radiusX={pond.rx} radiusZ={pond.rz} theme={theme} seed={i} />
+      ))}
+
+      {/* River */}
+      <River theme={theme} />
       {/* Roads */}
       {[-6, 0, 6].map((x) => (
         <group key={`rx${x}`}>
