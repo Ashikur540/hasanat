@@ -68,14 +68,14 @@ const MyCity = () => {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
-            <RotateCcw className="h-4 w-4" /> Reset
+            <RotateCcw className="h-4 w-4" /> {t("cityReset")}
           </Button>
           <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>
             {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            {soundEnabled ? "Sound On" : "Sound Off"}
+            {soundEnabled ? t("citySoundOn") : t("citySoundOff")}
           </Button>
-          <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> Snapshot</Button>
-          <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Share</Button>
+          <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> {t("citySnapshot")}</Button>
+          <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> {t("cityShare")}</Button>
         </div>
       </motion.div>
 
