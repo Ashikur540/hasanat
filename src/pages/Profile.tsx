@@ -79,6 +79,9 @@ const heatmapColors = [
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [user, setUser] = useState(defaultUser);
+  const [editOpen, setEditOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const maxCat = Math.max(...Object.values(stats.categoryCounts).map(c => c.count));
 
   return (
