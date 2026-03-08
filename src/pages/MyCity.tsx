@@ -68,6 +68,10 @@ const MyCity = () => {
           <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
             <RotateCcw className="h-4 w-4" /> Reset
           </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>
+            {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {soundEnabled ? "Sound On" : "Sound Off"}
+          </Button>
           <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> Snapshot</Button>
           <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Share</Button>
         </div>
