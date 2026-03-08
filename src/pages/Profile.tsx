@@ -4,35 +4,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import {
-  Flame, Trophy, BookOpen, Heart, Star, Calendar,
-  MapPin, Edit3, Share2, Eye, EyeOff, TrendingUp,
-} from "lucide-react";
+import { Flame, Trophy, BookOpen, Heart, Star, Calendar, MapPin, Edit3, Share2, Eye, EyeOff, TrendingUp } from "lucide-react";
 import EditProfileDialog from "@/components/profile/EditProfileDialog";
 import ShareProfileDialog from "@/components/profile/ShareProfileDialog";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.07 } } };
 
-const defaultUser = {
-  name: "Ahmed Al-Rashid",
-  initials: "AR",
-  bio: "Striving for consistency in deen. One deed at a time. 🌿",
-  location: "Riyadh, SA",
-  joined: "Jan 2025",
-  isPublic: true,
-};
+const defaultUser = { name: "Ahmed Al-Rashid", initials: "AR", bio: "Striving for consistency in deen. One deed at a time. 🌿", location: "Riyadh, SA", joined: "Jan 2025", isPublic: true };
 
 const stats = {
-  totalDeeds: 512,
-  totalPoints: 6200,
-  currentStreak: 12,
-  longestStreak: 28,
-  rank: 4,
-  level: "Al-Madinah",
+  totalDeeds: 512, totalPoints: 6200, currentStreak: 12, longestStreak: 28, rank: 4, level: "Al-Madinah",
   categoryCounts: {
     Salah: { count: 156, emoji: "🕌", color: "bg-primary/15 text-primary" },
     Quran: { count: 89, emoji: "📖", color: "bg-green-500/15 text-green-600" },
@@ -56,45 +41,29 @@ const badges = [
   { name: "Century Club", emoji: "💯", desc: "100-day streak", earned: false },
 ];
 
-// Mini heatmap: 7 weeks of daily activity
 const heatmapWeeks = 7;
 const heatmapDays = heatmapWeeks * 7;
 const activityData = Array.from({ length: heatmapDays }, (_, i) => {
-  if (i > heatmapDays - 5) return 0; // last few days less
+  if (i > heatmapDays - 5) return 0;
   const seed = (i * 31 + 7) % 100;
-  if (seed < 15) return 0;
-  if (seed < 40) return 1;
-  if (seed < 70) return 2;
-  if (seed < 90) return 3;
-  return 4;
+  if (seed < 15) return 0; if (seed < 40) return 1; if (seed < 70) return 2; if (seed < 90) return 3; return 4;
 });
-
-const heatmapColors = [
-  "bg-muted",
-  "bg-primary/20",
-  "bg-primary/40",
-  "bg-primary/60",
-  "bg-primary",
-];
+const heatmapColors = ["bg-muted", "bg-primary/20", "bg-primary/40", "bg-primary/60", "bg-primary"];
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [user, setUser] = useState(defaultUser);
   const [editOpen, setEditOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const { t } = useI18n();
   const maxCat = Math.max(...Object.values(stats.categoryCounts).map(c => c.count));
 
+  const catKeyMap: Record<string, string> = { Salah: "catSalah", Quran: "catQuran", Sadaqah: "catSadaqah", Dhikr: "catDhikr", Character: "catCharacter", Family: "catFamily", Fasting: "catFasting", Knowledge: "catKnowledge" };
+
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
-      className="container mx-auto px-4 py-6 space-y-6 max-w-2xl"
-    >
-      {/* Profile header */}
+    <motion.div initial="hidden" animate="visible" variants={stagger} className="container mx-auto px-4 py-6 space-y-6 max-w-2xl">
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <Card className="border-border bg-card overflow-hidden">
-          {/* Banner */}
           <div className="h-20 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/15" />
           <CardContent className="pt-0 pb-5 px-5 -mt-10">
             <div className="flex flex-col sm:flex-row sm:items-end gap-4">
@@ -105,31 +74,25 @@ const Profile = () => {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl font-bold text-foreground">{user.name}</h1>
                   <Badge variant="outline" className="text-primary text-[10px]">{stats.level}</Badge>
-                  {user.isPublic ? (
-                    <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                  ) : (
-                    <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-                  )}
+                  {user.isPublic ? <Eye className="h-3.5 w-3.5 text-muted-foreground" /> : <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />}
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">{user.bio}</p>
                 <div className="flex gap-3 text-xs text-muted-foreground mt-1.5">
                   <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{user.location}</span>
-                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />Joined {user.joined}</span>
+                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{t("profileJoined")} {user.joined}</span>
                 </div>
               </div>
               <div className="flex gap-2 sm:pb-1">
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setEditOpen(true)}><Edit3 className="h-3.5 w-3.5" /> Edit</Button>
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setShareOpen(true)}><Share2 className="h-3.5 w-3.5" /> Share</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setEditOpen(true)}><Edit3 className="h-3.5 w-3.5" /> {t("profileEdit")}</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setShareOpen(true)}><Share2 className="h-3.5 w-3.5" /> {t("profileShare")}</Button>
               </div>
             </div>
-
-            {/* Quick stats */}
             <div className="grid grid-cols-4 gap-3 mt-5">
               {[
-                { label: "Total Deeds", value: stats.totalDeeds, icon: Star, color: "text-primary" },
-                { label: "Points", value: stats.totalPoints.toLocaleString(), icon: Trophy, color: "text-accent" },
-                { label: "Streak", value: `${stats.currentStreak}d`, icon: Flame, color: "text-orange-500" },
-                { label: "Rank", value: `#${stats.rank}`, icon: TrendingUp, color: "text-primary" },
+                { label: t("profileTotalDeeds"), value: stats.totalDeeds, icon: Star, color: "text-primary" },
+                { label: t("profilePoints"), value: stats.totalPoints.toLocaleString(), icon: Trophy, color: "text-accent" },
+                { label: t("profileStreak"), value: `${stats.currentStreak}d`, icon: Flame, color: "text-orange-500" },
+                { label: t("profileRank"), value: `#${stats.rank}`, icon: TrendingUp, color: "text-primary" },
               ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="text-center p-2.5 rounded-lg bg-muted/50">
                   <Icon className={`h-4 w-4 mx-auto mb-1 ${color}`} />
@@ -142,83 +105,65 @@ const Profile = () => {
         </Card>
       </motion.div>
 
-      {/* Tabs */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="badges">Badges</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+            <TabsTrigger value="overview">{t("profileOverview")}</TabsTrigger>
+            <TabsTrigger value="badges">{t("profileBadges")}</TabsTrigger>
+            <TabsTrigger value="activity">{t("profileActivity")}</TabsTrigger>
           </TabsList>
 
-          {/* Overview */}
           <TabsContent value="overview" className="space-y-4 mt-4">
-            {/* Category breakdown */}
             <Card className="border-border bg-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" /> Deed Categories
+                  <BookOpen className="h-4 w-4" /> {t("profileDeedCategories")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {Object.entries(stats.categoryCounts).map(([cat, data]) => (
                   <div key={cat} className="flex items-center gap-3">
                     <span className="text-lg w-7 text-center">{data.emoji}</span>
-                    <span className="text-sm font-medium text-foreground w-20">{cat}</span>
-                    <div className="flex-1">
-                      <Progress value={(data.count / maxCat) * 100} className="h-2" />
-                    </div>
+                    <span className="text-sm font-medium text-foreground w-20">{t(catKeyMap[cat] as any)}</span>
+                    <div className="flex-1"><Progress value={(data.count / maxCat) * 100} className="h-2" /></div>
                     <span className="text-xs font-semibold text-muted-foreground w-8 text-right">{data.count}</span>
                   </div>
                 ))}
               </CardContent>
             </Card>
-
-            {/* Streaks */}
             <Card className="border-border bg-card">
               <CardContent className="p-5">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 rounded-lg bg-accent/10">
                     <Flame className="h-6 w-6 mx-auto text-accent mb-1" />
                     <p className="text-2xl font-bold text-foreground">{stats.currentStreak}</p>
-                    <p className="text-xs text-muted-foreground">Current Streak</p>
+                    <p className="text-xs text-muted-foreground">{t("profileCurrentStreak")}</p>
                   </div>
                   <div className="text-center p-4 rounded-lg bg-primary/10">
                     <Trophy className="h-6 w-6 mx-auto text-primary mb-1" />
                     <p className="text-2xl font-bold text-foreground">{stats.longestStreak}</p>
-                    <p className="text-xs text-muted-foreground">Longest Streak</p>
+                    <p className="text-xs text-muted-foreground">{t("profileLongestStreak")}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Badges */}
           <TabsContent value="badges" className="mt-4">
             <Card className="border-border bg-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {badges.filter(b => b.earned).length}/{badges.length} Earned
+                  {badges.filter(b => b.earned).length}/{badges.length} {t("profileEarned")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {badges.map((badge) => (
-                    <motion.div
-                      key={badge.name}
-                      whileHover={{ scale: 1.05 }}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors ${
-                        badge.earned
-                          ? "border-primary/30 bg-primary/5"
-                          : "border-border bg-muted/30 opacity-50"
-                      }`}
-                    >
+                    <motion.div key={badge.name} whileHover={{ scale: 1.05 }} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors ${badge.earned ? "border-primary/30 bg-primary/5" : "border-border bg-muted/30 opacity-50"}`}>
                       <span className={`text-2xl ${!badge.earned && "grayscale"}`}>{badge.emoji}</span>
                       <p className="text-[11px] font-semibold text-foreground text-center leading-tight">{badge.name}</p>
                       <p className="text-[9px] text-muted-foreground text-center">{badge.desc}</p>
-                      {badge.earned && (
-                        <Badge variant="outline" className="text-[8px] border-primary/40 text-primary px-1.5">Earned</Badge>
-                      )}
+                      {badge.earned && <Badge variant="outline" className="text-[8px] border-primary/40 text-primary px-1.5">{t("profileEarned")}</Badge>}
                     </motion.div>
                   ))}
                 </div>
@@ -226,12 +171,11 @@ const Profile = () => {
             </Card>
           </TabsContent>
 
-          {/* Activity heatmap */}
           <TabsContent value="activity" className="mt-4">
             <Card className="border-border bg-card">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Heart className="h-4 w-4" /> Activity (Last {heatmapWeeks} Weeks)
+                  <Heart className="h-4 w-4" /> {t("profileActivityWeeks").replace("{weeks}", String(heatmapWeeks))}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -242,25 +186,16 @@ const Profile = () => {
                         const idx = week * 7 + day;
                         const level = activityData[idx] || 0;
                         return (
-                          <motion.div
-                            key={day}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: idx * 0.008 }}
-                            className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm ${heatmapColors[level]}`}
-                            title={`${level} deeds`}
-                          />
+                          <motion.div key={day} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.008 }} className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm ${heatmapColors[level]}`} title={`${level} ${t("deedDeeds")}`} />
                         );
                       })}
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-center gap-1.5 mt-3">
-                  <span className="text-[10px] text-muted-foreground">Less</span>
-                  {heatmapColors.map((c, i) => (
-                    <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
-                  ))}
-                  <span className="text-[10px] text-muted-foreground">More</span>
+                  <span className="text-[10px] text-muted-foreground">{t("profileLess")}</span>
+                  {heatmapColors.map((c, i) => <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />)}
+                  <span className="text-[10px] text-muted-foreground">{t("profileMore")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -268,35 +203,17 @@ const Profile = () => {
         </Tabs>
       </motion.div>
 
-      {/* Motivation */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <Card className="border-border bg-card">
           <CardContent className="p-5 text-center">
-            <p className="text-sm text-foreground italic leading-relaxed">
-              "Whoever believes in Allah and the Last Day, let him speak good or remain silent."
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">— Prophet Muhammad ﷺ (Bukhari & Muslim)</p>
+            <p className="text-sm text-foreground italic leading-relaxed">"{t("profileQuote")}"</p>
+            <p className="text-xs text-muted-foreground mt-2">{t("profileQuoteRef")}</p>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Dialogs */}
-      <EditProfileDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        profile={user}
-        onSave={setUser}
-      />
-      <ShareProfileDialog
-        open={shareOpen}
-        onOpenChange={setShareOpen}
-        profileName={user.name}
-        stats={{
-          totalDeeds: stats.totalDeeds,
-          currentStreak: stats.currentStreak,
-          level: stats.level,
-        }}
-      />
+      <EditProfileDialog open={editOpen} onOpenChange={setEditOpen} profile={user} onSave={setUser} />
+      <ShareProfileDialog open={shareOpen} onOpenChange={setShareOpen} profileName={user.name} stats={{ totalDeeds: stats.totalDeeds, currentStreak: stats.currentStreak, level: stats.level }} />
     </motion.div>
   );
 };

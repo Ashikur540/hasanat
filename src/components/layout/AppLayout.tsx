@@ -1,13 +1,16 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy } from "lucide-react";
+import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy, Sun, Moon, Monitor, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useTheme } from "next-themes";
 
 const AppLayout = () => {
   const location = useLocation();
-  const { t } = useI18n();
+  const { t, language, setLanguage } = useI18n();
+  const { theme, setTheme } = useTheme();
   const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
@@ -26,9 +29,10 @@ const AppLayout = () => {
     { to: "/profile", label: t("navProfile"), icon: User },
   ];
 
+  const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
+
   return (
     <div className="min-h-screen bg-background bg-gradient-mesh flex flex-col">
-      {/* Subtle grid pattern overlay */}
       <div className="fixed inset-0 bg-dot-pattern pointer-events-none z-0 opacity-50" />
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
@@ -54,11 +58,48 @@ const AppLayout = () => {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex" asChild>
+          <div className="flex items-center gap-1">
+            {/* Language dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Globe className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLanguage("en")} className={cn(language === "en" && "font-semibold text-primary")}>
+                  🇺🇸 English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("bn")} className={cn(language === "bn" && "font-semibold text-primary")}>
+                  🇧🇩 বাংলা
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <ThemeIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme("light")} className={cn(theme === "light" && "font-semibold text-primary")}>
+                  <Sun className="h-4 w-4 mr-2" /> {t("settingsLight")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")} className={cn(theme === "dark" && "font-semibold text-primary")}>
+                  <Moon className="h-4 w-4 mr-2" /> {t("settingsDark")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")} className={cn(theme === "system" && "font-semibold text-primary")}>
+                  <Monitor className="h-4 w-4 mr-2" /> {t("settingsSystem")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" size="icon" className="hidden md:inline-flex h-8 w-8" asChild>
               <Link to="/leaderboard"><Trophy className="h-4 w-4" /></Link>
             </Button>
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex" asChild>
+            <Button variant="ghost" size="icon" className="hidden md:inline-flex h-8 w-8" asChild>
               <Link to="/settings"><Settings className="h-4 w-4" /></Link>
             </Button>
             <Link to="/profile">
