@@ -118,8 +118,8 @@ const Profile = () => {
                 </div>
               </div>
               <div className="flex gap-2 sm:pb-1">
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs"><Edit3 className="h-3.5 w-3.5" /> Edit</Button>
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs"><Share2 className="h-3.5 w-3.5" /> Share</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setEditOpen(true)}><Edit3 className="h-3.5 w-3.5" /> Edit</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setShareOpen(true)}><Share2 className="h-3.5 w-3.5" /> Share</Button>
               </div>
             </div>
 
