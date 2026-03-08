@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
 import { useAmbientSounds } from "@/hooks/useAmbientSounds";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
