@@ -3,10 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Share2, Camera, RotateCcw } from "lucide-react";
+import { Share2, Camera, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
+import { useAmbientSounds } from "@/hooks/useAmbientSounds";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -45,6 +46,7 @@ const timeOptions: { value: TimeOfDay; label: string; emoji: string }[] = [
 const MyCity = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
+  const { enabled: soundEnabled, toggle: toggleSound } = useAmbientSounds(timeOfDay);
 
   return (
     <motion.div
@@ -65,6 +67,10 @@ const MyCity = () => {
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
             <RotateCcw className="h-4 w-4" /> Reset
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>
+            {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {soundEnabled ? "Sound On" : "Sound Off"}
           </Button>
           <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> Snapshot</Button>
           <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Share</Button>

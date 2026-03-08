@@ -1238,6 +1238,56 @@ const BirdFlock = ({ center, count, baseColor }: {
   );
 };
 
+// ─── Drifting Clouds ─────────────────────────────────────────────
+
+const Cloud = ({ position, scale, speed, seed }: { position: [number, number, number]; scale: number; speed: number; seed: number }) => {
+  const ref = useRef<THREE.Group>(null);
+  const blobs = useMemo(() =>
+    Array.from({ length: 4 + Math.floor(sr(seed * 17) * 3) }, (_, i) => ({
+      x: (sr(seed * 31 + i * 7) - 0.5) * 2.5 * scale,
+      y: (sr(seed * 43 + i * 11) - 0.5) * 0.4 * scale,
+      z: (sr(seed * 53 + i * 13) - 0.5) * 1.5 * scale,
+      r: (0.6 + sr(seed * 67 + i) * 0.8) * scale,
+    })), [seed, scale]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    ref.current.position.x = position[0] + Math.sin(clock.getElapsedTime() * speed + seed) * 15 + clock.getElapsedTime() * speed * 0.5;
+    // Wrap around
+    if (ref.current.position.x > 30) ref.current.position.x = -30;
+    if (ref.current.position.x < -30) ref.current.position.x = 30;
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      {blobs.map((b, i) => (
+        <mesh key={i} position={[b.x, b.y, b.z]}>
+          <sphereGeometry args={[b.r, 8, 6]} />
+          <meshStandardMaterial color="#ffffff" transparent opacity={0.85} roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const DriftingClouds = () => {
+  const clouds = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => ({
+      pos: [(sr(i * 17) - 0.5) * 40, 12 + sr(i * 23) * 6, (sr(i * 31) - 0.5) * 40] as [number, number, number],
+      scale: 0.8 + sr(i * 41) * 1.2,
+      speed: 0.05 + sr(i * 53) * 0.1,
+      seed: i * 100,
+    })), []);
+
+  return (
+    <group>
+      {clouds.map((c, i) => (
+        <Cloud key={i} position={c.pos} scale={c.scale} speed={c.speed} seed={c.seed} />
+      ))}
+    </group>
+  );
+};
+
 // ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
@@ -1313,22 +1363,35 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <meshStandardMaterial color={theme.road} />
         </mesh>
       ))}
-      {/* Streetlights */}
-      {[[-3, -4], [3, -4], [-3, 4], [3, 4], [-6, 0], [6, 0]].map(([x, z], i) => (
+      {/* Streetlights - dense along all roads */}
+      {[
+        // Along vertical roads x=-6, 0, 6
+        ...[-6, 0, 6].flatMap(x => Array.from({ length: 10 }, (_, i) => [x + 0.5, -18 + i * 4] as [number, number])),
+        ...[-6, 0, 6].flatMap(x => Array.from({ length: 10 }, (_, i) => [x - 0.5, -16 + i * 4] as [number, number])),
+        // Along horizontal roads z=-4, 4
+        ...[-4, 4].flatMap(z => Array.from({ length: 10 }, (_, i) => [-18 + i * 4, z + 0.5] as [number, number])),
+        ...[-4, 4].flatMap(z => Array.from({ length: 10 }, (_, i) => [-16 + i * 4, z - 0.5] as [number, number])),
+      ].map(([x, z], i) => (
         <group key={`sl${i}`} position={[x, 0, z]}>
           <mesh position={[0, 0.6, 0]}>
             <cylinderGeometry args={[0.02, 0.03, 1.2, 6]} />
-            <meshStandardMaterial color="#555555" />
+            <meshStandardMaterial color="#666666" />
           </mesh>
-          <mesh position={[0, 1.22, 0]}>
-            <sphereGeometry args={[0.06, 8, 8]} />
+          {/* Lamp arm */}
+          <mesh position={[0.15, 1.15, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.02, 0.25, 0.02]} />
+            <meshStandardMaterial color="#666666" />
+          </mesh>
+          {/* Lamp head */}
+          <mesh position={[0.25, 1.22, 0]}>
+            <boxGeometry args={[0.12, 0.04, 0.08]} />
             <meshStandardMaterial
-              color={isDay ? "#eee" : "#ffee88"}
-              emissive={isDay ? "#eee" : "#ffee88"}
-              emissiveIntensity={isDay ? 0.1 : 1.2}
+              color={isDay ? "#ddd" : "#ffee88"}
+              emissive={isDay ? "#ddd" : "#ffee88"}
+              emissiveIntensity={isDay ? 0.05 : 1.5}
             />
           </mesh>
-          {!isDay && <pointLight position={[0, 1.2, 0]} color="#ffee88" intensity={0.3} distance={3} />}
+          {!isDay && <pointLight position={[0.25, 1.1, 0]} color="#ffdd66" intensity={0.4} distance={3.5} decay={2} />}
         </group>
       ))}
 
@@ -1449,6 +1512,8 @@ const CityScene = ({ categoryData, selectedCategory, onSelectCategory, timeOfDay
 
       <Environment theme={theme} />
       <BackgroundCity theme={theme} />
+      {/* Clouds during daytime */}
+      {theme.ambientIntensity > 0.7 && <DriftingClouds />}
 
       {categories.map((cat, i) => {
         const data = categoryData[cat];
