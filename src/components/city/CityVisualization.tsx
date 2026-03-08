@@ -793,6 +793,102 @@ const Bee = ({ startPos, speed }: { startPos: [number, number, number]; speed: n
   );
 };
 
+// ─── Vehicle ─────────────────────────────────────────────────────
+
+const Vehicle = ({ road, roadPos, startZ, speed, color, type, seed }: {
+  road: "x" | "z"; roadPos: number; startZ: number; speed: number; color: string; type: "car" | "sedan" | "bus"; seed: number;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  const headlightL = useRef<THREE.Mesh>(null);
+  const headlightR = useRef<THREE.Mesh>(null);
+
+  const dims = useMemo(() => {
+    if (type === "bus") return { l: 1.2, w: 0.35, h: 0.35, wheelR: 0.06, windowH: 0.15 };
+    if (type === "sedan") return { l: 0.6, w: 0.28, h: 0.18, wheelR: 0.05, windowH: 0.1 };
+    return { l: 0.5, w: 0.26, h: 0.16, wheelR: 0.045, windowH: 0.09 };
+  }, [type]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime() * speed + startZ;
+    const range = 22;
+    const pos = ((t % (range * 2)) + range * 2) % (range * 2) - range;
+    if (road === "x") {
+      ref.current.position.set(roadPos + (speed > 0 ? 0.2 : -0.2), dims.h / 2 + dims.wheelR, pos);
+      ref.current.rotation.y = speed > 0 ? 0 : Math.PI;
+    } else {
+      ref.current.position.set(pos, dims.h / 2 + dims.wheelR, roadPos + (speed > 0 ? 0.15 : -0.15));
+      ref.current.rotation.y = speed > 0 ? Math.PI / 2 : -Math.PI / 2;
+    }
+  });
+
+  const roofColor = useMemo(() => {
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    return `#${Math.min(255, r + 30).toString(16).padStart(2, "0")}${Math.min(255, g + 30).toString(16).padStart(2, "0")}${Math.min(255, b + 30).toString(16).padStart(2, "0")}`;
+  }, [color]);
+
+  return (
+    <group ref={ref}>
+      {/* Body */}
+      <mesh castShadow>
+        <boxGeometry args={[dims.w, dims.h, dims.l]} />
+        <meshStandardMaterial color={color} metalness={0.4} roughness={0.3} />
+      </mesh>
+
+      {/* Roof / cabin */}
+      {type === "bus" ? (
+        <mesh position={[0, dims.h * 0.45, 0]} castShadow>
+          <boxGeometry args={[dims.w - 0.02, dims.windowH, dims.l - 0.1]} />
+          <meshStandardMaterial color={roofColor} metalness={0.2} roughness={0.4} />
+        </mesh>
+      ) : (
+        <mesh position={[0, dims.h * 0.45, -dims.l * 0.1]} castShadow>
+          <boxGeometry args={[dims.w - 0.04, dims.windowH, dims.l * 0.5]} />
+          <meshStandardMaterial color={roofColor} metalness={0.3} roughness={0.3} />
+        </mesh>
+      )}
+
+      {/* Windows */}
+      {type === "bus" && [-0.3, -0.1, 0.1, 0.3].map((zOff, i) => (
+        <mesh key={i} position={[dims.w / 2 + 0.001, dims.h * 0.35, zOff]}>
+          <planeGeometry args={[0.001, dims.windowH * 0.7, 0.12]} />
+          <meshStandardMaterial color="#88ccff" emissive="#88ccff" emissiveIntensity={0.15} />
+        </mesh>
+      ))}
+
+      {/* Wheels */}
+      {[[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([sx, sz], i) => (
+        <mesh key={i} position={[sx * dims.w * 0.45, -dims.h / 2 + dims.wheelR * 0.5, sz * dims.l * 0.35]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[dims.wheelR, dims.wheelR, 0.04, 8]} />
+          <meshStandardMaterial color="#222222" />
+        </mesh>
+      ))}
+
+      {/* Headlights */}
+      <mesh ref={headlightL} position={[-dims.w * 0.3, 0, dims.l / 2 + 0.01]}>
+        <sphereGeometry args={[0.025, 6, 6]} />
+        <meshStandardMaterial color="#ffee88" emissive="#ffee88" emissiveIntensity={0.8} />
+      </mesh>
+      <mesh ref={headlightR} position={[dims.w * 0.3, 0, dims.l / 2 + 0.01]}>
+        <sphereGeometry args={[0.025, 6, 6]} />
+        <meshStandardMaterial color="#ffee88" emissive="#ffee88" emissiveIntensity={0.8} />
+      </mesh>
+
+      {/* Tail lights */}
+      <mesh position={[-dims.w * 0.3, 0, -dims.l / 2 - 0.01]}>
+        <sphereGeometry args={[0.02, 6, 6]} />
+        <meshStandardMaterial color="#ff2222" emissive="#ff2222" emissiveIntensity={0.6} />
+      </mesh>
+      <mesh position={[dims.w * 0.3, 0, -dims.l / 2 - 0.01]}>
+        <sphereGeometry args={[0.02, 6, 6]} />
+        <meshStandardMaterial color="#ff2222" emissive="#ff2222" emissiveIntensity={0.6} />
+      </mesh>
+    </group>
+  );
+};
+
 // ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
@@ -914,6 +1010,20 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <Bee startPos={[0, 0.85, -5]} speed={0.62} />
         </>
       )}
+
+      {/* Vehicles on roads */}
+      <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
+      <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
+      <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
+      <Vehicle road="x" roadPos={0} startZ={10} speed={-1.6} color="#22cc66" type="car" seed={4} />
+      <Vehicle road="x" roadPos={6} startZ={-8} speed={2.0} color="#cc44ee" type="sedan" seed={5} />
+      <Vehicle road="x" roadPos={6} startZ={15} speed={-2.3} color="#ff6633" type="bus" seed={6} />
+      <Vehicle road="z" roadPos={-4} startZ={-18} speed={1.9} color="#44bbcc" type="car" seed={7} />
+      <Vehicle road="z" roadPos={-4} startZ={8} speed={-2.1} color="#cc3377" type="sedan" seed={8} />
+      <Vehicle road="z" roadPos={4} startZ={-5} speed={2.4} color="#88cc22" type="bus" seed={9} />
+      <Vehicle road="z" roadPos={4} startZ={12} speed={-1.7} color="#ff8844" type="car" seed={10} />
+      <Vehicle road="x" roadPos={-6} startZ={-2} speed={1.5} color="#ffffff" type="sedan" seed={11} />
+      <Vehicle road="z" roadPos={4} startZ={-15} speed={2.6} color="#2255cc" type="car" seed={12} />
     </group>
   );
 };
