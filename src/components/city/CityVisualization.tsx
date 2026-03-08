@@ -3,6 +3,15 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 
+// Enable flat shading globally for cartoon look
+const _origMSM = THREE.MeshStandardMaterial;
+const PatchedMSM = function(this: THREE.MeshStandardMaterial, params?: THREE.MeshStandardMaterialParameters) {
+  _origMSM.call(this, { flatShading: true, ...params });
+} as unknown as typeof THREE.MeshStandardMaterial;
+PatchedMSM.prototype = _origMSM.prototype;
+Object.setPrototypeOf(PatchedMSM, _origMSM);
+THREE.MeshStandardMaterial = PatchedMSM;
+
 export type TimeOfDay = "fajr" | "morning" | "noon" | "evening" | "night";
 
 interface CityVisualizationProps {
