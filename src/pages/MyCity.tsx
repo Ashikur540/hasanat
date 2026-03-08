@@ -48,6 +48,7 @@ const MyCity = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
   const { enabled: soundEnabled, toggle: toggleSound } = useAmbientSounds(timeOfDay);
+  const { t } = useI18n();
 
   return (
     <motion.div
