@@ -1291,7 +1291,22 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
         </>
       )}
 
-      {/* Vehicles on roads */}
+      {/* Birds - flocks during day, solo at fajr/evening */}
+      {theme.ambientIntensity > 0.5 && (
+        <>
+          <BirdFlock center={[0, 8, 0]} count={theme.ambientIntensity > 1 ? 7 : 3} baseColor="#333344" />
+          <BirdFlock center={[-10, 10, 5]} count={theme.ambientIntensity > 1 ? 5 : 2} baseColor="#554433" />
+          <BirdFlock center={[8, 9, -8]} count={theme.ambientIntensity > 1 ? 6 : 2} baseColor="#224455" />
+          {theme.ambientIntensity > 1 && (
+            <>
+              <BirdFlock center={[5, 12, 10]} count={4} baseColor="#665544" />
+              <Bird startPos={[-5, 6, -3]} speed={0.2} color="#cc4422" wingSpan={0.1} />
+              <Bird startPos={[12, 7, 6]} speed={0.18} color="#2266aa" wingSpan={0.12} />
+            </>
+          )}
+        </>
+      )}
+
       <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
       <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
       <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
