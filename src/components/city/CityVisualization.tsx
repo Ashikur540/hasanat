@@ -3,14 +3,11 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 
-// Enable flat shading globally for cartoon look
-const _origMSM = THREE.MeshStandardMaterial;
-const PatchedMSM = function(this: THREE.MeshStandardMaterial, params?: THREE.MeshStandardMaterialParameters) {
-  _origMSM.call(this, { flatShading: true, ...params });
-} as unknown as typeof THREE.MeshStandardMaterial;
-PatchedMSM.prototype = _origMSM.prototype;
-Object.setPrototypeOf(PatchedMSM, _origMSM);
-THREE.MeshStandardMaterial = PatchedMSM;
+// Enable flat shading globally for cartoon low-poly look
+const _origSetValues = THREE.MeshStandardMaterial.prototype.setValues;
+THREE.MeshStandardMaterial.prototype.setValues = function(params?: THREE.MeshStandardMaterialParameters) {
+  _origSetValues.call(this, { flatShading: true, ...params });
+};
 
 export type TimeOfDay = "fajr" | "morning" | "noon" | "evening" | "night";
 
