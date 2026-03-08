@@ -21,7 +21,8 @@ const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background bg-gradient-mesh">
+      <div className="fixed inset-0 bg-dot-pattern pointer-events-none opacity-40" />
       {/* Navbar */}
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
