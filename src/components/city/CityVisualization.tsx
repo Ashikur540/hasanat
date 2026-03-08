@@ -1307,7 +1307,12 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
         </>
       )}
 
-      <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
+      {/* Fireflies - night and evening only */}
+      {theme.ambientIntensity < 0.8 && (
+        <FireflySwarm />
+      )}
+
+
       <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
       <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
       <Vehicle road="x" roadPos={0} startZ={10} speed={-1.6} color="#22cc66" type="car" seed={4} />
