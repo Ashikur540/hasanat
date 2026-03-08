@@ -1,6 +1,6 @@
-import { useRef, useState, useMemo, useCallback } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Text, Html } from "@react-three/drei";
+import { useRef, useState, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 export type TimeOfDay = "fajr" | "morning" | "noon" | "evening" | "night";
@@ -12,196 +12,515 @@ interface CityVisualizationProps {
   timeOfDay: TimeOfDay;
 }
 
-// Theme colors per time of day
-const skyColors: Record<TimeOfDay, { top: string; bottom: string; ambient: string; directional: string; fog: string; ground: string; road: string; windowLit: string; windowDark: string; litChance: number }> = {
-  fajr:    { top: "#1a0a2e", bottom: "#c85a3a", ambient: "#553344", directional: "#ff9966", fog: "#2a1530", ground: "#1a1a2a", road: "#2a2a3a", windowLit: "#ffcc66", windowDark: "#0a0a15", litChance: 0.35 },
-  morning: { top: "#5588cc", bottom: "#aaccee", ambient: "#8899aa", directional: "#ffffcc", fog: "#88aacc", ground: "#2a3a2a", road: "#555555", windowLit: "#ffffaa", windowDark: "#334455", litChance: 0.15 },
-  noon:    { top: "#4488dd", bottom: "#99ccee", ambient: "#aabbcc", directional: "#ffffff", fog: "#88bbdd", ground: "#2a3a2a", road: "#666666", windowLit: "#ffffff", windowDark: "#445566", litChance: 0.1 },
-  evening: { top: "#1a1535", bottom: "#cc6633", ambient: "#664433", directional: "#ff8844", fog: "#2a1a25", ground: "#1a1a22", road: "#333340", windowLit: "#ffaa44", windowDark: "#0c0c18", litChance: 0.55 },
-  night:   { top: "#050510", bottom: "#0a0a20", ambient: "#111122", directional: "#334466", fog: "#060612", ground: "#0a0a15", road: "#151520", windowLit: "#4488ff", windowDark: "#050508", litChance: 0.7 },
+const skyColors: Record<TimeOfDay, {
+  ambient: string; ambientIntensity: number;
+  directional: string; dirIntensity: number; dirPos: [number, number, number];
+  fog: string; fogNear: number; fogFar: number;
+  ground: string; grass: string; road: string; roadLine: string;
+  windowLit: string; windowDark: string; litChance: number;
+  skyTop: string; skyBot: string;
+  exposure: number;
+}> = {
+  fajr: {
+    ambient: "#aa6677", ambientIntensity: 0.7,
+    directional: "#ffaa77", dirIntensity: 1.0, dirPos: [5, 8, -10],
+    fog: "#3a2035", fogNear: 18, fogFar: 50,
+    ground: "#1e2228", grass: "#2a3a25", road: "#2a2a35", roadLine: "#ffcc44",
+    windowLit: "#ffcc66", windowDark: "#0e0e18", litChance: 0.4,
+    skyTop: "#1a0a2e", skyBot: "#cc7755",
+    exposure: 1.0,
+  },
+  morning: {
+    ambient: "#ccddee", ambientIntensity: 1.2,
+    directional: "#fffde8", dirIntensity: 2.0, dirPos: [8, 20, 6],
+    fog: "#c8ddf0", fogNear: 25, fogFar: 60,
+    ground: "#4a6a3a", grass: "#5a8a40", road: "#888888", roadLine: "#ffffff",
+    windowLit: "#ffffff", windowDark: "#88aabb", litChance: 0.08,
+    skyTop: "#66aaee", skyBot: "#ddeeff",
+    exposure: 1.8,
+  },
+  noon: {
+    ambient: "#eeeeff", ambientIntensity: 1.5,
+    directional: "#ffffff", dirIntensity: 2.5, dirPos: [2, 25, 2],
+    fog: "#ddeeff", fogNear: 28, fogFar: 65,
+    ground: "#5a7a4a", grass: "#6a9a50", road: "#999999", roadLine: "#ffffff",
+    windowLit: "#ffffff", windowDark: "#99bbcc", litChance: 0.05,
+    skyTop: "#4499ee", skyBot: "#ccddff",
+    exposure: 2.0,
+  },
+  evening: {
+    ambient: "#885533", ambientIntensity: 0.8,
+    directional: "#ff7733", dirIntensity: 1.2, dirPos: [-8, 6, -5],
+    fog: "#2a1820", fogNear: 16, fogFar: 48,
+    ground: "#1a1a20", grass: "#253020", road: "#333338", roadLine: "#cc9944",
+    windowLit: "#ffaa44", windowDark: "#0c0c15", litChance: 0.6,
+    skyTop: "#150e25", skyBot: "#cc5522",
+    exposure: 1.1,
+  },
+  night: {
+    ambient: "#112244", ambientIntensity: 0.35,
+    directional: "#334466", dirIntensity: 0.5, dirPos: [5, 12, 5],
+    fog: "#060610", fogNear: 14, fogFar: 42,
+    ground: "#0a0a12", grass: "#0e1510", road: "#151518", roadLine: "#444455",
+    windowLit: "#4488ff", windowDark: "#050508", litChance: 0.75,
+    skyTop: "#020208", skyBot: "#0a0a22",
+    exposure: 0.8,
+  },
 };
 
 const categories = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family", "Fasting", "Knowledge"];
 
-const catColors: Record<string, { base: string; accent: string; roofTop: string }> = {
-  Salah:     { base: "#1a3a2a", accent: "#2a7a4a", roofTop: "#3a9a5a" },
-  Quran:     { base: "#1a2a3a", accent: "#2a5a8a", roofTop: "#3a7aaa" },
-  Sadaqah:   { base: "#1a3a1a", accent: "#2a8a3a", roofTop: "#4aaa5a" },
-  Dhikr:     { base: "#1a3a3a", accent: "#2a7a8a", roofTop: "#3a9aaa" },
-  Character: { base: "#2a1a3a", accent: "#5a3a8a", roofTop: "#7a5aaa" },
-  Family:    { base: "#3a2a1a", accent: "#8a5a2a", roofTop: "#aa7a4a" },
-  Fasting:   { base: "#2a1a3a", accent: "#6a3a9a", roofTop: "#8a5aba" },
-  Knowledge: { base: "#3a3a1a", accent: "#8a8a2a", roofTop: "#aaaa4a" },
+// Vibrant distinct palettes per category
+const catPalettes: Record<string, { walls: string; wallsLight: string; trim: string; roof: string; glow: string; emissive: string }> = {
+  Salah:     { walls: "#1a4a3a", wallsLight: "#e8f0e8", trim: "#2a9a5a", roof: "#44cc77", glow: "#44ffaa", emissive: "#22aa55" },
+  Quran:     { walls: "#1a2a4a", wallsLight: "#e0e8f5", trim: "#3377cc", roof: "#4499ee", glow: "#44aaff", emissive: "#2266bb" },
+  Sadaqah:   { walls: "#1a3a1a", wallsLight: "#e5f0e0", trim: "#44aa44", roof: "#66cc66", glow: "#66ff88", emissive: "#33aa33" },
+  Dhikr:     { walls: "#1a3a4a", wallsLight: "#e0f0f5", trim: "#33aacc", roof: "#44ccdd", glow: "#44eeff", emissive: "#22aacc" },
+  Character: { walls: "#2a1a4a", wallsLight: "#eee0f5", trim: "#8844cc", roof: "#aa66ee", glow: "#cc88ff", emissive: "#7733bb" },
+  Family:    { walls: "#4a2a1a", wallsLight: "#f5e8e0", trim: "#cc7733", roof: "#ee9944", glow: "#ffbb55", emissive: "#bb6622" },
+  Fasting:   { walls: "#3a1a4a", wallsLight: "#f0e0f5", trim: "#9944cc", roof: "#bb55ee", glow: "#dd88ff", emissive: "#8833bb" },
+  Knowledge: { walls: "#4a4a1a", wallsLight: "#f5f0e0", trim: "#ccaa33", roof: "#eecc44", glow: "#ffee55", emissive: "#bbaa22" },
 };
 
-// Seeded random
-const seededRandom = (seed: number) => {
+const sr = (seed: number) => {
   const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
 };
 
-// Single 3D building
-const Building3D = ({
-  position,
-  width,
-  depth,
-  height,
-  cat,
-  theme,
-  isSelected,
-  isHovered,
-  onHover,
-  onClick,
-  seed,
-}: {
-  position: [number, number, number];
-  width: number;
-  depth: number;
-  height: number;
-  cat: string;
-  theme: typeof skyColors.night;
-  isSelected: boolean;
-  isHovered: boolean;
-  onHover: (h: boolean) => void;
-  onClick: () => void;
-  seed: number;
-}) => {
-  const meshRef = useRef<THREE.Group>(null);
-  const cc = catColors[cat] || catColors.Salah;
+// ─── Unique building shapes per category ────────────────────────
 
-  // Animate hover
+const MosqueBuilding = ({ h, w, d, pal, theme, seed }: { h: number; w: number; d: number; pal: typeof catPalettes.Salah; theme: typeof skyColors.night; seed: number }) => {
+  const isDay = theme.ambientIntensity > 1;
+  const wallColor = isDay ? pal.wallsLight : pal.walls;
+  return (
+    <group>
+      {/* Main body - wider base */}
+      <mesh position={[0, h * 0.4, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w * 1.1, h * 0.8, d * 1.1]} />
+        <meshStandardMaterial color={wallColor} />
+      </mesh>
+      {/* Central dome */}
+      <mesh position={[0, h * 0.8 + 0.3, 0]}>
+        <sphereGeometry args={[w * 0.45, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color={pal.roof} metalness={0.3} roughness={0.4} />
+      </mesh>
+      {/* 4 Minarets at corners */}
+      {[[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([mx, mz], i) => (
+        <group key={i} position={[mx * w * 0.5, 0, mz * d * 0.5]}>
+          <mesh position={[0, h * 0.55, 0]} castShadow>
+            <cylinderGeometry args={[0.08, 0.12, h * 1.1, 8]} />
+            <meshStandardMaterial color={pal.trim} />
+          </mesh>
+          {/* Minaret top */}
+          <mesh position={[0, h * 1.15, 0]}>
+            <coneGeometry args={[0.12, 0.3, 8]} />
+            <meshStandardMaterial color={pal.roof} />
+          </mesh>
+          <mesh position={[0, h * 1.35, 0]}>
+            <sphereGeometry args={[0.08, 8, 8]} />
+            <meshStandardMaterial color="#ffcc44" emissive="#ffcc44" emissiveIntensity={isDay ? 0.2 : 0.8} />
+          </mesh>
+        </group>
+      ))}
+      {/* Entrance arch */}
+      <mesh position={[0, h * 0.2, d * 0.56]}>
+        <boxGeometry args={[w * 0.4, h * 0.4, 0.15]} />
+        <meshStandardMaterial color={pal.trim} />
+      </mesh>
+      {/* Green glow at night */}
+      {!isDay && <pointLight position={[0, h * 0.5, 0]} color={pal.glow} intensity={0.4} distance={4} />}
+    </group>
+  );
+};
+
+const LibraryBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Quran; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  const wallColor = isDay ? pal.wallsLight : pal.walls;
+  return (
+    <group>
+      {/* Main building - L-shape */}
+      <mesh position={[0, h * 0.4, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, h * 0.8, d]} />
+        <meshStandardMaterial color={wallColor} />
+      </mesh>
+      {/* Triangular roof */}
+      <mesh position={[0, h * 0.85, 0]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[w * 0.65, h * 0.35, 4]} />
+        <meshStandardMaterial color={pal.roof} flatShading />
+      </mesh>
+      {/* Side wing */}
+      <mesh position={[w * 0.5, h * 0.2, 0]} castShadow>
+        <boxGeometry args={[w * 0.4, h * 0.4, d * 0.7]} />
+        <meshStandardMaterial color={isDay ? "#d8e4f0" : "#152535"} />
+      </mesh>
+      {/* Columns at front */}
+      {[-0.35, -0.12, 0.12, 0.35].map((cx, i) => (
+        <mesh key={i} position={[cx * w, h * 0.25, d * 0.52]} castShadow>
+          <cylinderGeometry args={[0.05, 0.06, h * 0.5, 8]} />
+          <meshStandardMaterial color={pal.trim} />
+        </mesh>
+      ))}
+      {/* Book stack on roof */}
+      {[0, 0.15, 0.3].map((y, i) => (
+        <mesh key={i} position={[-w * 0.3, h * 0.82 + y, -d * 0.3]}>
+          <boxGeometry args={[0.25, 0.12, 0.18]} />
+          <meshStandardMaterial color={["#cc4444", "#4466cc", "#44aa44"][i]} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const GardenBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Sadaqah; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  return (
+    <group>
+      {/* Low pavilion */}
+      <mesh position={[0, h * 0.15, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w * 1.2, h * 0.3, d * 1.2]} />
+        <meshStandardMaterial color={isDay ? "#f0ece0" : "#2a2a1a"} />
+      </mesh>
+      {/* Garden arch roof */}
+      <mesh position={[0, h * 0.35, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[w * 0.5, w * 0.5, d * 1.2, 16, 1, false, 0, Math.PI]} />
+        <meshStandardMaterial color={pal.roof} transparent opacity={0.6} side={THREE.DoubleSide} />
+      </mesh>
+      {/* Trees - variety of sizes and colors */}
+      {[
+        [-0.6, 0, -0.5, 0.8, "#228833"], [-0.3, 0, 0.6, 0.6, "#33aa44"],
+        [0.5, 0, -0.4, 1.0, "#1a7733"], [0.7, 0, 0.5, 0.5, "#44bb55"],
+        [-0.7, 0, 0.2, 0.7, "#2a9940"], [0.2, 0, -0.7, 0.9, "#338844"],
+      ].map(([x, _, z, scale, color], i) => (
+        <group key={i} position={[x as number * w, h * 0.3, z as number * d]}>
+          <mesh position={[0, 0.15 * (scale as number), 0]}>
+            <cylinderGeometry args={[0.03, 0.05, 0.3 * (scale as number), 6]} />
+            <meshStandardMaterial color="#664422" />
+          </mesh>
+          <mesh position={[0, 0.4 * (scale as number), 0]}>
+            <sphereGeometry args={[0.22 * (scale as number), 8, 8]} />
+            <meshStandardMaterial color={color as string} />
+          </mesh>
+          {(scale as number) > 0.7 && (
+            <mesh position={[0.08, 0.55 * (scale as number), 0.05]}>
+              <sphereGeometry args={[0.15 * (scale as number), 8, 8]} />
+              <meshStandardMaterial color={color as string} />
+            </mesh>
+          )}
+        </group>
+      ))}
+      {/* Flower beds */}
+      {[[-0.4, 0.3], [0.3, -0.3], [0, 0.5]].map(([x, z], i) => (
+        <mesh key={`f${i}`} position={[x * w, h * 0.31, z * d]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.15, 8]} />
+          <meshStandardMaterial color={["#ee4466", "#ff88aa", "#ffaa33"][i]} />
+        </mesh>
+      ))}
+      {/* Pond */}
+      <mesh position={[0, h * 0.31, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.35, 16]} />
+        <meshStandardMaterial color="#3388cc" metalness={0.6} roughness={0.2} />
+      </mesh>
+    </group>
+  );
+};
+
+const FountainBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Dhikr; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (ref.current) ref.current.rotation.y = clock.elapsedTime * 0.15;
+  });
+  return (
+    <group>
+      {/* Octagonal base */}
+      <mesh position={[0, h * 0.2, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[w * 0.6, w * 0.65, h * 0.4, 8]} />
+        <meshStandardMaterial color={isDay ? "#dde8ee" : pal.walls} />
+      </mesh>
+      {/* Second tier */}
+      <mesh position={[0, h * 0.5, 0]}>
+        <cylinderGeometry args={[w * 0.4, w * 0.45, h * 0.25, 8]} />
+        <meshStandardMaterial color={isDay ? "#ccdde8" : "#1a3040"} />
+      </mesh>
+      {/* Central column */}
+      <mesh position={[0, h * 0.7, 0]}>
+        <cylinderGeometry args={[0.06, 0.1, h * 0.5, 8]} />
+        <meshStandardMaterial color={pal.trim} />
+      </mesh>
+      {/* Top bowl */}
+      <mesh position={[0, h * 0.95, 0]}>
+        <sphereGeometry args={[0.25, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color={pal.roof} side={THREE.DoubleSide} />
+      </mesh>
+      {/* Water surface */}
+      <mesh position={[0, h * 0.41, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[w * 0.5, 16]} />
+        <meshStandardMaterial color="#2299cc" metalness={0.7} roughness={0.15} transparent opacity={0.8} />
+      </mesh>
+      {/* Rotating sparkle particles */}
+      <group ref={ref} position={[0, h * 0.6, 0]}>
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <mesh key={i} position={[Math.cos(i * Math.PI / 3) * 0.3, Math.sin(i * 0.5) * 0.2, Math.sin(i * Math.PI / 3) * 0.3]}>
+            <sphereGeometry args={[0.04, 6, 6]} />
+            <meshStandardMaterial color={pal.glow} emissive={pal.glow} emissiveIntensity={isDay ? 0.3 : 1} />
+          </mesh>
+        ))}
+      </group>
+      {!isDay && <pointLight position={[0, h * 0.5, 0]} color={pal.glow} intensity={0.5} distance={4} />}
+    </group>
+  );
+};
+
+const CommunityBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Character; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  return (
+    <group>
+      {/* Circular amphitheater base */}
+      <mesh position={[0, h * 0.15, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[w * 0.7, w * 0.8, h * 0.3, 16]} />
+        <meshStandardMaterial color={isDay ? pal.wallsLight : pal.walls} />
+      </mesh>
+      {/* Main tower */}
+      <mesh position={[0, h * 0.55, 0]} castShadow>
+        <cylinderGeometry args={[w * 0.35, w * 0.4, h * 0.7, 12]} />
+        <meshStandardMaterial color={isDay ? "#e8ddf0" : "#2a1a3a"} />
+      </mesh>
+      {/* Pointed dome */}
+      <mesh position={[0, h * 0.95, 0]}>
+        <coneGeometry args={[w * 0.38, h * 0.3, 12]} />
+        <meshStandardMaterial color={pal.roof} />
+      </mesh>
+      {/* Heart emblem */}
+      <mesh position={[0, h * 1.15, 0]}>
+        <sphereGeometry args={[0.12, 8, 8]} />
+        <meshStandardMaterial color="#ff4477" emissive="#ff4477" emissiveIntensity={isDay ? 0.3 : 0.8} />
+      </mesh>
+      {/* Benches around */}
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const a = (i / 6) * Math.PI * 2;
+        return (
+          <mesh key={i} position={[Math.cos(a) * w * 0.65, 0.08, Math.sin(a) * d * 0.65]}>
+            <boxGeometry args={[0.2, 0.08, 0.1]} />
+            <meshStandardMaterial color="#664422" />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+const HouseBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Family; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  return (
+    <group>
+      {/* Main house */}
+      <mesh position={[0, h * 0.3, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w, h * 0.6, d]} />
+        <meshStandardMaterial color={isDay ? pal.wallsLight : pal.walls} />
+      </mesh>
+      {/* Sloped roof */}
+      <mesh position={[0, h * 0.65, 0]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[w * 0.8, h * 0.35, 4]} />
+        <meshStandardMaterial color={pal.roof} flatShading />
+      </mesh>
+      {/* Chimney */}
+      <mesh position={[w * 0.3, h * 0.8, -d * 0.2]} castShadow>
+        <boxGeometry args={[0.15, 0.4, 0.15]} />
+        <meshStandardMaterial color="#884433" />
+      </mesh>
+      {/* Side extension */}
+      <mesh position={[-w * 0.45, h * 0.15, 0]} castShadow>
+        <boxGeometry args={[w * 0.35, h * 0.3, d * 0.7]} />
+        <meshStandardMaterial color={isDay ? "#f0e8dd" : "#3a2515"} />
+      </mesh>
+      {/* Garage door */}
+      <mesh position={[-w * 0.45, h * 0.1, d * 0.36]}>
+        <boxGeometry args={[w * 0.3, h * 0.2, 0.05]} />
+        <meshStandardMaterial color={isDay ? "#bbb" : "#333"} />
+      </mesh>
+      {/* Front door */}
+      <mesh position={[0, h * 0.12, d * 0.51]}>
+        <boxGeometry args={[0.18, 0.3, 0.05]} />
+        <meshStandardMaterial color={pal.trim} />
+      </mesh>
+      {/* Windows with warm glow */}
+      {[[0.25, 0.35], [-0.15, 0.35], [0.25, 0.15]].map(([x, y], i) => (
+        <mesh key={i} position={[x * w, y * h, d * 0.51]}>
+          <boxGeometry args={[0.15, 0.12, 0.02]} />
+          <meshStandardMaterial
+            color={isDay ? "#aaddff" : "#ffaa44"}
+            emissive={isDay ? "#aaddff" : "#ffaa44"}
+            emissiveIntensity={isDay ? 0.1 : 0.6}
+          />
+        </mesh>
+      ))}
+      {/* Garden fence */}
+      <mesh position={[0, 0.06, d * 0.7]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[w * 1.5, 0.3]} />
+        <meshStandardMaterial color="#886644" side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+};
+
+const TowerBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Fasting; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  const glowRef = useRef<THREE.PointLight>(null);
+  useFrame(({ clock }) => {
+    if (glowRef.current) glowRef.current.intensity = 0.3 + Math.sin(clock.elapsedTime * 2) * 0.2;
+  });
+  return (
+    <group>
+      {/* Base */}
+      <mesh position={[0, h * 0.1, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[w * 0.5, w * 0.6, h * 0.2, 6]} />
+        <meshStandardMaterial color={isDay ? pal.wallsLight : pal.walls} />
+      </mesh>
+      {/* Main tower - tapers */}
+      <mesh position={[0, h * 0.55, 0]} castShadow>
+        <cylinderGeometry args={[w * 0.2, w * 0.35, h * 0.9, 8]} />
+        <meshStandardMaterial color={isDay ? "#e8ddf5" : "#2a1540"} />
+      </mesh>
+      {/* Observation deck */}
+      <mesh position={[0, h * 0.85, 0]}>
+        <cylinderGeometry args={[w * 0.35, w * 0.25, h * 0.08, 12]} />
+        <meshStandardMaterial color={pal.trim} />
+      </mesh>
+      {/* Spire */}
+      <mesh position={[0, h * 1.15, 0]}>
+        <coneGeometry args={[0.06, h * 0.4, 8]} />
+        <meshStandardMaterial color={pal.roof} />
+      </mesh>
+      {/* Crescent moon on top */}
+      <mesh position={[0, h * 1.4, 0]}>
+        <torusGeometry args={[0.12, 0.03, 8, 16, Math.PI * 1.2]} />
+        <meshStandardMaterial color="#ffcc44" emissive="#ffcc44" emissiveIntensity={isDay ? 0.2 : 1.0} />
+      </mesh>
+      {/* Pulsing glow */}
+      {!isDay && <pointLight ref={glowRef} position={[0, h * 1.0, 0]} color={pal.glow} intensity={0.4} distance={5} />}
+      {/* Balcony rings */}
+      {[0.35, 0.55, 0.75].map((yf, i) => (
+        <mesh key={i} position={[0, h * yf, 0]}>
+          <torusGeometry args={[w * (0.35 - i * 0.04), 0.02, 6, 16]} />
+          <meshStandardMaterial color={pal.trim} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const SchoolBuilding = ({ h, w, d, pal, theme }: { h: number; w: number; d: number; pal: typeof catPalettes.Knowledge; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  return (
+    <group>
+      {/* Main building - wide */}
+      <mesh position={[0, h * 0.3, 0]} castShadow receiveShadow>
+        <boxGeometry args={[w * 1.3, h * 0.6, d]} />
+        <meshStandardMaterial color={isDay ? pal.wallsLight : pal.walls} />
+      </mesh>
+      {/* Flat roof with parapet */}
+      <mesh position={[0, h * 0.61, 0]}>
+        <boxGeometry args={[w * 1.35, 0.06, d * 1.05]} />
+        <meshStandardMaterial color={pal.trim} />
+      </mesh>
+      {/* Clock tower center */}
+      <mesh position={[0, h * 0.8, 0]} castShadow>
+        <boxGeometry args={[w * 0.35, h * 0.4, d * 0.35]} />
+        <meshStandardMaterial color={isDay ? "#f0ece0" : "#3a3520"} />
+      </mesh>
+      {/* Clock face */}
+      <mesh position={[0, h * 0.85, d * 0.18]}>
+        <circleGeometry args={[0.15, 16]} />
+        <meshStandardMaterial color="#ffffee" emissive={pal.glow} emissiveIntensity={isDay ? 0.1 : 0.5} />
+      </mesh>
+      {/* Pyramid top */}
+      <mesh position={[0, h * 1.05, 0]}>
+        <coneGeometry args={[w * 0.22, 0.3, 4]} />
+        <meshStandardMaterial color={pal.roof} flatShading />
+      </mesh>
+      {/* Flag */}
+      <mesh position={[w * 0.55, h * 0.8, 0]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.6, 6]} />
+        <meshStandardMaterial color="#666666" />
+      </mesh>
+      <mesh position={[w * 0.55 + 0.1, h * 1.05, 0]}>
+        <boxGeometry args={[0.2, 0.1, 0.01]} />
+        <meshStandardMaterial color={pal.roof} side={THREE.DoubleSide} />
+      </mesh>
+      {/* Windows row */}
+      {[-0.45, -0.25, -0.05, 0.15, 0.35].map((xf, i) => (
+        <mesh key={i} position={[xf * w, h * 0.35, d * 0.51]}>
+          <boxGeometry args={[0.12, 0.15, 0.02]} />
+          <meshStandardMaterial
+            color={isDay ? "#aaddff" : pal.glow}
+            emissive={isDay ? "#88bbee" : pal.glow}
+            emissiveIntensity={isDay ? 0.05 : 0.4}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+// ─── Building wrapper ────────────────────────────────────────────
+
+const BuildingWrapper = ({ position, cat, data, theme, isSelected, isHovered, onHover, onClick, seed }: {
+  position: [number, number, number]; cat: string;
+  data: { count: number; vitality: number; emoji: string; element: string };
+  theme: typeof skyColors.night; isSelected: boolean; isHovered: boolean;
+  onHover: (h: boolean) => void; onClick: () => void; seed: number;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  const maxCount = 156;
+  const h = 1.5 + (data.count / maxCount) * 7;
+  const w = 1.8;
+  const d = 1.8;
+  const pal = catPalettes[cat] || catPalettes.Salah;
+
   useFrame(() => {
-    if (!meshRef.current) return;
-    const targetY = isHovered ? 0.3 : 0;
-    meshRef.current.position.y += (targetY - (meshRef.current.position.y - position[1])) * 0.1;
+    if (!ref.current) return;
+    const targetY = isHovered ? 0.25 : 0;
+    ref.current.position.y += (targetY - ref.current.position.y + position[1]) * 0.12 - position[1] * 0.12;
   });
 
-  // Window texture via canvas
-  const windowTexture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 64;
-    canvas.height = Math.max(64, Math.floor(height * 16));
-    const ctx = canvas.getContext("2d")!;
-
-    // Base color
-    ctx.fillStyle = cc.base;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Windows grid
-    const wSize = 4;
-    const gap = 6;
-    const cols = Math.floor(canvas.width / (wSize + gap));
-    const rows = Math.floor(canvas.height / (wSize + gap));
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const s = seededRandom(seed + r * 17 + c * 31);
-        const isLit = s < theme.litChance;
-        ctx.fillStyle = isLit ? theme.windowLit : theme.windowDark;
-        ctx.globalAlpha = isLit ? 0.7 + s * 0.3 : 0.3;
-        ctx.fillRect(gap / 2 + c * (wSize + gap), gap / 2 + r * (wSize + gap), wSize, wSize);
-      }
+  const BuildingComp = useMemo(() => {
+    switch (cat) {
+      case "Salah": return <MosqueBuilding h={h} w={w} d={d} pal={pal} theme={theme} seed={seed} />;
+      case "Quran": return <LibraryBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Sadaqah": return <GardenBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Dhikr": return <FountainBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Character": return <CommunityBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Family": return <HouseBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Fasting": return <TowerBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      case "Knowledge": return <SchoolBuilding h={h} w={w} d={d} pal={pal} theme={theme} />;
+      default: return null;
     }
-    ctx.globalAlpha = 1;
-
-    // Edge lines
-    ctx.strokeStyle = cc.accent;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.needsUpdate = true;
-    return tex;
-  }, [cc, theme, height, seed]);
+  }, [cat, h, w, d, pal, theme, seed]);
 
   return (
     <group
-      ref={meshRef}
+      ref={ref}
       position={position}
       onPointerEnter={(e) => { e.stopPropagation(); onHover(true); document.body.style.cursor = "pointer"; }}
       onPointerLeave={(e) => { e.stopPropagation(); onHover(false); document.body.style.cursor = "grab"; }}
       onClick={(e) => { e.stopPropagation(); onClick(); }}
     >
-      {/* Main building */}
-      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
-        <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial map={windowTexture} />
-      </mesh>
-
-      {/* Roof accent */}
-      <mesh position={[0, height + 0.05, 0]}>
-        <boxGeometry args={[width + 0.1, 0.1, depth + 0.1]} />
-        <meshStandardMaterial color={cc.accent} />
-      </mesh>
-
-      {/* Rooftop feature per category */}
-      {cat === "Salah" && (
-        <>
-          {/* Dome */}
-          <mesh position={[0, height + 0.6, 0]}>
-            <sphereGeometry args={[width * 0.3, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
-            <meshStandardMaterial color={cc.roofTop} />
-          </mesh>
-          {/* Minaret */}
-          <mesh position={[width * 0.35, height + 1.2, 0]}>
-            <cylinderGeometry args={[0.08, 0.12, 2.4, 8]} />
-            <meshStandardMaterial color={cc.accent} />
-          </mesh>
-          <mesh position={[width * 0.35, height + 2.5, 0]}>
-            <sphereGeometry args={[0.15, 8, 8]} />
-            <meshStandardMaterial color="#ccaa44" emissive="#ccaa44" emissiveIntensity={0.5} />
-          </mesh>
-        </>
-      )}
-      {cat === "Fasting" && (
-        <>
-          <mesh position={[0, height + 1.5, 0]}>
-            <cylinderGeometry args={[0.06, 0.1, 3, 8]} />
-            <meshStandardMaterial color={cc.accent} />
-          </mesh>
-          <mesh position={[0, height + 3.1, 0]}>
-            <sphereGeometry args={[0.2, 12, 12]} />
-            <meshStandardMaterial color="#ccaa44" emissive="#ccaa44" emissiveIntensity={0.6} />
-          </mesh>
-        </>
-      )}
-      {cat === "Sadaqah" && (
-        <>
-          {[-0.3, 0, 0.3].map((xo, i) => (
-            <group key={i} position={[xo, height + 0.1, (i - 1) * 0.3]}>
-              <mesh position={[0, 0.2, 0]}>
-                <cylinderGeometry args={[0.02, 0.03, 0.4, 6]} />
-                <meshStandardMaterial color="#553322" />
-              </mesh>
-              <mesh position={[0, 0.5, 0]}>
-                <sphereGeometry args={[0.2, 8, 8]} />
-                <meshStandardMaterial color="#338833" />
-              </mesh>
-            </group>
-          ))}
-        </>
-      )}
-      {cat === "Knowledge" && (
-        <mesh position={[0, height + 0.4, 0]} rotation={[0, 0, Math.PI / 4]}>
-          <boxGeometry args={[0.6, 0.6, 0.08]} />
-          <meshStandardMaterial color={cc.accent} />
-        </mesh>
-      )}
+      {BuildingComp}
 
       {/* Selection ring */}
       {isSelected && (
         <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[Math.max(width, depth) * 0.7, Math.max(width, depth) * 0.8, 32]} />
-          <meshStandardMaterial color={cc.roofTop} emissive={cc.roofTop} emissiveIntensity={1} transparent opacity={0.6} side={THREE.DoubleSide} />
+          <ringGeometry args={[1.2, 1.35, 32]} />
+          <meshStandardMaterial color={pal.glow} emissive={pal.glow} emissiveIntensity={1.5} transparent opacity={0.7} side={THREE.DoubleSide} />
         </mesh>
       )}
 
       {/* Hover label */}
       {isHovered && (
-        <Html position={[0, height + 2, 0]} center distanceFactor={15} style={{ pointerEvents: "none" }}>
-          <div className="bg-card/95 border border-border rounded-lg px-3 py-1.5 shadow-lg backdrop-blur-sm whitespace-nowrap">
-            <p className="text-xs font-semibold text-foreground">{catColors[cat] ? cat : ""}</p>
-            <p className="text-[10px] text-muted-foreground">Click to inspect</p>
+        <Html position={[0, h + 1.5, 0]} center distanceFactor={15} style={{ pointerEvents: "none" }}>
+          <div className="bg-card/95 border border-border rounded-lg px-3 py-2 shadow-xl backdrop-blur-sm whitespace-nowrap">
+            <p className="text-sm font-bold text-foreground">{data.emoji} {data.element}</p>
+            <p className="text-[11px] text-muted-foreground">{data.count} deeds · Level {data.count > 50 ? 3 : data.count > 20 ? 2 : 1}</p>
           </div>
         </Html>
       )}
@@ -209,94 +528,139 @@ const Building3D = ({
   );
 };
 
-// Background buildings (small filler)
-const BackgroundBuildings = ({ theme, count = 120 }: { theme: typeof skyColors.night; count?: number }) => {
+// ─── Background buildings - varied ───────────────────────────────
+
+const BackgroundCity = ({ theme }: { theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
   const buildings = useMemo(() => {
-    return Array.from({ length: count }, (_, i) => {
-      const angle = seededRandom(i * 3) * Math.PI * 2;
-      const dist = 8 + seededRandom(i * 7) * 25;
+    return Array.from({ length: 200 }, (_, i) => {
+      const angle = sr(i * 3.7) * Math.PI * 2;
+      const dist = 7 + sr(i * 7.3) * 28;
       const x = Math.cos(angle) * dist;
       const z = Math.sin(angle) * dist;
-      const h = 0.5 + seededRandom(i * 11) * 4;
-      const w = 0.3 + seededRandom(i * 13) * 0.6;
-      return { x, z, h, w };
+      const h = 0.3 + sr(i * 11.1) * (2 + sr(i * 5) * 3);
+      const w = 0.25 + sr(i * 13.3) * 0.55;
+      const d = 0.25 + sr(i * 17.7) * 0.55;
+      const type = Math.floor(sr(i * 23) * 4); // 0=box, 1=cylinder, 2=box+roof, 3=thin tower
+      const shade = sr(i * 29);
+      return { x, z, h, w, d, type, shade };
     });
-  }, [count]);
-
-  const bgTexture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 32;
-    canvas.height = 64;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = theme.ground;
-    ctx.fillRect(0, 0, 32, 64);
-    for (let r = 0; r < 12; r++) {
-      for (let c = 0; c < 6; c++) {
-        const s = seededRandom(r * 11 + c * 23);
-        if (s < theme.litChance * 0.6) {
-          ctx.fillStyle = theme.windowLit;
-          ctx.globalAlpha = 0.3 + s * 0.4;
-          ctx.fillRect(2 + c * 5, 2 + r * 5, 3, 3);
-        }
-      }
-    }
-    ctx.globalAlpha = 1;
-    const tex = new THREE.CanvasTexture(canvas);
-    tex.needsUpdate = true;
-    return tex;
-  }, [theme]);
+  }, []);
 
   return (
     <group>
-      {buildings.map((b, i) => (
-        <mesh key={i} position={[b.x, b.h / 2, b.z]} castShadow>
-          <boxGeometry args={[b.w, b.h, b.w]} />
-          <meshStandardMaterial map={bgTexture} />
-        </mesh>
-      ))}
+      {buildings.map((b, i) => {
+        const baseColor = isDay
+          ? `hsl(${200 + b.shade * 40}, ${15 + b.shade * 15}%, ${75 + b.shade * 15}%)`
+          : `hsl(${220 + b.shade * 30}, ${15 + b.shade * 10}%, ${8 + b.shade * 10}%)`;
+
+        return (
+          <group key={i} position={[b.x, 0, b.z]}>
+            {b.type === 0 && (
+              <mesh position={[0, b.h / 2, 0]} castShadow>
+                <boxGeometry args={[b.w, b.h, b.d]} />
+                <meshStandardMaterial color={baseColor} />
+              </mesh>
+            )}
+            {b.type === 1 && (
+              <mesh position={[0, b.h / 2, 0]} castShadow>
+                <cylinderGeometry args={[b.w * 0.4, b.w * 0.5, b.h, 8]} />
+                <meshStandardMaterial color={baseColor} />
+              </mesh>
+            )}
+            {b.type === 2 && (
+              <>
+                <mesh position={[0, b.h * 0.4, 0]} castShadow>
+                  <boxGeometry args={[b.w, b.h * 0.8, b.d]} />
+                  <meshStandardMaterial color={baseColor} />
+                </mesh>
+                <mesh position={[0, b.h * 0.85, 0]}>
+                  <coneGeometry args={[b.w * 0.6, b.h * 0.2, 4]} />
+                  <meshStandardMaterial color={isDay ? "#bbaa88" : "#222215"} flatShading />
+                </mesh>
+              </>
+            )}
+            {b.type === 3 && (
+              <mesh position={[0, b.h * 0.7, 0]} castShadow>
+                <boxGeometry args={[b.w * 0.5, b.h * 1.4, b.d * 0.5]} />
+                <meshStandardMaterial color={baseColor} />
+              </mesh>
+            )}
+          </group>
+        );
+      })}
     </group>
   );
 };
 
-// Ground plane
-const Ground = ({ theme }: { theme: typeof skyColors.night }) => (
-  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-    <planeGeometry args={[80, 80]} />
-    <meshStandardMaterial color={theme.ground} />
-  </mesh>
-);
+// ─── Environment (ground, roads, streetlights, trees) ────────────
 
-// Roads grid
-const Roads = ({ theme }: { theme: typeof skyColors.night }) => {
-  const roadColor = theme.road;
+const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
   return (
     <group>
-      {/* Main roads */}
-      {[-6, 0, 6].map((x) => (
-        <mesh key={`rx${x}`} position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.8, 40]} />
-          <meshStandardMaterial color={roadColor} />
+      {/* Ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[80, 80]} />
+        <meshStandardMaterial color={theme.ground} />
+      </mesh>
+      {/* Grass patches near buildings */}
+      {[[-3, -0.5], [3, 0.5], [-2, 3.5], [2, -3.5]].map(([x, z], i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.005, z]}>
+          <circleGeometry args={[0.8, 12]} />
+          <meshStandardMaterial color={theme.grass} />
         </mesh>
+      ))}
+      {/* Roads */}
+      {[-6, 0, 6].map((x) => (
+        <group key={`rx${x}`}>
+          <mesh position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[1.0, 45]} />
+            <meshStandardMaterial color={theme.road} />
+          </mesh>
+          {/* Road lines */}
+          {Array.from({ length: 20 }).map((_, j) => (
+            <mesh key={j} position={[x, 0.015, -20 + j * 2.2]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.06, 0.8]} />
+              <meshStandardMaterial color={theme.roadLine} />
+            </mesh>
+          ))}
+        </group>
       ))}
       {[-4, 4].map((z) => (
         <mesh key={`rz${z}`} position={[0, 0.01, z]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[40, 0.6]} />
-          <meshStandardMaterial color={roadColor} />
+          <planeGeometry args={[45, 0.8]} />
+          <meshStandardMaterial color={theme.road} />
         </mesh>
+      ))}
+      {/* Streetlights */}
+      {[[-3, -4], [3, -4], [-3, 4], [3, 4], [-6, 0], [6, 0]].map(([x, z], i) => (
+        <group key={`sl${i}`} position={[x, 0, z]}>
+          <mesh position={[0, 0.6, 0]}>
+            <cylinderGeometry args={[0.02, 0.03, 1.2, 6]} />
+            <meshStandardMaterial color="#555555" />
+          </mesh>
+          <mesh position={[0, 1.22, 0]}>
+            <sphereGeometry args={[0.06, 8, 8]} />
+            <meshStandardMaterial
+              color={isDay ? "#eee" : "#ffee88"}
+              emissive={isDay ? "#eee" : "#ffee88"}
+              emissiveIntensity={isDay ? 0.1 : 1.2}
+            />
+          </mesh>
+          {!isDay && <pointLight position={[0, 1.2, 0]} color="#ffee88" intensity={0.3} distance={3} />}
+        </group>
       ))}
     </group>
   );
 };
 
-// Scene with all buildings
-const CityScene = ({
-  categoryData, selectedCategory, onSelectCategory, timeOfDay,
-}: CityVisualizationProps) => {
+// ─── Main scene ──────────────────────────────────────────────────
+
+const CityScene = ({ categoryData, selectedCategory, onSelectCategory, timeOfDay }: CityVisualizationProps) => {
   const [hoveredCat, setHoveredCat] = useState<string | null>(null);
   const theme = skyColors[timeOfDay];
-  const maxCount = Math.max(...Object.values(categoryData).map(d => d.count), 1);
 
-  // Layout: 2 rows of 4
   const positions: [number, number][] = [
     [-4.5, -2], [-1.5, -2], [1.5, -2], [4.5, -2],
     [-4.5, 2],  [-1.5, 2],  [1.5, 2],  [4.5, 2],
@@ -304,45 +668,43 @@ const CityScene = ({
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight color={theme.ambient} intensity={0.6} />
+      <ambientLight color={theme.ambient} intensity={theme.ambientIntensity} />
       <directionalLight
         color={theme.directional}
-        intensity={1.2}
-        position={[10, 15, 8]}
+        intensity={theme.dirIntensity}
+        position={theme.dirPos}
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-15}
+        shadow-camera-right={15}
+        shadow-camera-top={15}
+        shadow-camera-bottom={-15}
       />
-      <pointLight position={[0, 10, 0]} color={theme.windowLit} intensity={0.15} />
+      {/* Fill lights for daytime */}
+      {theme.ambientIntensity > 1 && (
+        <>
+          <hemisphereLight args={[theme.directional, theme.ground, 0.6]} />
+          <directionalLight color="#ffffee" intensity={0.5} position={[-5, 10, -5]} />
+        </>
+      )}
 
-      {/* Fog */}
-      <fog attach="fog" args={[theme.fog, 15, 45]} />
+      <fog attach="fog" args={[theme.fog, theme.fogNear, theme.fogFar]} />
 
-      {/* Ground & roads */}
-      <Ground theme={theme} />
-      <Roads theme={theme} />
+      <Environment theme={theme} />
+      <BackgroundCity theme={theme} />
 
-      {/* Background filler buildings */}
-      <BackgroundBuildings theme={theme} />
-
-      {/* Main category buildings */}
       {categories.map((cat, i) => {
         const data = categoryData[cat];
         if (!data) return null;
         const [px, pz] = positions[i];
-        const height = 1 + (data.count / maxCount) * 8;
-        const width = 1.8;
-        const depth = 1.8;
-
         return (
-          <Building3D
+          <BuildingWrapper
             key={cat}
             position={[px, 0, pz]}
-            width={width}
-            depth={depth}
-            height={height}
             cat={cat}
+            data={data}
             theme={theme}
             isSelected={selectedCategory === cat}
             isHovered={hoveredCat === cat}
@@ -353,38 +715,15 @@ const CityScene = ({
         );
       })}
 
-      {/* Category labels on ground */}
-      {categories.map((cat, i) => {
-        const data = categoryData[cat];
-        if (!data) return null;
-        const [px, pz] = positions[i];
-        return (
-          <Text
-            key={`label-${cat}`}
-            position={[px, 0.02, pz + 1.5]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            fontSize={0.25}
-            color={theme.windowLit}
-            anchorX="center"
-            anchorY="middle"
-            font={undefined}
-          >
-            {data.emoji} {data.element}
-          </Text>
-        );
-      })}
-
-      {/* Orbit controls */}
       <OrbitControls
         makeDefault
-        enablePan
-        enableZoom
-        enableRotate
-        minDistance={5}
-        maxDistance={40}
+        enablePan enableZoom enableRotate
+        minDistance={5} maxDistance={40}
         maxPolarAngle={Math.PI / 2.2}
-        minPolarAngle={0.2}
-        target={[0, 0, 0]}
+        minPolarAngle={0.15}
+        target={[0, 1, 0]}
+        panSpeed={0.8}
+        rotateSpeed={0.6}
       />
     </>
   );
@@ -394,14 +733,14 @@ const CityVisualization = (props: CityVisualizationProps) => {
   const theme = skyColors[props.timeOfDay];
 
   return (
-    <div className="w-full h-[500px] md:h-[600px] rounded-xl overflow-hidden" style={{ cursor: "grab" }}>
+    <div className="w-full h-[500px] md:h-[620px] rounded-xl overflow-hidden" style={{ cursor: "grab" }}>
       <Canvas
         shadows
         camera={{ position: [12, 14, 12], fov: 45 }}
         onCreated={({ gl }) => {
           gl.setClearColor(theme.fog);
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.2;
+          gl.toneMappingExposure = theme.exposure;
         }}
         style={{ background: theme.fog }}
       >
