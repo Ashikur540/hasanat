@@ -1063,6 +1063,82 @@ const River = ({ theme }: { theme: typeof skyColors.night }) => {
   );
 };
 
+// ─── Firefly ───────────────────────────────────────────────────────
+
+const Firefly = ({ center, seed }: { center: [number, number, number]; seed: number }) => {
+  const ref = useRef<THREE.Mesh>(null);
+  const matRef = useRef<THREE.MeshStandardMaterial>(null);
+  const offset = useMemo(() => sr(seed * 73) * 100, [seed]);
+  const color = useMemo(() => {
+    const colors = ["#aaff44", "#ccff66", "#88ee33", "#ddff88", "#66dd22"];
+    return colors[Math.floor(sr(seed * 41) * colors.length)];
+  }, [seed]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current || !matRef.current) return;
+    const t = clock.getElapsedTime() + offset;
+    const speed = 0.3 + sr(seed * 19) * 0.4;
+    const radius = 1.0 + sr(seed * 29) * 2.0;
+    ref.current.position.set(
+      center[0] + Math.sin(t * speed * 0.7) * radius + Math.cos(t * speed * 1.3) * radius * 0.4,
+      center[1] + 0.3 + Math.sin(t * speed * 1.1) * 0.8 + Math.abs(Math.sin(t * speed * 0.5)) * 0.5,
+      center[2] + Math.cos(t * speed * 0.9) * radius + Math.sin(t * speed * 1.7) * radius * 0.3
+    );
+    // Pulsing glow
+    const pulse = 0.5 + Math.sin(t * 3 + sr(seed * 53) * 10) * 0.5;
+    matRef.current.emissiveIntensity = 1.5 + pulse * 3;
+    matRef.current.opacity = 0.4 + pulse * 0.6;
+    ref.current.scale.setScalar(0.03 + pulse * 0.03);
+  });
+
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[1, 6, 6]} />
+      <meshStandardMaterial
+        ref={matRef}
+        color={color}
+        emissive={color}
+        emissiveIntensity={3}
+        transparent
+        opacity={0.8}
+      />
+    </mesh>
+  );
+};
+
+const FireflySwarm = () => {
+  // Cluster fireflies around ponds and garden areas
+  const fireflies = useMemo(() => {
+    const spots: [number, number, number][] = [
+      // Around ponds
+      [10, 0.5, 8], [-12, 0.5, -7], [8, 0.5, -12], [-9, 0.5, 10],
+      // Along river
+      [-15, 0.5, 12.5], [-5, 0.5, 12], [5, 0.5, 12], [15, 0.5, 12.5],
+      // Garden/tree areas
+      [-3, 0.5, -1], [3, 0.5, 1], [-5, 0.5, 5], [5, 0.5, -5],
+      [0, 0.5, 6], [0, 0.5, -6], [-7, 0.5, 2], [7, 0.5, -2],
+    ];
+    return spots.flatMap((center, ci) =>
+      Array.from({ length: 4 + Math.floor(sr(ci * 7) * 4) }, (_, i) => ({
+        center,
+        seed: ci * 100 + i,
+      }))
+    );
+  }, []);
+
+  return (
+    <group>
+      {fireflies.map((f, i) => (
+        <Firefly key={i} center={f.center} seed={f.seed} />
+      ))}
+      {/* Ambient glow point lights near ponds */}
+      {[[10, 0.8, 8], [-12, 0.8, -7], [8, 0.8, -12], [-9, 0.8, 10]].map((pos, i) => (
+        <pointLight key={i} position={pos as [number, number, number]} color="#aaff44" intensity={0.15} distance={4} />
+      ))}
+    </group>
+  );
+};
+
 // ─── Bird ──────────────────────────────────────────────────────────
 
 const Bird = ({ startPos, speed, color, wingSpan }: {
@@ -1307,7 +1383,12 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
         </>
       )}
 
-      <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
+      {/* Fireflies - night and evening only */}
+      {theme.ambientIntensity < 0.8 && (
+        <FireflySwarm />
+      )}
+
+
       <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
       <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
       <Vehicle road="x" roadPos={0} startZ={10} speed={-1.6} color="#22cc66" type="car" seed={4} />
