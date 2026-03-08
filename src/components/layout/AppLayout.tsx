@@ -1,40 +1,40 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy, Moon } from "lucide-react";
+import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-  { to: "/dashboard", label: "Dashboard", icon: Home },
-  { to: "/amal-graph", label: "Amal Graph", icon: BarChart3 },
-  { to: "/my-city", label: "DeedsCity", icon: Building2 },
-  { to: "/deeds", label: "Deeds", icon: BookOpen },
-  { to: "/circles", label: "Circles", icon: Users },
-];
-
-const mobileLinks = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/amal-graph", label: "Graph", icon: BarChart3 },
-  { to: "/my-city", label: "City", icon: Building2 },
-  { to: "/circles", label: "Circles", icon: Users },
-  { to: "/profile", label: "Profile", icon: User },
-];
+import { useI18n } from "@/i18n/I18nProvider";
 
 const AppLayout = () => {
   const location = useLocation();
+  const { t } = useI18n();
   const isActive = (path: string) => location.pathname === path;
+
+  const navLinks = [
+    { to: "/dashboard", label: t("navDashboard"), icon: Home },
+    { to: "/amal-graph", label: t("navAmalGraph"), icon: BarChart3 },
+    { to: "/my-city", label: t("navDeedsCity"), icon: Building2 },
+    { to: "/deeds", label: t("navDeeds"), icon: BookOpen },
+    { to: "/circles", label: t("navCircles"), icon: Users },
+  ];
+
+  const mobileLinks = [
+    { to: "/dashboard", label: t("navHome"), icon: Home },
+    { to: "/amal-graph", label: t("navGraph"), icon: BarChart3 },
+    { to: "/my-city", label: t("navCity"), icon: Building2 },
+    { to: "/circles", label: t("navCircles"), icon: Users },
+    { to: "/profile", label: t("navProfile"), icon: User },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
         <div className="container mx-auto flex h-14 items-center justify-between px-4">
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="text-xl">🌿</span>
-            <span className="text-lg font-bold text-foreground">Hasanat</span>
+            <span className="text-lg font-bold text-foreground">{t("appName")}</span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Button
@@ -68,12 +68,10 @@ const AppLayout = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="flex-1 pt-14 pb-20 md:pb-6">
         <Outlet />
       </main>
 
-      {/* Mobile Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-border bg-background/95 backdrop-blur-md">
         <div className="flex items-center justify-around h-16 px-2">
           {mobileLinks.map((link) => (
