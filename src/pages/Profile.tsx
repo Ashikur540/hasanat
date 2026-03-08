@@ -11,11 +11,13 @@ import {
   Flame, Trophy, BookOpen, Heart, Star, Calendar,
   MapPin, Edit3, Share2, Eye, EyeOff, TrendingUp,
 } from "lucide-react";
+import EditProfileDialog from "@/components/profile/EditProfileDialog";
+import ShareProfileDialog from "@/components/profile/ShareProfileDialog";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.07 } } };
 
-const user = {
+const defaultUser = {
   name: "Ahmed Al-Rashid",
   initials: "AR",
   bio: "Striving for consistency in deen. One deed at a time. 🌿",
