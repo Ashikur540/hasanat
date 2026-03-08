@@ -11,11 +11,13 @@ import {
   Flame, Trophy, BookOpen, Heart, Star, Calendar,
   MapPin, Edit3, Share2, Eye, EyeOff, TrendingUp,
 } from "lucide-react";
+import EditProfileDialog from "@/components/profile/EditProfileDialog";
+import ShareProfileDialog from "@/components/profile/ShareProfileDialog";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.07 } } };
 
-const user = {
+const defaultUser = {
   name: "Ahmed Al-Rashid",
   initials: "AR",
   bio: "Striving for consistency in deen. One deed at a time. 🌿",
@@ -77,6 +79,9 @@ const heatmapColors = [
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [user, setUser] = useState(defaultUser);
+  const [editOpen, setEditOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const maxCat = Math.max(...Object.values(stats.categoryCounts).map(c => c.count));
 
   return (
@@ -113,8 +118,8 @@ const Profile = () => {
                 </div>
               </div>
               <div className="flex gap-2 sm:pb-1">
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs"><Edit3 className="h-3.5 w-3.5" /> Edit</Button>
-                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs"><Share2 className="h-3.5 w-3.5" /> Share</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setEditOpen(true)}><Edit3 className="h-3.5 w-3.5" /> Edit</Button>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs" onClick={() => setShareOpen(true)}><Share2 className="h-3.5 w-3.5" /> Share</Button>
               </div>
             </div>
 
@@ -274,6 +279,24 @@ const Profile = () => {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Dialogs */}
+      <EditProfileDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        profile={user}
+        onSave={setUser}
+      />
+      <ShareProfileDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        profileName={user.name}
+        stats={{
+          totalDeeds: stats.totalDeeds,
+          currentStreak: stats.currentStreak,
+          level: stats.level,
+        }}
+      />
     </motion.div>
   );
 };
