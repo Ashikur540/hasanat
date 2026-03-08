@@ -154,7 +154,7 @@ const MyCity = () => {
           <Card className="border-border bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-foreground">Next: {nextMilestone.name}</span>
+                <span className="text-sm font-semibold text-foreground">{t("cityNext")}: {nextMilestone.name}</span>
                 <span className="text-xs text-muted-foreground">{totalDeeds}/{nextMilestone.req}</span>
               </div>
               <Progress value={(totalDeeds / nextMilestone.req) * 100} className="h-2.5" />
