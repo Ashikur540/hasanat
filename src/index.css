@@ -122,3 +122,30 @@
     font-family: 'Noto Naskh Arabic', serif;
   }
 }
+
+/* Background patterns */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, hsl(var(--border) / 0.5) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-gradient-mesh {
+  background-image:
+    radial-gradient(at 20% 20%, hsl(var(--primary) / 0.06) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, hsl(var(--accent) / 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, hsl(var(--primary) / 0.04) 0px, transparent 60%);
+}
+
+.dark .bg-gradient-mesh {
+  background-image:
+    radial-gradient(at 20% 20%, hsl(var(--primary) / 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, hsl(var(--accent) / 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, hsl(155 60% 48% / 0.05) 0px, transparent 60%);
+}
