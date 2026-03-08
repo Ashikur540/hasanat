@@ -1063,6 +1063,99 @@ const River = ({ theme }: { theme: typeof skyColors.night }) => {
   );
 };
 
+// ─── Bird ──────────────────────────────────────────────────────────
+
+const Bird = ({ startPos, speed, color, wingSpan }: {
+  startPos: [number, number, number]; speed: number; color: string; wingSpan: number;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  const wingL = useRef<THREE.Mesh>(null);
+  const wingR = useRef<THREE.Mesh>(null);
+  const offset = useMemo(() => sr(startPos[0] * 100 + startPos[2] * 37) * 100, [startPos]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.getElapsedTime() * speed + offset;
+    // Circular flight path with variation
+    const radius = 8 + sr(offset) * 10;
+    const wobble = Math.sin(t * 2.3) * 0.3;
+    ref.current.position.set(
+      startPos[0] + Math.cos(t * 0.3) * radius,
+      startPos[1] + Math.sin(t * 0.5) * 1.5 + wobble,
+      startPos[2] + Math.sin(t * 0.3) * radius
+    );
+    // Face movement direction
+    ref.current.rotation.y = -t * 0.3 + Math.PI / 2;
+    ref.current.rotation.z = Math.sin(t * 0.5) * 0.1;
+    // Flap wings
+    if (wingL.current && wingR.current) {
+      const flap = Math.sin(t * 8) * 0.6;
+      wingL.current.rotation.z = flap;
+      wingR.current.rotation.z = -flap;
+    }
+  });
+
+  return (
+    <group ref={ref}>
+      {/* Body */}
+      <mesh>
+        <capsuleGeometry args={[0.04, 0.12, 4, 8]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 0.02, 0.08]}>
+        <sphereGeometry args={[0.035, 6, 6]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {/* Beak */}
+      <mesh position={[0, 0.01, 0.12]} rotation={[0.3, 0, 0]}>
+        <coneGeometry args={[0.012, 0.04, 4]} />
+        <meshStandardMaterial color="#ee8822" />
+      </mesh>
+      {/* Tail */}
+      <mesh position={[0, 0.02, -0.1]} rotation={[0.4, 0, 0]}>
+        <boxGeometry args={[0.04, 0.005, 0.06]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+      {/* Left wing */}
+      <mesh ref={wingL} position={[wingSpan * 0.3, 0.01, 0]}>
+        <boxGeometry args={[wingSpan, 0.006, 0.08]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} />
+      </mesh>
+      {/* Right wing */}
+      <mesh ref={wingR} position={[-wingSpan * 0.3, 0.01, 0]}>
+        <boxGeometry args={[wingSpan, 0.006, 0.08]} />
+        <meshStandardMaterial color={color} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+};
+
+// ─── Bird Flock ────────────────────────────────────────────────────
+
+const BirdFlock = ({ center, count, baseColor }: {
+  center: [number, number, number]; count: number; baseColor: string;
+}) => {
+  const birds = useMemo(() =>
+    Array.from({ length: count }, (_, i) => ({
+      pos: [
+        center[0] + (sr(i * 13 + 7) - 0.5) * 4,
+        center[1] + (sr(i * 17 + 3) - 0.5) * 1.5,
+        center[2] + (sr(i * 23 + 11) - 0.5) * 4,
+      ] as [number, number, number],
+      speed: 0.15 + sr(i * 31) * 0.15,
+      wingSpan: 0.08 + sr(i * 41) * 0.06,
+    })), [center, count]);
+
+  return (
+    <group>
+      {birds.map((b, i) => (
+        <Bird key={i} startPos={b.pos} speed={b.speed} color={baseColor} wingSpan={b.wingSpan} />
+      ))}
+    </group>
+  );
+};
+
 // ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
@@ -1198,7 +1291,22 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
         </>
       )}
 
-      {/* Vehicles on roads */}
+      {/* Birds - flocks during day, solo at fajr/evening */}
+      {theme.ambientIntensity > 0.5 && (
+        <>
+          <BirdFlock center={[0, 8, 0]} count={theme.ambientIntensity > 1 ? 7 : 3} baseColor="#333344" />
+          <BirdFlock center={[-10, 10, 5]} count={theme.ambientIntensity > 1 ? 5 : 2} baseColor="#554433" />
+          <BirdFlock center={[8, 9, -8]} count={theme.ambientIntensity > 1 ? 6 : 2} baseColor="#224455" />
+          {theme.ambientIntensity > 1 && (
+            <>
+              <BirdFlock center={[5, 12, 10]} count={4} baseColor="#665544" />
+              <Bird startPos={[-5, 6, -3]} speed={0.2} color="#cc4422" wingSpan={0.1} />
+              <Bird startPos={[12, 7, 6]} speed={0.18} color="#2266aa" wingSpan={0.12} />
+            </>
+          )}
+        </>
+      )}
+
       <Vehicle road="x" roadPos={-6} startZ={-20} speed={2.2} color="#ee3333" type="car" seed={1} />
       <Vehicle road="x" roadPos={-6} startZ={5} speed={-1.8} color="#3366ee" type="sedan" seed={2} />
       <Vehicle road="x" roadPos={0} startZ={-12} speed={2.5} color="#eeaa22" type="bus" seed={3} />
