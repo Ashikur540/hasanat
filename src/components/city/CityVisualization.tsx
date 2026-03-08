@@ -1313,22 +1313,35 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <meshStandardMaterial color={theme.road} />
         </mesh>
       ))}
-      {/* Streetlights */}
-      {[[-3, -4], [3, -4], [-3, 4], [3, 4], [-6, 0], [6, 0]].map(([x, z], i) => (
+      {/* Streetlights - dense along all roads */}
+      {[
+        // Along vertical roads x=-6, 0, 6
+        ...[-6, 0, 6].flatMap(x => Array.from({ length: 10 }, (_, i) => [x + 0.5, -18 + i * 4] as [number, number])),
+        ...[-6, 0, 6].flatMap(x => Array.from({ length: 10 }, (_, i) => [x - 0.5, -16 + i * 4] as [number, number])),
+        // Along horizontal roads z=-4, 4
+        ...[-4, 4].flatMap(z => Array.from({ length: 10 }, (_, i) => [-18 + i * 4, z + 0.5] as [number, number])),
+        ...[-4, 4].flatMap(z => Array.from({ length: 10 }, (_, i) => [-16 + i * 4, z - 0.5] as [number, number])),
+      ].map(([x, z], i) => (
         <group key={`sl${i}`} position={[x, 0, z]}>
           <mesh position={[0, 0.6, 0]}>
             <cylinderGeometry args={[0.02, 0.03, 1.2, 6]} />
-            <meshStandardMaterial color="#555555" />
+            <meshStandardMaterial color="#666666" />
           </mesh>
-          <mesh position={[0, 1.22, 0]}>
-            <sphereGeometry args={[0.06, 8, 8]} />
+          {/* Lamp arm */}
+          <mesh position={[0.15, 1.15, 0]} rotation={[0, 0, Math.PI / 4]}>
+            <boxGeometry args={[0.02, 0.25, 0.02]} />
+            <meshStandardMaterial color="#666666" />
+          </mesh>
+          {/* Lamp head */}
+          <mesh position={[0.25, 1.22, 0]}>
+            <boxGeometry args={[0.12, 0.04, 0.08]} />
             <meshStandardMaterial
-              color={isDay ? "#eee" : "#ffee88"}
-              emissive={isDay ? "#eee" : "#ffee88"}
-              emissiveIntensity={isDay ? 0.1 : 1.2}
+              color={isDay ? "#ddd" : "#ffee88"}
+              emissive={isDay ? "#ddd" : "#ffee88"}
+              emissiveIntensity={isDay ? 0.05 : 1.5}
             />
           </mesh>
-          {!isDay && <pointLight position={[0, 1.2, 0]} color="#ffee88" intensity={0.3} distance={3} />}
+          {!isDay && <pointLight position={[0.25, 1.1, 0]} color="#ffdd66" intensity={0.4} distance={3.5} decay={2} />}
         </group>
       ))}
 
