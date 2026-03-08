@@ -3,10 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Share2, Camera, RotateCcw } from "lucide-react";
+import { Share2, Camera, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
+import { useAmbientSounds } from "@/hooks/useAmbientSounds";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
