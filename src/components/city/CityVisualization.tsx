@@ -593,10 +593,233 @@ const BackgroundCity = ({ theme }: { theme: typeof skyColors.night }) => {
   );
 };
 
-// ─── Environment (ground, roads, streetlights, trees) ────────────
+// ─── Animated Tree ───────────────────────────────────────────────
+
+const TreeMesh = ({ position, scale = 1, trunkColor = "#664422", leafColor = "#33aa44", type = 0 }: {
+  position: [number, number, number]; scale?: number; trunkColor?: string; leafColor?: string; type?: number;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    if (ref.current) {
+      // Gentle sway
+      ref.current.rotation.z = Math.sin(clock.elapsedTime * 0.5 + position[0] * 3) * 0.03 * scale;
+    }
+  });
+  const h = 0.6 * scale;
+  return (
+    <group ref={ref} position={position}>
+      {/* Trunk */}
+      <mesh position={[0, h * 0.4, 0]}>
+        <cylinderGeometry args={[0.03 * scale, 0.06 * scale, h * 0.8, 6]} />
+        <meshStandardMaterial color={trunkColor} />
+      </mesh>
+      {type === 0 && (
+        <>
+          {/* Round tree */}
+          <mesh position={[0, h * 0.85, 0]}>
+            <sphereGeometry args={[0.25 * scale, 8, 8]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+          <mesh position={[0.08 * scale, h * 1.0, 0.05 * scale]}>
+            <sphereGeometry args={[0.18 * scale, 8, 8]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+        </>
+      )}
+      {type === 1 && (
+        <>
+          {/* Pine / cone tree */}
+          <mesh position={[0, h * 0.75, 0]}>
+            <coneGeometry args={[0.22 * scale, 0.5 * scale, 8]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+          <mesh position={[0, h * 1.05, 0]}>
+            <coneGeometry args={[0.16 * scale, 0.35 * scale, 8]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+        </>
+      )}
+      {type === 2 && (
+        <>
+          {/* Bushy / wide tree */}
+          <mesh position={[0, h * 0.8, 0]}>
+            <sphereGeometry args={[0.3 * scale, 8, 6]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+          <mesh position={[-0.12 * scale, h * 0.7, 0.1 * scale]}>
+            <sphereGeometry args={[0.2 * scale, 8, 6]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+          <mesh position={[0.14 * scale, h * 0.7, -0.08 * scale]}>
+            <sphereGeometry args={[0.2 * scale, 8, 6]} />
+            <meshStandardMaterial color={leafColor} />
+          </mesh>
+        </>
+      )}
+    </group>
+  );
+};
+
+// ─── Flower Bed ─────────────────────────────────────────────────
+
+const FlowerBed = ({ position, theme }: { position: [number, number, number]; theme: typeof skyColors.night }) => {
+  const isDay = theme.ambientIntensity > 1;
+  const seed = position[0] * 7 + position[2] * 13;
+  const colors = ["#ee4466", "#ff88cc", "#ffaa33", "#ff6644", "#cc44ff", "#44aaff"];
+  return (
+    <group position={position}>
+      {/* Grass patch */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
+        <circleGeometry args={[0.6, 12]} />
+        <meshStandardMaterial color={isDay ? "#55aa35" : "#1a3015"} />
+      </mesh>
+      {/* Flowers */}
+      {Array.from({ length: 7 }).map((_, i) => {
+        const a = (i / 7) * Math.PI * 2 + sr(seed + i) * 0.5;
+        const r = 0.15 + sr(seed + i * 3) * 0.3;
+        const fx = Math.cos(a) * r;
+        const fz = Math.sin(a) * r;
+        const fColor = colors[Math.floor(sr(seed + i * 5) * colors.length)];
+        return (
+          <group key={i} position={[fx, 0, fz]}>
+            {/* Stem */}
+            <mesh position={[0, 0.08, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.16, 4]} />
+              <meshStandardMaterial color="#44882a" />
+            </mesh>
+            {/* Petals */}
+            <mesh position={[0, 0.17, 0]}>
+              <sphereGeometry args={[0.04, 6, 6]} />
+              <meshStandardMaterial color={fColor} emissive={fColor} emissiveIntensity={isDay ? 0.1 : 0.3} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
+// ─── Butterfly ──────────────────────────────────────────────────
+
+const Butterfly = ({ startPos, color1, color2, speed }: {
+  startPos: [number, number, number]; color1: string; color2: string; speed: number;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  const wingL = useRef<THREE.Mesh>(null);
+  const wingR = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.elapsedTime * speed;
+    // Figure-8 flight path
+    ref.current.position.x = startPos[0] + Math.sin(t * 0.7) * 3;
+    ref.current.position.z = startPos[2] + Math.sin(t * 1.1) * 2.5;
+    ref.current.position.y = startPos[1] + Math.sin(t * 1.5) * 0.5 + 0.3;
+    // Face direction of travel
+    ref.current.rotation.y = Math.atan2(Math.cos(t * 0.7) * 0.7 * 3, Math.cos(t * 1.1) * 1.1 * 2.5);
+    // Wing flap
+    const flap = Math.sin(clock.elapsedTime * 12) * 0.7;
+    if (wingL.current) wingL.current.rotation.z = flap;
+    if (wingR.current) wingR.current.rotation.z = -flap;
+  });
+
+  return (
+    <group ref={ref} position={startPos}>
+      {/* Body */}
+      <mesh>
+        <capsuleGeometry args={[0.015, 0.06, 4, 6]} />
+        <meshStandardMaterial color="#222" />
+      </mesh>
+      {/* Left wing */}
+      <mesh ref={wingL} position={[-0.04, 0, 0]}>
+        <planeGeometry args={[0.1, 0.07]} />
+        <meshStandardMaterial color={color1} emissive={color1} emissiveIntensity={0.3} side={THREE.DoubleSide} transparent opacity={0.85} />
+      </mesh>
+      {/* Right wing */}
+      <mesh ref={wingR} position={[0.04, 0, 0]}>
+        <planeGeometry args={[0.1, 0.07]} />
+        <meshStandardMaterial color={color2} emissive={color2} emissiveIntensity={0.3} side={THREE.DoubleSide} transparent opacity={0.85} />
+      </mesh>
+    </group>
+  );
+};
+
+// ─── Bee ─────────────────────────────────────────────────────────
+
+const Bee = ({ startPos, speed }: { startPos: [number, number, number]; speed: number }) => {
+  const ref = useRef<THREE.Group>(null);
+  const wingL = useRef<THREE.Mesh>(null);
+  const wingR = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    const t = clock.elapsedTime * speed;
+    // Erratic buzzing path
+    ref.current.position.x = startPos[0] + Math.sin(t * 1.3) * 1.5 + Math.sin(t * 3) * 0.2;
+    ref.current.position.z = startPos[2] + Math.cos(t * 0.9) * 1.8 + Math.cos(t * 2.7) * 0.15;
+    ref.current.position.y = startPos[1] + Math.sin(t * 2) * 0.3 + 0.15;
+    ref.current.rotation.y = Math.atan2(
+      Math.cos(t * 1.3) * 1.3 * 1.5 + Math.cos(t * 3) * 3 * 0.2,
+      -Math.sin(t * 0.9) * 0.9 * 1.8 - Math.sin(t * 2.7) * 2.7 * 0.15
+    );
+    // Fast wing buzz
+    const buzz = Math.sin(clock.elapsedTime * 40) * 0.5;
+    if (wingL.current) wingL.current.rotation.z = buzz;
+    if (wingR.current) wingR.current.rotation.z = -buzz;
+  });
+
+  return (
+    <group ref={ref} position={startPos}>
+      {/* Body */}
+      <mesh>
+        <capsuleGeometry args={[0.02, 0.04, 4, 6]} />
+        <meshStandardMaterial color="#ddaa00" />
+      </mesh>
+      {/* Stripes */}
+      <mesh position={[0, 0, 0]}>
+        <torusGeometry args={[0.022, 0.006, 4, 8]} />
+        <meshStandardMaterial color="#111" />
+      </mesh>
+      {/* Wings */}
+      <mesh ref={wingL} position={[-0.03, 0.015, 0]}>
+        <planeGeometry args={[0.05, 0.03]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.5} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh ref={wingR} position={[0.03, 0.015, 0]}>
+        <planeGeometry args={[0.05, 0.03]} />
+        <meshStandardMaterial color="#ffffff" transparent opacity={0.5} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
+  );
+};
+
+// ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
   const isDay = theme.ambientIntensity > 1;
+
+  const scatteredTrees = useMemo(() => {
+    const leafColors = ["#228833", "#33aa44", "#1a7733", "#44bb55", "#2a9940", "#558833", "#339944", "#66aa55"];
+    return Array.from({ length: 60 }, (_, i) => {
+      const angle = sr(i * 5.3) * Math.PI * 2;
+      const dist = 3 + sr(i * 9.1) * 22;
+      return {
+        pos: [Math.cos(angle) * dist, 0, Math.sin(angle) * dist] as [number, number, number],
+        scale: 0.5 + sr(i * 7.7) * 1.5,
+        type: Math.floor(sr(i * 11) * 3) as 0 | 1 | 2,
+        leafColor: leafColors[Math.floor(sr(i * 13) * leafColors.length)],
+      };
+    });
+  }, []);
+
+  const flowerPositions = useMemo(() => {
+    return Array.from({ length: 14 }, (_, i) => {
+      const angle = sr(i * 4.1 + 50) * Math.PI * 2;
+      const dist = 2.5 + sr(i * 6.3 + 50) * 18;
+      return [Math.cos(angle) * dist, 0, Math.sin(angle) * dist] as [number, number, number];
+    });
+  }, []);
+
   return (
     <group>
       {/* Ground */}
@@ -604,10 +827,10 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
         <planeGeometry args={[80, 80]} />
         <meshStandardMaterial color={theme.ground} />
       </mesh>
-      {/* Grass patches near buildings */}
-      {[[-3, -0.5], [3, 0.5], [-2, 3.5], [2, -3.5]].map(([x, z], i) => (
+      {/* Grass patches */}
+      {[[-3, -0.5], [3, 0.5], [-2, 3.5], [2, -3.5], [-5, 5], [5, -5], [0, 6], [0, -6], [-7, 2], [7, -2]].map(([x, z], i) => (
         <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.005, z]}>
-          <circleGeometry args={[0.8, 12]} />
+          <circleGeometry args={[0.6 + sr(i * 3) * 0.6, 12]} />
           <meshStandardMaterial color={theme.grass} />
         </mesh>
       ))}
@@ -618,7 +841,6 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
             <planeGeometry args={[1.0, 45]} />
             <meshStandardMaterial color={theme.road} />
           </mesh>
-          {/* Road lines */}
           {Array.from({ length: 20 }).map((_, j) => (
             <mesh key={j} position={[x, 0.015, -20 + j * 2.2]} rotation={[-Math.PI / 2, 0, 0]}>
               <planeGeometry args={[0.06, 0.8]} />
@@ -651,6 +873,47 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           {!isDay && <pointLight position={[0, 1.2, 0]} color="#ffee88" intensity={0.3} distance={3} />}
         </group>
       ))}
+
+      {/* Scattered trees */}
+      {scatteredTrees.map((t, i) => (
+        <TreeMesh
+          key={`tree${i}`}
+          position={t.pos}
+          scale={t.scale}
+          leafColor={isDay ? t.leafColor : t.leafColor.replace(/[3-9a-f]/gi, (c) => Math.max(0, parseInt(c, 16) - 4).toString(16))}
+          type={t.type}
+        />
+      ))}
+
+      {/* Flower beds */}
+      {flowerPositions.map((pos, i) => (
+        <FlowerBed key={`fb${i}`} position={pos} theme={theme} />
+      ))}
+
+      {/* Butterflies - only during day/fajr/evening */}
+      {theme.ambientIntensity > 0.5 && (
+        <>
+          <Butterfly startPos={[-2, 1.5, -1]} color1="#ff66aa" color2="#ff88cc" speed={0.4} />
+          <Butterfly startPos={[3, 1.8, 2]} color1="#44aaff" color2="#66ccff" speed={0.35} />
+          <Butterfly startPos={[-5, 1.3, 4]} color1="#ffaa33" color2="#ffcc66" speed={0.45} />
+          <Butterfly startPos={[1, 2.0, -4]} color1="#aa44ff" color2="#cc88ff" speed={0.38} />
+          <Butterfly startPos={[6, 1.6, -2]} color1="#ff4466" color2="#ff6688" speed={0.42} />
+          <Butterfly startPos={[-4, 1.4, -5]} color1="#44ff88" color2="#88ffaa" speed={0.37} />
+        </>
+      )}
+
+      {/* Bees - active during daytime */}
+      {theme.ambientIntensity > 0.8 && (
+        <>
+          <Bee startPos={[-1, 0.8, 2]} speed={0.6} />
+          <Bee startPos={[4, 0.9, -1]} speed={0.55} />
+          <Bee startPos={[-3, 0.7, -3]} speed={0.65} />
+          <Bee startPos={[2, 1.0, 5]} speed={0.5} />
+          <Bee startPos={[6, 0.8, 3]} speed={0.58} />
+          <Bee startPos={[-5, 0.9, 1]} speed={0.52} />
+          <Bee startPos={[0, 0.85, -5]} speed={0.62} />
+        </>
+      )}
     </group>
   );
 };
