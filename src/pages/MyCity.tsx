@@ -60,10 +60,10 @@ const MyCity = () => {
       {/* Header */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Deed City 🏙️</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("cityTitle")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             <Badge variant="outline" className="mr-2 text-primary">{currentMilestone?.name}</Badge>
-            {totalDeeds} deeds · {Object.keys(categoryData).length} districts
+            {totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length} {t("dashDistricts")}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
