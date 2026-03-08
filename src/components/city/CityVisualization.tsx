@@ -977,22 +977,8 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
   );
 };
 
-// Helper: Ellipse geometry for ponds/river
-const Ellipse = ({ args, ...props }: { args: [number, number, number] } & any) => {
-  const [rx, rz, segs] = args;
-  const shape = useMemo(() => {
-    const s = new THREE.Shape();
-    for (let i = 0; i <= segs; i++) {
-      const a = (i / segs) * Math.PI * 2;
-      if (i === 0) s.moveTo(Math.cos(a) * rx, Math.sin(a) * rz);
-      else s.lineTo(Math.cos(a) * rx, Math.sin(a) * rz);
-    }
-    return s;
-  }, [rx, rz, segs]);
-  return <shapeGeometry args={[shape]} {...props} />;
-};
 
-// lowercase 'ellipse' for JSX use
+
 const ellipse = Ellipse;
 
 // ─── River ────────────────────────────────────────────────────────
