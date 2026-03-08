@@ -3,6 +3,12 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 
+// Enable flat shading globally for cartoon low-poly look
+const _origSetValues = THREE.MeshStandardMaterial.prototype.setValues;
+THREE.MeshStandardMaterial.prototype.setValues = function(params?: THREE.MeshStandardMaterialParameters) {
+  _origSetValues.call(this, { flatShading: true, ...params });
+};
+
 export type TimeOfDay = "fajr" | "morning" | "noon" | "evening" | "night";
 
 interface CityVisualizationProps {
@@ -31,21 +37,21 @@ const skyColors: Record<TimeOfDay, {
     exposure: 1.0,
   },
   morning: {
-    ambient: "#ccddee", ambientIntensity: 1.2,
-    directional: "#fffde8", dirIntensity: 2.0, dirPos: [8, 20, 6],
-    fog: "#c8ddf0", fogNear: 25, fogFar: 60,
-    ground: "#4a6a3a", grass: "#5a8a40", road: "#888888", roadLine: "#ffffff",
-    windowLit: "#ffffff", windowDark: "#88aabb", litChance: 0.08,
-    skyTop: "#66aaee", skyBot: "#ddeeff",
+    ambient: "#e8ddd0", ambientIntensity: 1.2,
+    directional: "#fff8e0", dirIntensity: 2.0, dirPos: [8, 20, 6],
+    fog: "#d8e8d0", fogNear: 25, fogFar: 60,
+    ground: "#6a8a4a", grass: "#7aaa55", road: "#a09080", roadLine: "#ffffff",
+    windowLit: "#ffffff", windowDark: "#c0b8a8", litChance: 0.08,
+    skyTop: "#78bbee", skyBot: "#e8f0f0",
     exposure: 1.8,
   },
   noon: {
-    ambient: "#eeeeff", ambientIntensity: 1.5,
-    directional: "#ffffff", dirIntensity: 2.5, dirPos: [2, 25, 2],
-    fog: "#ddeeff", fogNear: 28, fogFar: 65,
-    ground: "#5a7a4a", grass: "#6a9a50", road: "#999999", roadLine: "#ffffff",
-    windowLit: "#ffffff", windowDark: "#99bbcc", litChance: 0.05,
-    skyTop: "#4499ee", skyBot: "#ccddff",
+    ambient: "#f0ece0", ambientIntensity: 1.5,
+    directional: "#fffff0", dirIntensity: 2.5, dirPos: [2, 25, 2],
+    fog: "#e5eed8", fogNear: 28, fogFar: 65,
+    ground: "#7a9a5a", grass: "#8aaa60", road: "#b0a090", roadLine: "#ffffff",
+    windowLit: "#ffffff", windowDark: "#c8c0b0", litChance: 0.05,
+    skyTop: "#5599dd", skyBot: "#d8e8f0",
     exposure: 2.0,
   },
   evening: {
@@ -72,14 +78,14 @@ const categories = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family",
 
 // Vibrant distinct palettes per category
 const catPalettes: Record<string, { walls: string; wallsLight: string; trim: string; roof: string; glow: string; emissive: string }> = {
-  Salah:     { walls: "#1a4a3a", wallsLight: "#e8f0e8", trim: "#2a9a5a", roof: "#44cc77", glow: "#44ffaa", emissive: "#22aa55" },
-  Quran:     { walls: "#1a2a4a", wallsLight: "#e0e8f5", trim: "#3377cc", roof: "#4499ee", glow: "#44aaff", emissive: "#2266bb" },
-  Sadaqah:   { walls: "#1a3a1a", wallsLight: "#e5f0e0", trim: "#44aa44", roof: "#66cc66", glow: "#66ff88", emissive: "#33aa33" },
-  Dhikr:     { walls: "#1a3a4a", wallsLight: "#e0f0f5", trim: "#33aacc", roof: "#44ccdd", glow: "#44eeff", emissive: "#22aacc" },
-  Character: { walls: "#2a1a4a", wallsLight: "#eee0f5", trim: "#8844cc", roof: "#aa66ee", glow: "#cc88ff", emissive: "#7733bb" },
-  Family:    { walls: "#4a2a1a", wallsLight: "#f5e8e0", trim: "#cc7733", roof: "#ee9944", glow: "#ffbb55", emissive: "#bb6622" },
-  Fasting:   { walls: "#3a1a4a", wallsLight: "#f0e0f5", trim: "#9944cc", roof: "#bb55ee", glow: "#dd88ff", emissive: "#8833bb" },
-  Knowledge: { walls: "#4a4a1a", wallsLight: "#f5f0e0", trim: "#ccaa33", roof: "#eecc44", glow: "#ffee55", emissive: "#bbaa22" },
+  Salah:     { walls: "#2a4a3a", wallsLight: "#d8cbb8", trim: "#5a9a6a", roof: "#7ab888", glow: "#44ffaa", emissive: "#4a9a6a" },
+  Quran:     { walls: "#2a3a4a", wallsLight: "#c8bba8", trim: "#5577aa", roof: "#7799bb", glow: "#44aaff", emissive: "#4477aa" },
+  Sadaqah:   { walls: "#2a4a2a", wallsLight: "#d0c8b0", trim: "#6a9a5a", roof: "#88bb77", glow: "#66ff88", emissive: "#5a9a4a" },
+  Dhikr:     { walls: "#2a4a4a", wallsLight: "#c8d0c0", trim: "#5a99aa", roof: "#77bbcc", glow: "#44eeff", emissive: "#4a99aa" },
+  Character: { walls: "#3a2a4a", wallsLight: "#d8c8d0", trim: "#8866aa", roof: "#aa88bb", glow: "#cc88ff", emissive: "#7755aa" },
+  Family:    { walls: "#4a3a2a", wallsLight: "#e0d0c0", trim: "#bb8855", roof: "#ccaa77", glow: "#ffbb55", emissive: "#aa7744" },
+  Fasting:   { walls: "#4a2a3a", wallsLight: "#d8c0c8", trim: "#9966aa", roof: "#bb88cc", glow: "#dd88ff", emissive: "#8855aa" },
+  Knowledge: { walls: "#4a4a2a", wallsLight: "#e0d8c0", trim: "#bbaa55", roof: "#ddcc77", glow: "#ffee55", emissive: "#aa9944" },
 };
 
 const sr = (seed: number) => {
