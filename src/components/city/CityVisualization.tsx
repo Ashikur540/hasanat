@@ -889,6 +889,180 @@ const Vehicle = ({ road, roadPos, startZ, speed, color, type, seed }: {
   );
 };
 
+// ─── Pond ─────────────────────────────────────────────────────────
+
+const makeEllipseShape = (rx: number, rz: number, segs = 32) => {
+  const s = new THREE.Shape();
+  for (let i = 0; i <= segs; i++) {
+    const a = (i / segs) * Math.PI * 2;
+    if (i === 0) s.moveTo(Math.cos(a) * rx, Math.sin(a) * rz);
+    else s.lineTo(Math.cos(a) * rx, Math.sin(a) * rz);
+  }
+  return s;
+};
+
+const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
+  position: [number, number, number]; radiusX: number; radiusZ: number; theme: typeof skyColors.night; seed: number;
+}) => {
+  const waterRef = useRef<THREE.Mesh>(null);
+  const isDay = theme.ambientIntensity > 1;
+  const waterColor = isDay ? "#4499cc" : "#112244";
+  const waterEmissive = isDay ? "#2288bb" : "#0a1a33";
+
+  useFrame(({ clock }) => {
+    if (!waterRef.current) return;
+    const mat = waterRef.current.material as THREE.MeshStandardMaterial;
+    mat.opacity = 0.7 + Math.sin(clock.getElapsedTime() * 0.8 + seed) * 0.1;
+  });
+
+  const bankShape = useMemo(() => makeEllipseShape(radiusX + 0.15, radiusZ + 0.15), [radiusX, radiusZ]);
+  const waterShape = useMemo(() => makeEllipseShape(radiusX, radiusZ), [radiusX, radiusZ]);
+
+  const lilies = useMemo(() =>
+    Array.from({ length: 3 + Math.floor(sr(seed * 17) * 4) }, (_, i) => ({
+      x: (sr(seed * 31 + i * 7) - 0.5) * radiusX * 1.2,
+      z: (sr(seed * 43 + i * 11) - 0.5) * radiusZ * 1.2,
+      s: 0.08 + sr(seed * 53 + i) * 0.12,
+      hasFlower: sr(seed * 67 + i) > 0.5,
+    })), [seed, radiusX, radiusZ]);
+
+  return (
+    <group position={position}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.005, 0]}>
+        <shapeGeometry args={[bankShape]} />
+        <meshStandardMaterial color={isDay ? "#8a7a5a" : "#2a2a1a"} />
+      </mesh>
+      <mesh ref={waterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <shapeGeometry args={[waterShape]} />
+        <meshStandardMaterial
+          color={waterColor}
+          emissive={waterEmissive}
+          emissiveIntensity={isDay ? 0.2 : 0.4}
+          transparent
+          opacity={0.75}
+          metalness={0.6}
+          roughness={0.2}
+        />
+      </mesh>
+      {[0.4, 0.7, 1.0].map((s, i) => (
+        <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[(sr(seed + i * 3) - 0.5) * radiusX * 0.6, 0.005, (sr(seed + i * 5) - 0.5) * radiusZ * 0.6]}>
+          <ringGeometry args={[s * 0.15, s * 0.18, 24]} />
+          <meshStandardMaterial color={isDay ? "#88ccee" : "#223355"} transparent opacity={0.3} />
+        </mesh>
+      ))}
+      {lilies.map((l, i) => (
+        <group key={i} position={[l.x, 0.01, l.z]}>
+          <mesh rotation={[-Math.PI / 2, sr(seed + i * 9) * Math.PI * 2, 0]}>
+            <circleGeometry args={[l.s, 12]} />
+            <meshStandardMaterial color={isDay ? "#33aa44" : "#1a4422"} />
+          </mesh>
+          {l.hasFlower && (
+            <mesh position={[0, 0.03, 0]}>
+              <sphereGeometry args={[l.s * 0.35, 8, 6]} />
+              <meshStandardMaterial color={isDay ? "#ff88aa" : "#882244"} emissive={isDay ? "#ff88aa" : "#551133"} emissiveIntensity={0.3} />
+            </mesh>
+          )}
+        </group>
+      ))}
+      {Array.from({ length: 6 }, (_, i) => {
+        const a = (i / 6) * Math.PI * 2 + sr(seed + i * 20) * 0.5;
+        return (
+          <mesh key={i} position={[Math.cos(a) * radiusX * 0.95, 0.03, Math.sin(a) * radiusZ * 0.95]}>
+            <sphereGeometry args={[0.06 + sr(seed + i * 30) * 0.06, 6, 5]} />
+            <meshStandardMaterial color={isDay ? "#888877" : "#333330"} roughness={0.9} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+
+
+
+
+// ─── River ────────────────────────────────────────────────────────
+
+const River = ({ theme }: { theme: typeof skyColors.night }) => {
+  const waterRef = useRef<THREE.Mesh>(null);
+  const isDay = theme.ambientIntensity > 1;
+  const waterColor = isDay ? "#3388bb" : "#0a1a33";
+
+  useFrame(({ clock }) => {
+    if (!waterRef.current) return;
+    const mat = waterRef.current.material as THREE.MeshStandardMaterial;
+    mat.opacity = 0.7 + Math.sin(clock.getElapsedTime() * 0.5) * 0.08;
+  });
+
+  const riverShape = useMemo(() => {
+    const shape = new THREE.Shape();
+    const points: [number, number][] = [
+      [-25, 12], [-18, 13], [-12, 11.5], [-6, 12.5], [0, 11], [6, 12], [12, 11.5], [18, 13], [25, 12],
+    ];
+    const pointsB: [number, number][] = [
+      [25, 13.2], [18, 14.2], [12, 12.8], [6, 13.5], [0, 12.3], [-6, 13.8], [-12, 12.8], [-18, 14.3], [-25, 13.2],
+    ];
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i++) {
+      const cp = [(points[i - 1][0] + points[i][0]) / 2, points[i][1] + (i % 2 === 0 ? 0.3 : -0.3)] as [number, number];
+      shape.quadraticCurveTo(cp[0], cp[1], points[i][0], points[i][1]);
+    }
+    for (let i = 0; i < pointsB.length; i++) {
+      if (i === 0) shape.lineTo(pointsB[0][0], pointsB[0][1]);
+      else {
+        const cp = [(pointsB[i - 1][0] + pointsB[i][0]) / 2, pointsB[i][1] + (i % 2 === 0 ? -0.3 : 0.3)] as [number, number];
+        shape.quadraticCurveTo(cp[0], cp[1], pointsB[i][0], pointsB[i][1]);
+      }
+    }
+    shape.closePath();
+    return shape;
+  }, []);
+
+  return (
+    <group>
+      {/* River bank */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
+        <shapeGeometry args={[(() => {
+          const s = riverShape.clone();
+          // Slightly larger for bank effect handled by separate mesh
+          return s;
+        })()]} />
+        <meshStandardMaterial color={isDay ? "#7a6a4a" : "#221a10"} />
+      </mesh>
+      {/* Water */}
+      <mesh ref={waterRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
+        <shapeGeometry args={[riverShape]} />
+        <meshStandardMaterial
+          color={waterColor}
+          emissive={isDay ? "#2277aa" : "#061522"}
+          emissiveIntensity={isDay ? 0.25 : 0.5}
+          transparent
+          opacity={0.75}
+          metalness={0.5}
+          roughness={0.15}
+        />
+      </mesh>
+      {/* River sparkles */}
+      {Array.from({ length: 12 }, (_, i) => {
+        const x = -20 + i * 3.5 + sr(i * 7) * 2;
+        const z = 12 + sr(i * 11) * 1.2;
+        return (
+          <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.02, z]}>
+            <circleGeometry args={[0.04, 6]} />
+            <meshStandardMaterial
+              color="#ffffff"
+              emissive="#ffffff"
+              emissiveIntensity={isDay ? 0.6 : 0.15}
+              transparent
+              opacity={0.4}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
 // ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
@@ -930,6 +1104,19 @@ const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
           <meshStandardMaterial color={theme.grass} />
         </mesh>
       ))}
+
+      {/* Ponds */}
+      {[
+        { pos: [10, 0.02, 8] as [number, number, number], rx: 2.2, rz: 1.6 },
+        { pos: [-12, 0.02, -7] as [number, number, number], rx: 1.8, rz: 1.3 },
+        { pos: [8, 0.02, -12] as [number, number, number], rx: 1.4, rz: 1.0 },
+        { pos: [-9, 0.02, 10] as [number, number, number], rx: 1.6, rz: 2.0 },
+      ].map((pond, i) => (
+        <Pond key={`pond${i}`} position={pond.pos} radiusX={pond.rx} radiusZ={pond.rz} theme={theme} seed={i} />
+      ))}
+
+      {/* River */}
+      <River theme={theme} />
       {/* Roads */}
       {[-6, 0, 6].map((x) => (
         <group key={`rx${x}`}>
