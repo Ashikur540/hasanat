@@ -1,5 +1,7 @@
-import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, Text, Html } from "@react-three/drei";
+import * as THREE from "three";
 
 export type TimeOfDay = "fajr" | "morning" | "noon" | "evening" | "night";
 
@@ -10,409 +12,402 @@ interface CityVisualizationProps {
   timeOfDay: TimeOfDay;
 }
 
-// Sky themes per time of day
-const skyThemes: Record<TimeOfDay, {
-  sky: [string, string, string];
-  ground: string;
-  road: string;
-  roadMark: string;
-  sidewalk: string;
-  windowLit: number;
-  windowDark: string;
-  shadowOpacity: number;
-  starOpacity: number;
-  ambient: string;
-  labelColor: string;
-}> = {
-  fajr: {
-    sky: ["hsl(270 30% 15%)", "hsl(340 40% 35%)", "hsl(30 60% 60%)"],
-    ground: "hsl(220 15% 14%)", road: "hsl(220 10% 18%)", roadMark: "hsl(42 40% 50%)", sidewalk: "hsl(220 10% 22%)",
-    windowLit: 0.3, windowDark: "hsl(220 20% 15%)", shadowOpacity: 0.2, starOpacity: 0.3,
-    ambient: "hsl(340 30% 50%)", labelColor: "hsl(30 40% 70%)",
-  },
-  morning: {
-    sky: ["hsl(200 60% 70%)", "hsl(200 50% 80%)", "hsl(40 70% 85%)"],
-    ground: "hsl(140 15% 25%)", road: "hsl(30 8% 40%)", roadMark: "hsl(42 50% 65%)", sidewalk: "hsl(30 10% 50%)",
-    windowLit: 0.15, windowDark: "hsl(200 15% 35%)", shadowOpacity: 0.15, starOpacity: 0,
-    ambient: "hsl(40 70% 70%)", labelColor: "hsl(220 20% 30%)",
-  },
-  noon: {
-    sky: ["hsl(210 70% 60%)", "hsl(200 60% 75%)", "hsl(190 40% 85%)"],
-    ground: "hsl(140 12% 28%)", road: "hsl(30 8% 45%)", roadMark: "hsl(0 0% 90%)", sidewalk: "hsl(30 10% 55%)",
-    windowLit: 0.1, windowDark: "hsl(200 10% 45%)", shadowOpacity: 0.1, starOpacity: 0,
-    ambient: "hsl(50 80% 75%)", labelColor: "hsl(220 20% 25%)",
-  },
-  evening: {
-    sky: ["hsl(250 35% 20%)", "hsl(20 50% 40%)", "hsl(35 60% 55%)"],
-    ground: "hsl(220 15% 15%)", road: "hsl(220 10% 20%)", roadMark: "hsl(42 40% 50%)", sidewalk: "hsl(220 10% 25%)",
-    windowLit: 0.55, windowDark: "hsl(220 20% 14%)", shadowOpacity: 0.25, starOpacity: 0.15,
-    ambient: "hsl(30 60% 50%)", labelColor: "hsl(30 40% 65%)",
-  },
-  night: {
-    sky: ["hsl(230 30% 5%)", "hsl(220 25% 8%)", "hsl(220 20% 12%)"],
-    ground: "hsl(220 20% 10%)", road: "hsl(220 10% 15%)", roadMark: "hsl(42 50% 56%)", sidewalk: "hsl(220 10% 20%)",
-    windowLit: 0.75, windowDark: "hsl(220 20% 12%)", shadowOpacity: 0.35, starOpacity: 1,
-    ambient: "hsl(42 50% 56%)", labelColor: "hsl(60 10% 40%)",
-  },
-};
-
-// Deterministic stars
-const starData = Array.from({ length: 80 }, (_, i) => ({
-  x: ((i * 137.508) % 1200),
-  y: ((i * 97.3 + 13) % 300) * 0.5,
-  r: ((i * 31) % 100) / 100 * 1.2 + 0.3,
-  twinkleDelay: ((i * 53) % 100) / 30,
-}));
-
-const Stars = ({ opacity }: { opacity: number }) => {
-  if (opacity <= 0) return null;
-  return (
-    <g opacity={opacity}>
-      {starData.map((s, i) => (
-        <motion.circle
-          key={i}
-          cx={s.x}
-          cy={s.y}
-          r={s.r}
-          fill="hsl(60 20% 95%)"
-          initial={{ opacity: 0.3 }}
-          animate={{ opacity: [0.3, 0.9, 0.3] }}
-          transition={{ duration: 2.5, repeat: Infinity, delay: s.twinkleDelay }}
-        />
-      ))}
-    </g>
-  );
-};
-
-const CelestialBody = ({ timeOfDay }: { timeOfDay: TimeOfDay }) => {
-  if (timeOfDay === "night" || timeOfDay === "fajr" || timeOfDay === "evening") {
-    // Crescent moon
-    return (
-      <g transform="translate(1050, 50)">
-        <circle cx={0} cy={0} r={22} fill="hsl(42 50% 56%)" opacity={timeOfDay === "night" ? 0.9 : 0.5} />
-        <circle cx={7} cy={-5} r={18} fill={skyThemes[timeOfDay].sky[0]} />
-        <motion.circle
-          cx={0} cy={0} r={30}
-          fill="none"
-          stroke="hsl(42 50% 56%)"
-          strokeWidth={0.5}
-          opacity={0.12}
-          animate={{ r: [30, 38, 30], opacity: [0.12, 0.04, 0.12] }}
-          transition={{ duration: 5, repeat: Infinity }}
-        />
-      </g>
-    );
-  }
-  // Sun
-  return (
-    <g transform={`translate(${timeOfDay === "morning" ? 200 : timeOfDay === "noon" ? 600 : 900}, ${timeOfDay === "noon" ? 40 : 65})`}>
-      <motion.circle
-        cx={0} cy={0} r={35}
-        fill="hsl(42 80% 70%)"
-        opacity={0.15}
-        animate={{ r: [35, 45, 35] }}
-        transition={{ duration: 4, repeat: Infinity }}
-      />
-      <circle cx={0} cy={0} r={18} fill="hsl(42 90% 70%)" opacity={0.9} />
-    </g>
-  );
-};
-
-// Building component
-const Building = ({
-  x, width, height, cat, data, isSelected, isHovered, onHover, onClick, index, theme,
-}: {
-  x: number; width: number; height: number; cat: string;
-  data: { count: number; vitality: number; emoji: string; element: string };
-  isSelected: boolean; isHovered: boolean;
-  onHover: (h: boolean) => void; onClick: () => void; index: number;
-  theme: typeof skyThemes.night;
-}) => {
-  const groundY = 380;
-  const buildingY = groundY - height;
-  const windowRows = Math.floor(height / 16);
-  const windowCols = Math.max(2, Math.floor(width / 16));
-
-  const colors: Record<string, { base: string; baseDark: string; lit: string; accent: string }> = {
-    Salah:     { base: "hsl(150 30% 25%)", baseDark: "hsl(150 30% 18%)", lit: "hsl(42 60% 60%)",  accent: "hsl(150 66% 40%)" },
-    Quran:     { base: "hsl(200 25% 28%)", baseDark: "hsl(200 25% 20%)", lit: "hsl(42 50% 55%)",  accent: "hsl(200 50% 45%)" },
-    Sadaqah:   { base: "hsl(145 25% 24%)", baseDark: "hsl(145 25% 16%)", lit: "hsl(145 50% 50%)", accent: "hsl(145 52% 45%)" },
-    Dhikr:     { base: "hsl(180 20% 26%)", baseDark: "hsl(180 20% 18%)", lit: "hsl(180 40% 55%)", accent: "hsl(180 40% 40%)" },
-    Character: { base: "hsl(260 18% 28%)", baseDark: "hsl(260 18% 20%)", lit: "hsl(42 50% 58%)",  accent: "hsl(260 30% 45%)" },
-    Family:    { base: "hsl(20 20% 28%)",  baseDark: "hsl(20 20% 20%)",  lit: "hsl(30 60% 55%)",  accent: "hsl(20 40% 40%)" },
-    Fasting:   { base: "hsl(270 18% 26%)", baseDark: "hsl(270 18% 18%)", lit: "hsl(270 40% 55%)", accent: "hsl(270 30% 45%)" },
-    Knowledge: { base: "hsl(45 20% 26%)",  baseDark: "hsl(45 20% 18%)",  lit: "hsl(42 55% 55%)",  accent: "hsl(45 40% 40%)" },
-  };
-
-  const c = colors[cat] || colors.Salah;
-  const litProbability = theme.windowLit + data.vitality * 0.3;
-
-  return (
-    <motion.g
-      initial={{ y: 60, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: "easeOut" }}
-      style={{ cursor: "pointer" }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onClick={onClick}
-    >
-      {/* Shadow */}
-      <rect x={x + 5} y={buildingY + 5} width={width} height={height} rx={2} fill="black" opacity={theme.shadowOpacity} />
-
-      {/* 3D side face */}
-      <polygon
-        points={`${x + width},${buildingY} ${x + width + 8},${buildingY - 5} ${x + width + 8},${groundY - 5} ${x + width},${groundY}`}
-        fill={c.baseDark}
-        opacity={0.7}
-      />
-
-      {/* Main body */}
-      <motion.rect
-        x={x} y={buildingY} width={width} height={height} rx={1}
-        fill={c.base}
-        stroke={isSelected ? c.accent : "transparent"}
-        strokeWidth={isSelected ? 2.5 : 0}
-        animate={isHovered ? { y: buildingY - 6 } : { y: buildingY }}
-        transition={{ duration: 0.2 }}
-      />
-
-      {/* Top accent */}
-      <motion.rect
-        x={x} y={buildingY} width={width} height={5} rx={1}
-        fill={c.accent} opacity={0.8}
-        animate={isHovered ? { y: buildingY - 6 } : { y: buildingY }}
-        transition={{ duration: 0.2 }}
-      />
-
-      {/* 3D top face */}
-      <motion.polygon
-        points={`${x},${buildingY} ${x + 8},${buildingY - 5} ${x + width + 8},${buildingY - 5} ${x + width},${buildingY}`}
-        fill={c.accent} opacity={0.3}
-        animate={isHovered ? { transform: `translate(0, -6)` } : { transform: `translate(0, 0)` }}
-        transition={{ duration: 0.2 }}
-      />
-
-      {/* Windows */}
-      <motion.g animate={isHovered ? { y: -6 } : { y: 0 }} transition={{ duration: 0.2 }}>
-        {Array.from({ length: windowRows }).map((_, row) =>
-          Array.from({ length: windowCols }).map((_, col) => {
-            const wx = x + 7 + col * ((width - 14) / Math.max(windowCols - 1, 1)) - 2.5;
-            const wy = buildingY + 12 + row * 16;
-            const seed = (row * 7 + col * 13 + cat.charCodeAt(0)) % 100;
-            const isLit = seed < litProbability * 100;
-            return (
-              <motion.rect
-                key={`${row}-${col}`}
-                x={wx} y={wy} width={5} height={7} rx={0.5}
-                fill={isLit ? c.lit : theme.windowDark}
-                opacity={isLit ? 0.9 : 0.35}
-                animate={isLit ? { opacity: [0.7, 1, 0.7] } : {}}
-                transition={isLit ? { duration: 2 + (seed % 3), repeat: Infinity, delay: (seed % 15) * 0.15 } : {}}
-              />
-            );
-          })
-        )}
-      </motion.g>
-
-      {/* Rooftop elements */}
-      <motion.g animate={isHovered ? { y: -6 } : { y: 0 }} transition={{ duration: 0.2 }}>
-        {cat === "Salah" && (
-          <>
-            <ellipse cx={x + width / 2} cy={buildingY - 2} rx={width / 3} ry={7} fill={c.accent} opacity={0.5} />
-            <rect x={x + width / 2 - 2} y={buildingY - 22} width={4} height={18} fill={c.accent} opacity={0.7} rx={1} />
-            <circle cx={x + width / 2} cy={buildingY - 24} r={4} fill={theme.ambient} opacity={0.85} />
-          </>
-        )}
-        {cat === "Quran" && (
-          <polygon points={`${x},${buildingY} ${x + width / 2},${buildingY - 14} ${x + width},${buildingY}`} fill={c.accent} opacity={0.45} />
-        )}
-        {cat === "Fasting" && (
-          <>
-            <rect x={x + width / 2 - 2} y={buildingY - 24} width={4} height={20} fill={c.accent} opacity={0.6} rx={1} />
-            <circle cx={x + width / 2} cy={buildingY - 26} r={5} fill={theme.ambient} opacity={0.7} />
-            <circle cx={x + width / 2 + 3} cy={buildingY - 27} r={4} fill={skyThemes.night.sky[0]} />
-          </>
-        )}
-        {cat === "Sadaqah" && (
-          [0.2, 0.5, 0.8].map((p, i) => (
-            <g key={i} transform={`translate(${x + width * p}, ${buildingY - 2})`}>
-              <rect x={-1} y={-7} width={2} height={7} fill="hsl(30 30% 30%)" rx={0.5} />
-              <circle cx={0} cy={-10} r={5} fill="hsl(145 50% 35%)" opacity={0.65} />
-            </g>
-          ))
-        )}
-        {cat === "Knowledge" && (
-          <>
-            <rect x={x + width - 10} y={buildingY - 16} width={2} height={14} fill={c.accent} opacity={0.6} rx={0.5} />
-            <polygon points={`${x + width - 10},${buildingY - 16} ${x + width},${buildingY - 11} ${x + width - 10},${buildingY - 6}`} fill={c.accent} opacity={0.45} />
-          </>
-        )}
-        {cat === "Dhikr" && (
-          <motion.circle
-            cx={x + width / 2} cy={buildingY - 8} r={6}
-            fill={theme.ambient} opacity={0.2}
-            animate={{ r: [6, 10, 6], opacity: [0.2, 0.08, 0.2] }}
-            transition={{ duration: 3, repeat: Infinity }}
-          />
-        )}
-        {cat === "Character" && (
-          <>
-            <rect x={x + width / 2 - 8} y={buildingY - 4} width={16} height={3} rx={1.5} fill={c.accent} opacity={0.5} />
-            <circle cx={x + width / 2} cy={buildingY - 8} r={3} fill={theme.ambient} opacity={0.5} />
-          </>
-        )}
-        {cat === "Family" && (
-          <>
-            <polygon points={`${x - 2},${buildingY} ${x + width / 2},${buildingY - 10} ${x + width + 2},${buildingY}`} fill={c.accent} opacity={0.35} />
-            <rect x={x + width / 2 - 2} y={buildingY - 4} width={4} height={6} rx={0.5} fill={theme.ambient} opacity={0.4} />
-          </>
-        )}
-      </motion.g>
-
-      {/* Category label under building */}
-      <text
-        x={x + width / 2} y={groundY + 14}
-        textAnchor="middle" fill={theme.labelColor}
-        fontSize={9} fontWeight={600} fontFamily="Inter, sans-serif"
-      >
-        {data.emoji} {data.element}
-      </text>
-      <text
-        x={x + width / 2} y={groundY + 25}
-        textAnchor="middle" fill={theme.labelColor}
-        fontSize={7} fontFamily="Inter, sans-serif" opacity={0.6}
-      >
-        {data.count} deeds
-      </text>
-
-      {/* Selection glow */}
-      {isSelected && (
-        <motion.rect
-          x={x - 3} y={buildingY - 3} width={width + 6} height={height + 6} rx={3}
-          fill="none" stroke={c.accent} strokeWidth={2}
-          animate={{ opacity: [0.3, 0.9, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-
-      {/* Hover tooltip */}
-      {isHovered && (
-        <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}>
-          <rect x={x + width / 2 - 48} y={buildingY - 48} width={96} height={32} rx={8} fill="hsl(220 20% 10%)" stroke="hsl(220 15% 22%)" strokeWidth={1} />
-          <text x={x + width / 2} y={buildingY - 36} textAnchor="middle" fill="hsl(60 20% 92%)" fontSize={9} fontWeight={600} fontFamily="Inter, sans-serif">
-            {data.emoji} {data.element}
-          </text>
-          <text x={x + width / 2} y={buildingY - 23} textAnchor="middle" fill="hsl(60 10% 55%)" fontSize={8} fontFamily="Inter, sans-serif">
-            {data.count} deeds · Lvl {data.count > 50 ? 3 : data.count > 20 ? 2 : data.count > 0 ? 1 : 0}
-          </text>
-        </motion.g>
-      )}
-    </motion.g>
-  );
+// Theme colors per time of day
+const skyColors: Record<TimeOfDay, { top: string; bottom: string; ambient: string; directional: string; fog: string; ground: string; road: string; windowLit: string; windowDark: string; litChance: number }> = {
+  fajr:    { top: "#1a0a2e", bottom: "#c85a3a", ambient: "#553344", directional: "#ff9966", fog: "#2a1530", ground: "#1a1a2a", road: "#2a2a3a", windowLit: "#ffcc66", windowDark: "#0a0a15", litChance: 0.35 },
+  morning: { top: "#5588cc", bottom: "#aaccee", ambient: "#8899aa", directional: "#ffffcc", fog: "#88aacc", ground: "#2a3a2a", road: "#555555", windowLit: "#ffffaa", windowDark: "#334455", litChance: 0.15 },
+  noon:    { top: "#4488dd", bottom: "#99ccee", ambient: "#aabbcc", directional: "#ffffff", fog: "#88bbdd", ground: "#2a3a2a", road: "#666666", windowLit: "#ffffff", windowDark: "#445566", litChance: 0.1 },
+  evening: { top: "#1a1535", bottom: "#cc6633", ambient: "#664433", directional: "#ff8844", fog: "#2a1a25", ground: "#1a1a22", road: "#333340", windowLit: "#ffaa44", windowDark: "#0c0c18", litChance: 0.55 },
+  night:   { top: "#050510", bottom: "#0a0a20", ambient: "#111122", directional: "#334466", fog: "#060612", ground: "#0a0a15", road: "#151520", windowLit: "#4488ff", windowDark: "#050508", litChance: 0.7 },
 };
 
 const categories = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family", "Fasting", "Knowledge"];
 
-// Wider canvas for panning
-const CANVAS_W = 1200;
-const CANVAS_H = 440;
+const catColors: Record<string, { base: string; accent: string; roofTop: string }> = {
+  Salah:     { base: "#1a3a2a", accent: "#2a7a4a", roofTop: "#3a9a5a" },
+  Quran:     { base: "#1a2a3a", accent: "#2a5a8a", roofTop: "#3a7aaa" },
+  Sadaqah:   { base: "#1a3a1a", accent: "#2a8a3a", roofTop: "#4aaa5a" },
+  Dhikr:     { base: "#1a3a3a", accent: "#2a7a8a", roofTop: "#3a9aaa" },
+  Character: { base: "#2a1a3a", accent: "#5a3a8a", roofTop: "#7a5aaa" },
+  Family:    { base: "#3a2a1a", accent: "#8a5a2a", roofTop: "#aa7a4a" },
+  Fasting:   { base: "#2a1a3a", accent: "#6a3a9a", roofTop: "#8a5aba" },
+  Knowledge: { base: "#3a3a1a", accent: "#8a8a2a", roofTop: "#aaaa4a" },
+};
 
-const CityVisualization = ({ categoryData, selectedCategory, onSelectCategory, timeOfDay }: CityVisualizationProps) => {
-  const [hoveredCat, setHoveredCat] = useState<string | null>(null);
+// Seeded random
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return x - Math.floor(x);
+};
 
-  const theme = skyThemes[timeOfDay];
+// Single 3D building
+const Building3D = ({
+  position,
+  width,
+  depth,
+  height,
+  cat,
+  theme,
+  isSelected,
+  isHovered,
+  onHover,
+  onClick,
+  seed,
+}: {
+  position: [number, number, number];
+  width: number;
+  depth: number;
+  height: number;
+  cat: string;
+  theme: typeof skyColors.night;
+  isSelected: boolean;
+  isHovered: boolean;
+  onHover: (h: boolean) => void;
+  onClick: () => void;
+  seed: number;
+}) => {
+  const meshRef = useRef<THREE.Group>(null);
+  const cc = catColors[cat] || catColors.Salah;
 
-  const gap = 18;
-  const totalGap = gap * (categories.length + 1);
-  const buildingWidth = (CANVAS_W - totalGap) / categories.length;
-  const maxCount = Math.max(...Object.values(categoryData).map(d => d.count), 1);
+  // Animate hover
+  useFrame(() => {
+    if (!meshRef.current) return;
+    const targetY = isHovered ? 0.3 : 0;
+    meshRef.current.position.y += (targetY - (meshRef.current.position.y - position[1])) * 0.1;
+  });
 
-  // Animated cars on road
-  const cars = useMemo(() => [
-    { y: 395, speed: 25, delay: 0, dir: 1, color: "hsl(0 60% 50%)" },
-    { y: 400, speed: 35, delay: 5, dir: -1, color: "hsl(200 60% 50%)" },
-    { y: 395, speed: 20, delay: 12, dir: 1, color: "hsl(42 60% 55%)" },
-  ], []);
+  // Window texture via canvas
+  const windowTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 64;
+    canvas.height = Math.max(64, Math.floor(height * 16));
+    const ctx = canvas.getContext("2d")!;
+
+    // Base color
+    ctx.fillStyle = cc.base;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Windows grid
+    const wSize = 4;
+    const gap = 6;
+    const cols = Math.floor(canvas.width / (wSize + gap));
+    const rows = Math.floor(canvas.height / (wSize + gap));
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const s = seededRandom(seed + r * 17 + c * 31);
+        const isLit = s < theme.litChance;
+        ctx.fillStyle = isLit ? theme.windowLit : theme.windowDark;
+        ctx.globalAlpha = isLit ? 0.7 + s * 0.3 : 0.3;
+        ctx.fillRect(gap / 2 + c * (wSize + gap), gap / 2 + r * (wSize + gap), wSize, wSize);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Edge lines
+    ctx.strokeStyle = cc.accent;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.needsUpdate = true;
+    return tex;
+  }, [cc, theme, height, seed]);
 
   return (
-    <svg viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`} className="w-full h-auto select-none">
-      <defs>
-        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={theme.sky[0]} />
-          <stop offset="50%" stopColor={theme.sky[1]} />
-          <stop offset="100%" stopColor={theme.sky[2]} />
-        </linearGradient>
-      </defs>
+    <group
+      ref={meshRef}
+      position={position}
+      onPointerEnter={(e) => { e.stopPropagation(); onHover(true); document.body.style.cursor = "pointer"; }}
+      onPointerLeave={(e) => { e.stopPropagation(); onHover(false); document.body.style.cursor = "grab"; }}
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+    >
+      {/* Main building */}
+      <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial map={windowTexture} />
+      </mesh>
 
-      {/* Sky */}
-      <rect width={CANVAS_W} height={CANVAS_H} fill="url(#skyGrad)" />
+      {/* Roof accent */}
+      <mesh position={[0, height + 0.05, 0]}>
+        <boxGeometry args={[width + 0.1, 0.1, depth + 0.1]} />
+        <meshStandardMaterial color={cc.accent} />
+      </mesh>
 
-      {/* Stars */}
-      <Stars opacity={theme.starOpacity} />
+      {/* Rooftop feature per category */}
+      {cat === "Salah" && (
+        <>
+          {/* Dome */}
+          <mesh position={[0, height + 0.6, 0]}>
+            <sphereGeometry args={[width * 0.3, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <meshStandardMaterial color={cc.roofTop} />
+          </mesh>
+          {/* Minaret */}
+          <mesh position={[width * 0.35, height + 1.2, 0]}>
+            <cylinderGeometry args={[0.08, 0.12, 2.4, 8]} />
+            <meshStandardMaterial color={cc.accent} />
+          </mesh>
+          <mesh position={[width * 0.35, height + 2.5, 0]}>
+            <sphereGeometry args={[0.15, 8, 8]} />
+            <meshStandardMaterial color="#ccaa44" emissive="#ccaa44" emissiveIntensity={0.5} />
+          </mesh>
+        </>
+      )}
+      {cat === "Fasting" && (
+        <>
+          <mesh position={[0, height + 1.5, 0]}>
+            <cylinderGeometry args={[0.06, 0.1, 3, 8]} />
+            <meshStandardMaterial color={cc.accent} />
+          </mesh>
+          <mesh position={[0, height + 3.1, 0]}>
+            <sphereGeometry args={[0.2, 12, 12]} />
+            <meshStandardMaterial color="#ccaa44" emissive="#ccaa44" emissiveIntensity={0.6} />
+          </mesh>
+        </>
+      )}
+      {cat === "Sadaqah" && (
+        <>
+          {[-0.3, 0, 0.3].map((xo, i) => (
+            <group key={i} position={[xo, height + 0.1, (i - 1) * 0.3]}>
+              <mesh position={[0, 0.2, 0]}>
+                <cylinderGeometry args={[0.02, 0.03, 0.4, 6]} />
+                <meshStandardMaterial color="#553322" />
+              </mesh>
+              <mesh position={[0, 0.5, 0]}>
+                <sphereGeometry args={[0.2, 8, 8]} />
+                <meshStandardMaterial color="#338833" />
+              </mesh>
+            </group>
+          ))}
+        </>
+      )}
+      {cat === "Knowledge" && (
+        <mesh position={[0, height + 0.4, 0]} rotation={[0, 0, Math.PI / 4]}>
+          <boxGeometry args={[0.6, 0.6, 0.08]} />
+          <meshStandardMaterial color={cc.accent} />
+        </mesh>
+      )}
 
-      {/* Sun or Moon */}
-      <CelestialBody timeOfDay={timeOfDay} />
+      {/* Selection ring */}
+      {isSelected && (
+        <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[Math.max(width, depth) * 0.7, Math.max(width, depth) * 0.8, 32]} />
+          <meshStandardMaterial color={cc.roofTop} emissive={cc.roofTop} emissiveIntensity={1} transparent opacity={0.6} side={THREE.DoubleSide} />
+        </mesh>
+      )}
 
-      {/* Distant background buildings silhouette */}
-      <g opacity={0.12}>
-        {Array.from({ length: 16 }).map((_, i) => {
-          const bx = i * 80 - 10;
-          const bh = 40 + ((i * 47) % 80);
-          return <rect key={i} x={bx} y={380 - bh} width={60} height={bh} rx={1} fill={theme.labelColor} />;
-        })}
-      </g>
+      {/* Hover label */}
+      {isHovered && (
+        <Html position={[0, height + 2, 0]} center distanceFactor={15} style={{ pointerEvents: "none" }}>
+          <div className="bg-card/95 border border-border rounded-lg px-3 py-1.5 shadow-lg backdrop-blur-sm whitespace-nowrap">
+            <p className="text-xs font-semibold text-foreground">{catColors[cat] ? cat : ""}</p>
+            <p className="text-[10px] text-muted-foreground">Click to inspect</p>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
 
-      {/* Ground */}
-      <rect x={0} y={380} width={CANVAS_W} height={60} fill={theme.ground} />
-      {/* Road */}
-      <rect x={0} y={388} width={CANVAS_W} height={16} fill={theme.road} />
-      {/* Road markings */}
-      {Array.from({ length: 30 }).map((_, i) => (
-        <rect key={i} x={10 + i * 42} y={395} width={22} height={2.5} rx={1.25} fill={theme.roadMark} opacity={0.35} />
+// Background buildings (small filler)
+const BackgroundBuildings = ({ theme, count = 120 }: { theme: typeof skyColors.night; count?: number }) => {
+  const buildings = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const angle = seededRandom(i * 3) * Math.PI * 2;
+      const dist = 8 + seededRandom(i * 7) * 25;
+      const x = Math.cos(angle) * dist;
+      const z = Math.sin(angle) * dist;
+      const h = 0.5 + seededRandom(i * 11) * 4;
+      const w = 0.3 + seededRandom(i * 13) * 0.6;
+      return { x, z, h, w };
+    });
+  }, [count]);
+
+  const bgTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 32;
+    canvas.height = 64;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = theme.ground;
+    ctx.fillRect(0, 0, 32, 64);
+    for (let r = 0; r < 12; r++) {
+      for (let c = 0; c < 6; c++) {
+        const s = seededRandom(r * 11 + c * 23);
+        if (s < theme.litChance * 0.6) {
+          ctx.fillStyle = theme.windowLit;
+          ctx.globalAlpha = 0.3 + s * 0.4;
+          ctx.fillRect(2 + c * 5, 2 + r * 5, 3, 3);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.needsUpdate = true;
+    return tex;
+  }, [theme]);
+
+  return (
+    <group>
+      {buildings.map((b, i) => (
+        <mesh key={i} position={[b.x, b.h / 2, b.z]} castShadow>
+          <boxGeometry args={[b.w, b.h, b.w]} />
+          <meshStandardMaterial map={bgTexture} />
+        </mesh>
       ))}
-      {/* Sidewalk */}
-      <rect x={0} y={404} width={CANVAS_W} height={4} fill={theme.sidewalk} />
+    </group>
+  );
+};
 
-      {/* Animated cars */}
-      {cars.map((car, i) => (
-        <motion.g
-          key={i}
-          animate={{ x: car.dir > 0 ? [- 30, CANVAS_W + 30] : [CANVAS_W + 30, -30] }}
-          transition={{ duration: car.speed, repeat: Infinity, delay: car.delay, ease: "linear" }}
-        >
-          <rect x={0} y={car.y - 3} width={18} height={6} rx={2} fill={car.color} opacity={0.7} />
-          {/* Headlights */}
-          <circle cx={car.dir > 0 ? 18 : 0} cy={car.y} r={1.5} fill="hsl(42 80% 80%)" opacity={timeOfDay === "night" || timeOfDay === "evening" ? 0.8 : 0.3} />
-        </motion.g>
+// Ground plane
+const Ground = ({ theme }: { theme: typeof skyColors.night }) => (
+  <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+    <planeGeometry args={[80, 80]} />
+    <meshStandardMaterial color={theme.ground} />
+  </mesh>
+);
+
+// Roads grid
+const Roads = ({ theme }: { theme: typeof skyColors.night }) => {
+  const roadColor = theme.road;
+  return (
+    <group>
+      {/* Main roads */}
+      {[-6, 0, 6].map((x) => (
+        <mesh key={`rx${x}`} position={[x, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.8, 40]} />
+          <meshStandardMaterial color={roadColor} />
+        </mesh>
       ))}
+      {[-4, 4].map((z) => (
+        <mesh key={`rz${z}`} position={[0, 0.01, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[40, 0.6]} />
+          <meshStandardMaterial color={roadColor} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
 
-      {/* Buildings */}
+// Scene with all buildings
+const CityScene = ({
+  categoryData, selectedCategory, onSelectCategory, timeOfDay,
+}: CityVisualizationProps) => {
+  const [hoveredCat, setHoveredCat] = useState<string | null>(null);
+  const theme = skyColors[timeOfDay];
+  const maxCount = Math.max(...Object.values(categoryData).map(d => d.count), 1);
+
+  // Layout: 2 rows of 4
+  const positions: [number, number][] = [
+    [-4.5, -2], [-1.5, -2], [1.5, -2], [4.5, -2],
+    [-4.5, 2],  [-1.5, 2],  [1.5, 2],  [4.5, 2],
+  ];
+
+  return (
+    <>
+      {/* Lighting */}
+      <ambientLight color={theme.ambient} intensity={0.6} />
+      <directionalLight
+        color={theme.directional}
+        intensity={1.2}
+        position={[10, 15, 8]}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+      />
+      <pointLight position={[0, 10, 0]} color={theme.windowLit} intensity={0.15} />
+
+      {/* Fog */}
+      <fog attach="fog" args={[theme.fog, 15, 45]} />
+
+      {/* Ground & roads */}
+      <Ground theme={theme} />
+      <Roads theme={theme} />
+
+      {/* Background filler buildings */}
+      <BackgroundBuildings theme={theme} />
+
+      {/* Main category buildings */}
       {categories.map((cat, i) => {
         const data = categoryData[cat];
         if (!data) return null;
-        const x = gap + i * (buildingWidth + gap);
-        const minH = 50;
-        const maxH = 300;
-        const height = minH + (data.count / maxCount) * (maxH - minH);
+        const [px, pz] = positions[i];
+        const height = 1 + (data.count / maxCount) * 8;
+        const width = 1.8;
+        const depth = 1.8;
+
         return (
-          <Building
-            key={cat} x={x} width={buildingWidth} height={height}
-            cat={cat} data={data}
+          <Building3D
+            key={cat}
+            position={[px, 0, pz]}
+            width={width}
+            depth={depth}
+            height={height}
+            cat={cat}
+            theme={theme}
             isSelected={selectedCategory === cat}
             isHovered={hoveredCat === cat}
             onHover={(h) => setHoveredCat(h ? cat : null)}
             onClick={() => onSelectCategory(selectedCategory === cat ? null : cat)}
-            index={i} theme={theme}
+            seed={i * 100 + cat.charCodeAt(0)}
           />
         );
       })}
 
-      {/* City name */}
-      <text x={CANVAS_W / 2} y={CANVAS_H - 5} textAnchor="middle" fill={theme.labelColor} fontSize={10} fontFamily="Inter, sans-serif" letterSpacing={5} opacity={0.5}>
-        YOUR DEED CITY
-      </text>
-    </svg>
+      {/* Category labels on ground */}
+      {categories.map((cat, i) => {
+        const data = categoryData[cat];
+        if (!data) return null;
+        const [px, pz] = positions[i];
+        return (
+          <Text
+            key={`label-${cat}`}
+            position={[px, 0.02, pz + 1.5]}
+            rotation={[-Math.PI / 2, 0, 0]}
+            fontSize={0.25}
+            color={theme.windowLit}
+            anchorX="center"
+            anchorY="middle"
+            font={undefined}
+          >
+            {data.emoji} {data.element}
+          </Text>
+        );
+      })}
+
+      {/* Orbit controls */}
+      <OrbitControls
+        makeDefault
+        enablePan
+        enableZoom
+        enableRotate
+        minDistance={5}
+        maxDistance={40}
+        maxPolarAngle={Math.PI / 2.2}
+        minPolarAngle={0.2}
+        target={[0, 0, 0]}
+      />
+    </>
+  );
+};
+
+const CityVisualization = (props: CityVisualizationProps) => {
+  const theme = skyColors[props.timeOfDay];
+
+  return (
+    <div className="w-full h-[500px] md:h-[600px] rounded-xl overflow-hidden" style={{ cursor: "grab" }}>
+      <Canvas
+        shadows
+        camera={{ position: [12, 14, 12], fov: 45 }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(theme.fog);
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.2;
+        }}
+        style={{ background: theme.fog }}
+      >
+        <CityScene {...props} />
+      </Canvas>
+    </div>
   );
 };
 

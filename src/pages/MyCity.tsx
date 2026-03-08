@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Share2, Camera, RotateCcw, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { Share2, Camera, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
@@ -46,53 +46,6 @@ const MyCity = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
 
-  // Pan & zoom state
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsDragging(true);
-    dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
-  }, [pan]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    setPan({ x: dragStart.current.panX + dx, y: dragStart.current.panY + dy });
-  }, [isDragging]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // Touch support
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      const t = e.touches[0];
-      setIsDragging(true);
-      dragStart.current = { x: t.clientX, y: t.clientY, panX: pan.x, panY: pan.y };
-    }
-  }, [pan]);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDragging || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    const dx = t.clientX - dragStart.current.x;
-    const dy = t.clientY - dragStart.current.y;
-    setPan({ x: dragStart.current.panX + dx, y: dragStart.current.panY + dy });
-  }, [isDragging]);
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    setZoom((z) => Math.min(3, Math.max(0.5, z - e.deltaY * 0.001)));
-  }, []);
-
-  const resetView = () => { setZoom(1); setPan({ x: 0, y: 0 }); };
-
   return (
     <motion.div
       initial="hidden"
@@ -110,7 +63,7 @@ const MyCity = () => {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => { setSelectedCategory(null); resetView(); }}>
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
             <RotateCcw className="h-4 w-4" /> Reset
           </Button>
           <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> Snapshot</Button>
@@ -135,58 +88,22 @@ const MyCity = () => {
         </div>
       </motion.div>
 
-      {/* City Visualization - Draggable */}
+      {/* 3D City */}
       <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
         <Card className="border-border bg-card overflow-hidden rounded-xl relative">
           <CardContent className="p-0">
-            {/* Zoom controls */}
-            <div className="absolute top-3 right-3 z-10 flex flex-col gap-1">
-              <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg shadow-md" onClick={() => setZoom(z => Math.min(3, z + 0.25))}>
-                <ZoomIn className="h-4 w-4" />
-              </Button>
-              <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg shadow-md" onClick={() => setZoom(z => Math.max(0.5, z - 0.25))}>
-                <ZoomOut className="h-4 w-4" />
-              </Button>
-              <Button variant="secondary" size="icon" className="h-8 w-8 rounded-lg shadow-md" onClick={resetView}>
-                <Maximize2 className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Drag hint */}
+            {/* Controls hint */}
             <div className="absolute bottom-3 left-3 z-10">
-              <Badge variant="secondary" className="text-[10px] opacity-60">
-                🖱️ Drag to pan · Scroll to zoom
+              <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">
+                🖱️ Drag to rotate · Right-drag to pan · Scroll to zoom
               </Badge>
             </div>
-
-            <div
-              ref={containerRef}
-              className="overflow-hidden"
-              style={{ cursor: isDragging ? "grabbing" : "grab" }}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleMouseUp}
-              onWheel={handleWheel}
-            >
-              <div
-                style={{
-                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                  transformOrigin: "center center",
-                  transition: isDragging ? "none" : "transform 0.15s ease-out",
-                }}
-              >
-                <CityVisualization
-                  categoryData={categoryData}
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={setSelectedCategory}
-                  timeOfDay={timeOfDay}
-                />
-              </div>
-            </div>
+            <CityVisualization
+              categoryData={categoryData}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              timeOfDay={timeOfDay}
+            />
           </CardContent>
         </Card>
       </motion.div>
