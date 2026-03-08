@@ -979,7 +979,7 @@ const Pond = ({ position, radiusX, radiusZ, theme, seed }: {
 
 
 
-const ellipse = Ellipse;
+
 
 // ─── River ────────────────────────────────────────────────────────
 
