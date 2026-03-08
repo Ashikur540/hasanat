@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
 import BuildingDetail from "@/components/city/BuildingDetail";
 import { useAmbientSounds } from "@/hooks/useAmbientSounds";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -47,6 +48,7 @@ const MyCity = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
   const { enabled: soundEnabled, toggle: toggleSound } = useAmbientSounds(timeOfDay);
+  const { t } = useI18n();
 
   return (
     <motion.div
@@ -58,22 +60,22 @@ const MyCity = () => {
       {/* Header */}
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Deed City 🏙️</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("cityTitle")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             <Badge variant="outline" className="mr-2 text-primary">{currentMilestone?.name}</Badge>
-            {totalDeeds} deeds · {Object.keys(categoryData).length} districts
+            {totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length} {t("dashDistricts")}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}>
-            <RotateCcw className="h-4 w-4" /> Reset
+            <RotateCcw className="h-4 w-4" /> {t("cityReset")}
           </Button>
           <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>
             {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            {soundEnabled ? "Sound On" : "Sound Off"}
+            {soundEnabled ? t("citySoundOn") : t("citySoundOff")}
           </Button>
-          <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> Snapshot</Button>
-          <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> Share</Button>
+          <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> {t("citySnapshot")}</Button>
+          <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> {t("cityShare")}</Button>
         </div>
       </motion.div>
 
@@ -101,7 +103,7 @@ const MyCity = () => {
             {/* Controls hint */}
             <div className="absolute bottom-3 left-3 z-10">
               <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">
-                🖱️ Drag to rotate · Right-drag to pan · Scroll to zoom
+                {t("cityDragHint")}
               </Badge>
             </div>
             <CityVisualization
@@ -152,7 +154,7 @@ const MyCity = () => {
           <Card className="border-border bg-card">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-foreground">Next: {nextMilestone.name}</span>
+                <span className="text-sm font-semibold text-foreground">{t("cityNext")}: {nextMilestone.name}</span>
                 <span className="text-xs text-muted-foreground">{totalDeeds}/{nextMilestone.req}</span>
               </div>
               <Progress value={(totalDeeds / nextMilestone.req) * 100} className="h-2.5" />
