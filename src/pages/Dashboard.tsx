@@ -4,11 +4,14 @@ import StreakCard from "@/components/dashboard/StreakCard";
 import CityPreview from "@/components/dashboard/CityPreview";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
 const Dashboard = () => {
+  const { t } = useI18n();
+
   return (
     <motion.div
       initial="hidden"
@@ -23,7 +26,7 @@ const Dashboard = () => {
           Assalamu Alaikum, Ahmed! 🌿
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          15 Sha'ban 1447 · Keep going, you're on a 12-day streak!
+          15 Sha'ban 1447 · Keep going, you're on a 23-day streak!
         </p>
       </motion.div>
 
@@ -51,12 +54,13 @@ const Dashboard = () => {
             <CityPreview />
           </motion.div>
           <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-            <Card className="border-border bg-card">
-              <CardContent className="p-5">
-                <p className="text-sm text-foreground italic leading-relaxed">
-                  "The most beloved of deeds to Allah are those that are most consistent, even if they are small."
+            <Card className="border-border bg-muted/30">
+              <CardContent className="p-5 text-center">
+                <p className="text-sm text-muted-foreground italic leading-relaxed">
+                  "Points are for your motivation only.
+                  <br />
+                  The real reward of every deed is with Allah alone."
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">— Prophet Muhammad ﷺ (Bukhari & Muslim)</p>
               </CardContent>
             </Card>
           </motion.div>
