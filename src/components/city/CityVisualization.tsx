@@ -1478,8 +1478,8 @@ const CityScene = ({ categoryData, selectedCategory, onSelectCategory, timeOfDay
         intensity={theme.dirIntensity}
         position={theme.dirPos}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-far={50}
         shadow-camera-left={-15}
         shadow-camera-right={15}
