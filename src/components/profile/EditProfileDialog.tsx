@@ -21,6 +21,7 @@ interface ProfileData {
   location: string;
   isPublic: boolean;
   initials: string;
+  joined: string;
 }
 
 interface EditProfileDialogProps {
