@@ -1238,6 +1238,56 @@ const BirdFlock = ({ center, count, baseColor }: {
   );
 };
 
+// ─── Drifting Clouds ─────────────────────────────────────────────
+
+const Cloud = ({ position, scale, speed, seed }: { position: [number, number, number]; scale: number; speed: number; seed: number }) => {
+  const ref = useRef<THREE.Group>(null);
+  const blobs = useMemo(() =>
+    Array.from({ length: 4 + Math.floor(sr(seed * 17) * 3) }, (_, i) => ({
+      x: (sr(seed * 31 + i * 7) - 0.5) * 2.5 * scale,
+      y: (sr(seed * 43 + i * 11) - 0.5) * 0.4 * scale,
+      z: (sr(seed * 53 + i * 13) - 0.5) * 1.5 * scale,
+      r: (0.6 + sr(seed * 67 + i) * 0.8) * scale,
+    })), [seed, scale]);
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    ref.current.position.x = position[0] + Math.sin(clock.getElapsedTime() * speed + seed) * 15 + clock.getElapsedTime() * speed * 0.5;
+    // Wrap around
+    if (ref.current.position.x > 30) ref.current.position.x = -30;
+    if (ref.current.position.x < -30) ref.current.position.x = 30;
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      {blobs.map((b, i) => (
+        <mesh key={i} position={[b.x, b.y, b.z]}>
+          <sphereGeometry args={[b.r, 8, 6]} />
+          <meshStandardMaterial color="#ffffff" transparent opacity={0.85} roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const DriftingClouds = () => {
+  const clouds = useMemo(() =>
+    Array.from({ length: 8 }, (_, i) => ({
+      pos: [(sr(i * 17) - 0.5) * 40, 12 + sr(i * 23) * 6, (sr(i * 31) - 0.5) * 40] as [number, number, number],
+      scale: 0.8 + sr(i * 41) * 1.2,
+      speed: 0.05 + sr(i * 53) * 0.1,
+      seed: i * 100,
+    })), []);
+
+  return (
+    <group>
+      {clouds.map((c, i) => (
+        <Cloud key={i} position={c.pos} scale={c.scale} speed={c.speed} seed={c.seed} />
+      ))}
+    </group>
+  );
+};
+
 // ─── Environment (ground, roads, streetlights, trees, gardens) ───
 
 const Environment = ({ theme }: { theme: typeof skyColors.night }) => {
