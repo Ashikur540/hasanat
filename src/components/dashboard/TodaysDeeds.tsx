@@ -31,8 +31,19 @@ const difficultyColors: Record<string, string> = {
 
 const categories: DeedCategory[] = ["Salah", "Quran", "Sadaqah", "Dhikr", "Character", "Family", "Fasting", "Knowledge"];
 
-const TodaysDeeds = () => {
+interface TodaysDeedsProps {
+  autoCompleteSalah?: boolean;
+}
+
+const TodaysDeeds = ({ autoCompleteSalah }: TodaysDeedsProps) => {
   const [deeds, setDeeds] = useState<TodayDeed[]>(initialDeeds);
+  
+  // Auto-complete salah deed when all farz prayers are done
+  const salahDeedId = "t1";
+  const salahDeed = deeds.find(d => d.id === salahDeedId);
+  if (autoCompleteSalah && salahDeed && !salahDeed.completed) {
+    setDeeds(prev => prev.map(d => d.id === salahDeedId ? { ...d, completed: true } : d));
+  }
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<DeedCategory | null>(null);
