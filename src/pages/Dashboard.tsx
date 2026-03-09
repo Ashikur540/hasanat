@@ -65,7 +65,7 @@ const Dashboard = () => {
 
         {/* Today's Deeds - spans 2 cols */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
-          <TodaysDeeds />
+          <TodaysDeeds autoCompleteSalah={allFarzCompleted} />
         </motion.div>
 
         {/* Disclaimer - spans 2 cols */}

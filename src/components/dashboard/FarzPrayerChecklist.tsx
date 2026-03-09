@@ -84,7 +84,7 @@ const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
               <Checkbox
                 checked={p.completed}
                 onCheckedChange={() => toggle(p.id)}
-                className="h-5 w-5 rounded-full border-2"
+                className="h-5 w-5 rounded-md border-2"
               />
               <span className="text-lg shrink-0">{p.emoji}</span>
               <div className="flex-1 min-w-0">

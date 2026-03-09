@@ -83,7 +83,7 @@ const TodaysDeeds = ({ autoCompleteSalah }: TodaysDeedsProps) => {
         <AnimatePresence mode="popLayout">
           {deeds.map((d) => (
             <motion.div key={d.id} layout initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20, height: 0 }} transition={{ duration: 0.25 }} onClick={() => toggle(d.id)} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer group ${d.completed ? "border-primary/20 bg-primary/5" : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"}`}>
-              <Checkbox checked={d.completed} onCheckedChange={() => toggle(d.id)} className="h-5 w-5 rounded-full border-2" />
+              <Checkbox checked={d.completed} onCheckedChange={() => toggle(d.id)} className="h-5 w-5 rounded-md border-2" />
               <span className="text-xl shrink-0">{d.emoji}</span>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-medium transition-colors ${d.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>{d.name}</p>
