@@ -29,7 +29,11 @@ function toBanglaNum(n: number): string {
   return String(n).replace(/\d/g, (d) => digits[parseInt(d)]);
 }
 
-const FarzPrayerChecklist = () => {
+interface FarzPrayerChecklistProps {
+  onAllCompleted?: (allCompleted: boolean) => void;
+}
+
+const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
   const { language } = useI18n();
   const isBn = language === "bn";
   const [prayers, setPrayers] = useState<FarzPrayer[]>(initialPrayers);
