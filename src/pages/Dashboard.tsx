@@ -48,15 +48,6 @@ const Dashboard = () => {
           <HadithWidget />
         </motion.div>
 
-        {/* Streak Card - spans 1 col */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 h-full">
-          <StreakCard />
-        </motion.div>
-
-        {/* City Preview - spans 1 col */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 h-full">
-          <CityPreview />
-        </motion.div>
 
         {/* Stats Bar - full width */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
