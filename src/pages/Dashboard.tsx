@@ -5,6 +5,7 @@ import CityPreview from "@/components/dashboard/CityPreview";
 import DateCalendarWidget from "@/components/dashboard/DateCalendarWidget";
 import PrayerTimeWidget from "@/components/dashboard/PrayerTimeWidget";
 import FarzPrayerChecklist from "@/components/dashboard/FarzPrayerChecklist";
+import HadithWidget from "@/components/dashboard/HadithWidget";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n/I18nProvider";
