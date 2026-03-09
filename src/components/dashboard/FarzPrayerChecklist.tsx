@@ -29,7 +29,11 @@ function toBanglaNum(n: number): string {
   return String(n).replace(/\d/g, (d) => digits[parseInt(d)]);
 }
 
-const FarzPrayerChecklist = () => {
+interface FarzPrayerChecklistProps {
+  onAllCompleted?: (allCompleted: boolean) => void;
+}
+
+const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
   const { language } = useI18n();
   const isBn = language === "bn";
   const [prayers, setPrayers] = useState<FarzPrayer[]>(initialPrayers);
@@ -39,7 +43,12 @@ const FarzPrayerChecklist = () => {
   const progressPct = (completed / prayers.length) * 100;
 
   const toggle = (id: string) => {
-    setPrayers((prev) => prev.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p)));
+    setPrayers((prev) => {
+      const updated = prev.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p));
+      const allDone = updated.every((p) => p.completed);
+      onAllCompleted?.(allDone);
+      return updated;
+    });
   };
 
   return (
@@ -75,7 +84,7 @@ const FarzPrayerChecklist = () => {
               <Checkbox
                 checked={p.completed}
                 onCheckedChange={() => toggle(p.id)}
-                className="h-5 w-5 rounded-full border-2"
+                className="h-5 w-5 rounded-md border-2"
               />
               <span className="text-lg shrink-0">{p.emoji}</span>
               <div className="flex-1 min-w-0">

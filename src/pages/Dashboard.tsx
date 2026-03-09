@@ -1,3 +1,4 @@
+import { useState } from "react";
 import StatsBar from "@/components/dashboard/StatsBar";
 import TodaysDeeds from "@/components/dashboard/TodaysDeeds";
 import StreakCard from "@/components/dashboard/StreakCard";
@@ -15,6 +16,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } 
 
 const Dashboard = () => {
   const { t } = useI18n();
+  const [allFarzCompleted, setAllFarzCompleted] = useState(false);
 
   return (
     <motion.div initial="hidden" animate="visible" variants={stagger} className="container mx-auto px-4 py-6 space-y-6">
@@ -38,7 +40,12 @@ const Dashboard = () => {
 
         {/* Farz Prayers - spans 2 cols */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
-          <FarzPrayerChecklist />
+          <FarzPrayerChecklist onAllCompleted={setAllFarzCompleted} />
+        </motion.div>
+
+        {/* Hadith - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2">
+          <HadithWidget />
         </motion.div>
 
         {/* Streak Card - spans 1 col */}
@@ -51,11 +58,6 @@ const Dashboard = () => {
           <CityPreview />
         </motion.div>
 
-        {/* Hadith - spans full width */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
-          <HadithWidget />
-        </motion.div>
-
         {/* Stats Bar - full width */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
           <StatsBar />
@@ -63,7 +65,7 @@ const Dashboard = () => {
 
         {/* Today's Deeds - spans 2 cols */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
-          <TodaysDeeds />
+          <TodaysDeeds autoCompleteSalah={allFarzCompleted} />
         </motion.div>
 
         {/* Disclaimer - spans 2 cols */}
