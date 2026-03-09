@@ -59,8 +59,18 @@ const Dashboard = () => {
           <TodaysDeeds autoCompleteSalah={allFarzCompleted} />
         </motion.div>
 
-        {/* Disclaimer - spans 2 cols */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2">
+        {/* Streak Card - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 h-full">
+          <StreakCard />
+        </motion.div>
+
+        {/* City Preview - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 h-full">
+          <CityPreview />
+        </motion.div>
+
+        {/* Disclaimer - spans 4 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
           <Card className="border-border bg-muted/30 h-full flex items-center justify-center">
             <CardContent className="p-5 text-center">
               <p className="text-sm text-muted-foreground italic leading-relaxed whitespace-pre-line">
