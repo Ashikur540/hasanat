@@ -43,7 +43,12 @@ const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
   const progressPct = (completed / prayers.length) * 100;
 
   const toggle = (id: string) => {
-    setPrayers((prev) => prev.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p)));
+    setPrayers((prev) => {
+      const updated = prev.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p));
+      const allDone = updated.every((p) => p.completed);
+      onAllCompleted?.(allDone);
+      return updated;
+    });
   };
 
   return (
