@@ -61,8 +61,7 @@ const Settings = () => {
     setLocationMode("gps");
     toast({ title: t("settingsLocationSaved"), description: "GPS" });
   };
-
-
+  const themeOptions = [
     { value: "light", label: t("settingsLight"), icon: Sun },
     { value: "dark", label: t("settingsDark"), icon: Moon },
     { value: "system", label: t("settingsSystem"), icon: Monitor },
