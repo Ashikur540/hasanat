@@ -58,11 +58,6 @@ const Dashboard = () => {
           <CityPreview />
         </motion.div>
 
-        {/* Hadith - spans full width */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
-          <HadithWidget />
-        </motion.div>
-
         {/* Stats Bar - full width */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
           <StatsBar />
