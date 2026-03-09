@@ -40,7 +40,12 @@ const Dashboard = () => {
 
         {/* Farz Prayers - spans 2 cols */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
-          <FarzPrayerChecklist />
+          <FarzPrayerChecklist onAllCompleted={setAllFarzCompleted} />
+        </motion.div>
+
+        {/* Hadith - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2">
+          <HadithWidget />
         </motion.div>
 
         {/* Streak Card - spans 1 col */}
