@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 // Static prayer times for Dhaka (demo data — real app would use an API)
 const PRAYER_SCHEDULE = [
   { id: "fajr", en: "Fajr", bn: "ফজর", emoji: "🌙", start: "04:59", end: "06:14" },
-  { id: "sunrise", en: "Sunrise", bn: "সূর্যোদয়", emoji: "🌅", start: "06:14", end: "06:14" },
+  { id: "duha", en: "Duha", bn: "ইশরাক/চাশত", emoji: "🌅", start: "06:14", end: "12:10" },
   { id: "dhuhr", en: "Dhuhr", bn: "যুহর", emoji: "☀️", start: "12:10", end: "15:33" },
   { id: "asr", en: "Asr", bn: "আসর", emoji: "🌤️", start: "15:33", end: "18:05" },
   { id: "maghrib", en: "Maghrib", bn: "মাগরিব", emoji: "🌇", start: "18:05", end: "19:20" },
