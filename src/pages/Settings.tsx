@@ -25,8 +25,12 @@ const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useI18n();
   const { settings: notifSettings, updateSetting, sendTestNotification } = useNotifications();
+  const { toast } = useToast();
   const [sounds, setSounds] = useState(true);
   const [profileVisibility, setProfileVisibility] = useState("friends");
+  const [cityName, setCityName] = useState(() => localStorage.getItem("prayer-location-city") || "");
+  const [locationMode, setLocationMode] = useState<"gps" | "manual">(() => localStorage.getItem("prayer-location") ? "manual" : "gps");
+  const [searching, setSearching] = useState(false);
 
   const themeOptions = [
     { value: "light", label: t("settingsLight"), icon: Sun },
