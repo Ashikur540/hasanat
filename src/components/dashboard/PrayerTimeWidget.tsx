@@ -1,18 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useI18n } from "@/i18n/I18nProvider";
-import { Sunrise, Sunset } from "lucide-react";
+import { Sunrise, Sunset, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-
-// Static prayer times for Dhaka (demo data — real app would use an API)
-const PRAYER_SCHEDULE = [
-  { id: "fajr", en: "Fajr", bn: "ফজর", emoji: "🌙", start: "04:59", end: "06:14" },
-  { id: "duha", en: "Duha", bn: "ইশরাক/চাশত", emoji: "🌅", start: "06:14", end: "12:10" },
-  { id: "dhuhr", en: "Dhuhr", bn: "যুহর", emoji: "☀️", start: "12:10", end: "15:33" },
-  { id: "asr", en: "Asr", bn: "আসর", emoji: "🌤️", start: "15:33", end: "18:05" },
-  { id: "maghrib", en: "Maghrib", bn: "মাগরিব", emoji: "🌇", start: "18:05", end: "19:20" },
-  { id: "isha", en: "Isha", bn: "ইশা", emoji: "🌙", start: "19:20", end: "23:59" },
-];
+import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 function timeToMinutes(t: string): number {
   const [h, m] = t.split(":").map(Number);
@@ -36,6 +27,7 @@ function formatTimeLeft(mins: number, isBn: boolean): string {
 const PrayerTimeWidget = () => {
   const { language } = useI18n();
   const isBn = language === "bn";
+  const { schedule, sunrise, sunset, loading } = usePrayerTimes();
   const [nowMins, setNowMins] = useState(() => {
     const n = new Date();
     return n.getHours() * 60 + n.getMinutes();
@@ -49,24 +41,29 @@ const PrayerTimeWidget = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (loading) {
+    return (
+      <Card className="border-border bg-card overflow-hidden h-[180px] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
+
   // Find current prayer
   let currentIdx = 0;
-  for (let i = PRAYER_SCHEDULE.length - 1; i >= 0; i--) {
-    if (nowMins >= timeToMinutes(PRAYER_SCHEDULE[i].start)) {
+  for (let i = schedule.length - 1; i >= 0; i--) {
+    if (nowMins >= timeToMinutes(schedule[i].start)) {
       currentIdx = i;
       break;
     }
   }
-  const current = PRAYER_SCHEDULE[currentIdx];
+  const current = schedule[currentIdx];
   const startMins = timeToMinutes(current.start);
   const endMins = timeToMinutes(current.end);
   const totalDuration = endMins - startMins;
   const elapsed = nowMins - startMins;
   const remaining = Math.max(0, endMins - nowMins);
   const progressPct = totalDuration > 0 ? Math.min(100, (elapsed / totalDuration) * 100) : 0;
-
-  const sunriseTime = "06:14";
-  const sunsetTime = "18:05";
 
   return (
     <Card className="border-border bg-card overflow-hidden">
@@ -76,10 +73,10 @@ const PrayerTimeWidget = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Sunrise className="h-4 w-4 text-accent" />
-              <span className="text-xs text-muted-foreground">{sunriseTime}</span>
+              <span className="text-xs text-muted-foreground">{sunrise}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{sunsetTime}</span>
+              <span className="text-xs text-muted-foreground">{sunset}</span>
               <Sunset className="h-4 w-4 text-accent" />
             </div>
           </div>
