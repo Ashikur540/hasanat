@@ -240,7 +240,66 @@ const Settings = () => {
         </Card>
       </motion.div>
 
-      {/* Privacy */}
+      {/* Location */}
+      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+        <Card className="border-border bg-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" /> {t("settingsLocation")}
+            </CardTitle>
+            <CardDescription>{t("settingsLocationDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { value: "gps" as const, label: t("settingsLocationGps"), icon: MapPin },
+                { value: "manual" as const, label: t("settingsLocationManual"), icon: Globe },
+              ]).map((opt) => {
+                const Icon = opt.icon;
+                const isActive = locationMode === opt.value;
+                return (
+                  <motion.button
+                    key={opt.value}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      setLocationMode(opt.value);
+                      if (opt.value === "gps") handleUseGps();
+                    }}
+                    className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                      isActive
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-secondary/30 hover:border-primary/40"
+                    }`}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className={`text-sm font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                      {opt.label}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {locationMode === "manual" && (
+              <div className="flex gap-2">
+                <Input
+                  placeholder={t("settingsLocationPlaceholder")}
+                  value={cityName}
+                  onChange={(e) => setCityName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleCitySearch()}
+                  className="flex-1"
+                />
+                <Button onClick={handleCitySearch} disabled={searching || !cityName.trim()} size="sm">
+                  {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : t("settingsLocationSaved").split(" ")[0]}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <Card className="border-border bg-card">
           <CardHeader className="pb-3">
