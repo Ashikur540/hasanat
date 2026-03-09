@@ -32,7 +32,37 @@ const Settings = () => {
   const [locationMode, setLocationMode] = useState<"gps" | "manual">(() => localStorage.getItem("prayer-location") ? "manual" : "gps");
   const [searching, setSearching] = useState(false);
 
-  const themeOptions = [
+  const handleCitySearch = async () => {
+    if (!cityName.trim()) return;
+    setSearching(true);
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName.trim())}&count=1`);
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const { latitude, longitude, name } = data.results[0];
+        localStorage.setItem("prayer-location", JSON.stringify({ lat: latitude, lng: longitude }));
+        localStorage.setItem("prayer-location-city", name);
+        setCityName(name);
+        toast({ title: t("settingsLocationSaved"), description: `${name} (${latitude.toFixed(2)}, ${longitude.toFixed(2)})` });
+      } else {
+        toast({ title: t("settingsLocationError"), variant: "destructive" });
+      }
+    } catch {
+      toast({ title: t("settingsLocationError"), variant: "destructive" });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleUseGps = () => {
+    localStorage.removeItem("prayer-location");
+    localStorage.removeItem("prayer-location-city");
+    setCityName("");
+    setLocationMode("gps");
+    toast({ title: t("settingsLocationSaved"), description: "GPS" });
+  };
+
+
     { value: "light", label: t("settingsLight"), icon: Sun },
     { value: "dark", label: t("settingsDark"), icon: Moon },
     { value: "system", label: t("settingsSystem"), icon: Monitor },
