@@ -53,6 +53,18 @@ export const usePrayerTimes = () => {
       }
     };
 
+    // Check for manually saved location first
+    const savedLocation = localStorage.getItem("prayer-location");
+    if (savedLocation) {
+      try {
+        const { lat, lng } = JSON.parse(savedLocation);
+        fetchTimes(lat, lng);
+        return;
+      } catch {
+        // Invalid stored data, fall through to geolocation
+      }
+    }
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {

@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import {
   Sun, Moon, Monitor, Bell, Globe, Lock,
-  Palette, Volume2, VolumeX, Shield, LogOut, Trash2, ChevronRight, Send,
+  Palette, Volume2, VolumeX, Shield, LogOut, Trash2, ChevronRight, Send, MapPin, Loader2,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useToast } from "@/hooks/use-toast";
 import type { Language } from "@/i18n/translations";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
