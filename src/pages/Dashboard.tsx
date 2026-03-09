@@ -24,39 +24,57 @@ const Dashboard = () => {
         <p className="text-muted-foreground text-sm mt-1">{t("dashDateStreak")}</p>
       </motion.div>
 
-      {/* 3 Top Widgets */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 auto-rows-auto gap-4">
+        {/* Date Calendar - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
           <DateCalendarWidget />
         </motion.div>
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+
+        {/* Prayer Time - spans 1 col, taller */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 lg:row-span-2">
           <PrayerTimeWidget />
         </motion.div>
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-1">
+
+        {/* Farz Prayers - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
           <FarzPrayerChecklist />
         </motion.div>
-      </div>
 
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-        <StatsBar />
-      </motion.div>
+        {/* Hadith - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
+          <HadithWidget />
+        </motion.div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-2">
+        {/* Stats Bar - full width */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
+          <StatsBar />
+        </motion.div>
+
+        {/* Today's Deeds - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2 lg:row-span-2">
           <TodaysDeeds />
         </motion.div>
-        <motion.div initial="hidden" animate="visible" variants={stagger} className="space-y-4">
-          <motion.div variants={fadeUp} transition={{ duration: 0.4 }}><StreakCard /></motion.div>
-          <motion.div variants={fadeUp} transition={{ duration: 0.4 }}><CityPreview /></motion.div>
-          <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-            <Card className="border-border bg-muted/30">
-              <CardContent className="p-5 text-center">
-                <p className="text-sm text-muted-foreground italic leading-relaxed whitespace-pre-line">
-                  "{t("dashPointsDisclaimer")}"
-                </p>
-              </CardContent>
-            </Card>
-          </motion.div>
+
+        {/* Streak Card - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
+          <StreakCard />
+        </motion.div>
+
+        {/* City Preview - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
+          <CityPreview />
+        </motion.div>
+
+        {/* Disclaimer - spans 2 cols */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2">
+          <Card className="border-border bg-muted/30">
+            <CardContent className="p-5 text-center">
+              <p className="text-sm text-muted-foreground italic leading-relaxed whitespace-pre-line">
+                "{t("dashPointsDisclaimer")}"
+              </p>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
     </motion.div>
