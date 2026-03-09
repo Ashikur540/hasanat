@@ -2,6 +2,9 @@ import StatsBar from "@/components/dashboard/StatsBar";
 import TodaysDeeds from "@/components/dashboard/TodaysDeeds";
 import StreakCard from "@/components/dashboard/StreakCard";
 import CityPreview from "@/components/dashboard/CityPreview";
+import DateCalendarWidget from "@/components/dashboard/DateCalendarWidget";
+import PrayerTimeWidget from "@/components/dashboard/PrayerTimeWidget";
+import FarzPrayerChecklist from "@/components/dashboard/FarzPrayerChecklist";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -19,6 +22,19 @@ const Dashboard = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("dashGreeting")}</h1>
         <p className="text-muted-foreground text-sm mt-1">{t("dashDateStreak")}</p>
       </motion.div>
+
+      {/* 3 Top Widgets */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+          <DateCalendarWidget />
+        </motion.div>
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+          <PrayerTimeWidget />
+        </motion.div>
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-1">
+          <FarzPrayerChecklist />
+        </motion.div>
+      </div>
 
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <StatsBar />
