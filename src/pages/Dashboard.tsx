@@ -31,8 +31,8 @@ const Dashboard = () => {
           <DateCalendarWidget />
         </motion.div>
 
-        {/* Prayer Time - spans 1 col, taller */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 lg:row-span-2">
+        {/* Prayer Time - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
           <PrayerTimeWidget />
         </motion.div>
 
@@ -41,8 +41,18 @@ const Dashboard = () => {
           <FarzPrayerChecklist />
         </motion.div>
 
-        {/* Hadith - spans 1 col */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
+        {/* Streak Card - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 h-full">
+          <StreakCard />
+        </motion.div>
+
+        {/* City Preview - spans 1 col */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1 h-full">
+          <CityPreview />
+        </motion.div>
+
+        {/* Hadith - spans full width */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-4">
           <HadithWidget />
         </motion.div>
 
@@ -56,19 +66,9 @@ const Dashboard = () => {
           <TodaysDeeds />
         </motion.div>
 
-        {/* Streak Card - spans 1 col */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
-          <StreakCard />
-        </motion.div>
-
-        {/* City Preview - spans 1 col */}
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="lg:col-span-1">
-          <CityPreview />
-        </motion.div>
-
         {/* Disclaimer - spans 2 cols */}
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-2">
-          <Card className="border-border bg-muted/30">
+          <Card className="border-border bg-muted/30 h-full flex items-center justify-center">
             <CardContent className="p-5 text-center">
               <p className="text-sm text-muted-foreground italic leading-relaxed whitespace-pre-line">
                 "{t("dashPointsDisclaimer")}"
