@@ -1,3 +1,4 @@
+import { useState } from "react";
 import StatsBar from "@/components/dashboard/StatsBar";
 import TodaysDeeds from "@/components/dashboard/TodaysDeeds";
 import StreakCard from "@/components/dashboard/StreakCard";
@@ -15,6 +16,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } 
 
 const Dashboard = () => {
   const { t } = useI18n();
+  const [allFarzCompleted, setAllFarzCompleted] = useState(false);
 
   return (
     <motion.div initial="hidden" animate="visible" variants={stagger} className="container mx-auto px-4 py-6 space-y-6">
