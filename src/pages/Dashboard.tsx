@@ -23,23 +23,18 @@ const Dashboard = () => {
         <p className="text-muted-foreground text-sm mt-1">{t("dashDateStreak")}</p>
       </motion.div>
 
-      {/* 3 Top Widgets: Date, Prayer Time, Farz Checklist */}
-      <div className="grid md:grid-cols-3 gap-4">
+      {/* 3 Top Widgets */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
           <DateCalendarWidget />
         </motion.div>
         <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
           <PrayerTimeWidget />
         </motion.div>
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-1">
-          {/* Farz checklist shown compact at top on desktop */}
+        <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="md:col-span-2 lg:col-span-1">
+          <FarzPrayerChecklist />
         </motion.div>
       </div>
-
-      {/* Farz Prayer Checklist - full width */}
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-        <FarzPrayerChecklist />
-      </motion.div>
 
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
         <StatsBar />
