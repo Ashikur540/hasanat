@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useI18n } from "@/i18n/I18nProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { usePrayerTimes } from "@/hooks/usePrayerTimes";
 
 interface FarzPrayer {
   id: string;
@@ -37,6 +38,18 @@ const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
   const { language } = useI18n();
   const isBn = language === "bn";
   const [prayers, setPrayers] = useState<FarzPrayer[]>(initialPrayers);
+  const { schedule, loading } = usePrayerTimes();
+
+  useEffect(() => {
+    if (!loading && schedule.length > 0) {
+      setPrayers((prev) => 
+        prev.map((p) => {
+          const scheduleMatch = schedule.find(s => s.id === p.id);
+          return scheduleMatch ? { ...p, time: scheduleMatch.start } : p;
+        })
+      );
+    }
+  }, [schedule, loading]);
 
   const completed = prayers.filter((p) => p.completed).length;
   const totalPoints = prayers.filter((p) => p.completed).reduce((sum, p) => sum + p.points, 0);
@@ -67,47 +80,53 @@ const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
         </div>
       </CardHeader>
       <CardContent className="pt-0 space-y-1.5">
-        <AnimatePresence mode="popLayout">
-          {prayers.map((p) => (
-            <motion.div
-              key={p.id}
-              layout
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
-                p.completed
-                  ? "border-primary/20 bg-primary/5"
-                  : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
-              }`}
-              onClick={() => toggle(p.id)}
-            >
-              <Checkbox
-                checked={p.completed}
-                onCheckedChange={() => toggle(p.id)}
-                className="h-5 w-5 rounded-md border-2"
-              />
-              <span className="text-lg shrink-0">{p.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-semibold transition-colors ${p.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
-                  {isBn ? p.bn : p.en}
-                </p>
-                <p className="text-xs text-muted-foreground">{p.time}</p>
-              </div>
-              <span className={`text-xs font-bold ${p.completed ? "text-primary" : "text-muted-foreground"}`}>
-                +{isBn ? toBanglaNum(p.points) : p.points}
-              </span>
-              {p.completed && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="text-primary"
-                >
-                  <Sparkles className="h-4 w-4" />
-                </motion.div>
-              )}
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {prayers.map((p) => (
+              <motion.div
+                key={p.id}
+                layout
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${
+                  p.completed
+                    ? "border-primary/20 bg-primary/5"
+                    : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
+                }`}
+                onClick={() => toggle(p.id)}
+              >
+                <Checkbox
+                  checked={p.completed}
+                  onCheckedChange={() => toggle(p.id)}
+                  className="h-5 w-5 rounded-md border-2"
+                />
+                <span className="text-lg shrink-0">{p.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold transition-colors ${p.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                    {isBn ? p.bn : p.en}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{p.time}</p>
+                </div>
+                <span className={`text-xs font-bold ${p.completed ? "text-primary" : "text-muted-foreground"}`}>
+                  +{isBn ? toBanglaNum(p.points) : p.points}
+                </span>
+                {p.completed && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="text-primary"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        )}
 
         {/* Total points earned */}
         {completed > 0 && (
