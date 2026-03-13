@@ -55,10 +55,12 @@ const MyCity = () => {
       <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("cityTitle")}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            <Badge variant="outline" className="mr-2 text-primary">{currentMilestone?.name}</Badge>
-            {totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length} {t("dashDistricts")}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline" className="text-primary">{currentMilestone?.name}</Badge>
+            <p className="text-muted-foreground text-sm">
+              {totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length} {t("dashDistricts")}
+            </p>
+          </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}><RotateCcw className="h-4 w-4" /> {t("cityReset")}</Button>

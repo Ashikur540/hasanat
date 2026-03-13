@@ -859,7 +859,7 @@ const Vehicle = ({ road, roadPos, startZ, speed, color, type, seed }: {
       {/* Windows */}
       {type === "bus" && [-0.3, -0.1, 0.1, 0.3].map((zOff, i) => (
         <mesh key={i} position={[dims.w / 2 + 0.001, dims.h * 0.35, zOff]}>
-          <planeGeometry args={[0.001, dims.windowH * 0.7, 0.12]} />
+          <planeGeometry args={[0.001, dims.windowH * 0.7, 1, 1]} />
           <meshStandardMaterial color="#88ccff" emissive="#88ccff" emissiveIntensity={0.15} />
         </mesh>
       ))}
