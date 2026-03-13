@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI agent files
+.github/copilot-instructions.md
+CLAUDE.md
+AGENTS.md
+.claude/
+.agents/
+.agent/
