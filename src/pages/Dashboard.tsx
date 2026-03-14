@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useAuth } from "@/features/auth";
 import {
 	DateCalendarWidget,
 	FarzPrayerChecklist,
@@ -21,7 +22,11 @@ const stagger = {
 
 const Dashboard = () => {
 	const { t } = useI18n();
+	const { user } = useAuth();
 	const [allFarzCompleted, setAllFarzCompleted] = useState(false);
+
+	const userName = user?.displayName || "Friend";
+	const greeting = t("dashGreetingTemplate").replace("{name}", userName);
 
 	return (
 		<motion.div
@@ -33,7 +38,7 @@ const Dashboard = () => {
 			<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
 				<p className="font-arabic text-lg text-primary mb-1">﷽</p>
 				<h1 className="text-2xl md:text-3xl font-bold text-foreground">
-					{t("dashGreeting")}
+					{greeting}
 				</h1>
 				<p className="text-muted-foreground text-sm mt-1">
 					{t("dashDateStreak")}
