@@ -281,6 +281,40 @@ export const translations = {
     notifWeeklyTitle: "📊 Weekly Summary",
     notifWeeklyBody: "Check out your progress this week!",
 
+    // Greeting
+    dashGreetingTemplate: "Assalamu Alaikum, {name}! 🌿",
+
+    // Location Permissions
+    locationPromptTitle: "Enable Location",
+    locationPromptDesc: "We need your location to show accurate prayer times",
+    locationAllow: "Allow",
+    locationManualEntry: "Enter Manually",
+    locationLatitude: "Latitude",
+    locationLongitude: "Longitude",
+    locationSave: "Save Location",
+    locationCancel: "Cancel",
+
+    // Location Settings
+    settingsLocationTitle: "Prayer Location",
+    settingsLocationCurrent: "Current Location",
+    settingsLocationLastUpdated: "Last Updated",
+    settingsLocationChange: "Change Location",
+    settingsLocationRefresh: "Use Current Location",
+
+    // Timezone Settings
+    settingsTimezoneTitle: "Timezone",
+    settingsTimezoneAuto: "Auto-detected",
+    settingsTimezoneManual: "Manual",
+
+    // Cache/Offline Indicators
+    dataLastUpdated: "Last updated: {date}",
+    dataOffline: "Showing cached data",
+    cacheTimestamp: "{time} ago",
+
+    // Hadith Widget
+    hadithLoading: "Loading hadith...",
+    hadithError: "Could not fetch hadith",
+
     // Common
     commonDays: "days",
     commonSend: "Send",
@@ -566,6 +600,40 @@ export const translations = {
     notifTipTitle: "💡 আমল টিপ",
     notifWeeklyTitle: "📊 সাপ্তাহিক সারাংশ",
     notifWeeklyBody: "এই সপ্তাহের অগ্রগতি দেখুন!",
+
+    // Greeting
+    dashGreetingTemplate: "আপনার উপর আল্লাহর শান্তি বর্ষিত হোক, {name}! 🌿",
+
+    // Location Permissions
+    locationPromptTitle: "অবস্থান সক্ষম করুন",
+    locationPromptDesc: "সঠিক নামাজের সময় দেখানোর জন্য আমাদের আপনার অবস্থান প্রয়োজন",
+    locationAllow: "অনুমতি দিন",
+    locationManualEntry: "ম্যানুয়ালি প্রবেশ করুন",
+    locationLatitude: "অক্ষাংশ",
+    locationLongitude: "দ্রাঘিমাংশ",
+    locationSave: "অবস্থান সংরক্ষণ করুন",
+    locationCancel: "বাতিল করুন",
+
+    // Location Settings
+    settingsLocationTitle: "নামাজের অবস্থান",
+    settingsLocationCurrent: "বর্তমান অবস্থান",
+    settingsLocationLastUpdated: "সর্বশেষ আপডেট",
+    settingsLocationChange: "অবস্থান পরিবর্তন করুন",
+    settingsLocationRefresh: "বর্তমান অবস্থান ব্যবহার করুন",
+
+    // Timezone Settings
+    settingsTimezoneTitle: "সময় অঞ্চল",
+    settingsTimezoneAuto: "স্বয়ংক্রিয়ভাবে সনাক্ত করা",
+    settingsTimezoneManual: "ম্যানুয়াল",
+
+    // Cache/Offline Indicators
+    dataLastUpdated: "সর্বশেষ আপডেট: {date}",
+    dataOffline: "ক্যাশ করা ডেটা দেখাচ্ছে",
+    cacheTimestamp: "{time} আগে",
+
+    // Hadith Widget
+    hadithLoading: "হাদীস লোড হচ্ছে...",
+    hadithError: "হাদীস আনতে পারে নি",
 
     // Common
     commonDays: "দিন",
