@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy, Sun, Moon, Monitor, Globe, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,20 +6,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useAuthActions } from "@/features/auth";
 
 const AppLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const { t, language, setLanguage } = useI18n();
   const { theme, setTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const { handleSignOut } = useAuthActions();
   const isActive = (path: string) => location.pathname === path;
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/auth", { replace: true });
-  };
 
   const userInitials = user?.displayName
     ? user.displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()

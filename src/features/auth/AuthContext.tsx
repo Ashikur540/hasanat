@@ -46,9 +46,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(firebaseUser);
       } catch (err) {
         console.error("❌ Auth state error:", err);
-        setUser(firebaseUser); // still set user even if Firestore fails
+        setUser(firebaseUser);
       } finally {
-        setLoading(false); // always unblock — no more infinite loading
+        setLoading(false);
       }
     });
 
