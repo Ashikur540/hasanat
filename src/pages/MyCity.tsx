@@ -5,124 +5,211 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Share2, Camera, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import CityVisualization, { type TimeOfDay } from "@/components/city/CityVisualization";
-import BuildingDetail from "@/components/city/BuildingDetail";
+import { CityVisualization, BuildingDetail, type TimeOfDay } from "@/features/city";
 import { useAmbientSounds } from "@/hooks/useAmbientSounds";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } };
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+const stagger = {
+	hidden: {},
+	visible: { transition: { staggerChildren: 0.08 } },
+};
 
-const categoryData: Record<string, { count: number; vitality: number; emoji: string; element: string }> = {
-  Salah:     { count: 156, vitality: 1.0, emoji: "🕌", element: "Masjid" },
-  Quran:     { count: 89,  vitality: 0.85, emoji: "📚", element: "Library" },
-  Sadaqah:   { count: 45,  vitality: 0.7,  emoji: "🌳", element: "Garden" },
-  Dhikr:     { count: 120, vitality: 0.9,  emoji: "⛲", element: "Fountain" },
-  Character: { count: 34,  vitality: 0.6,  emoji: "🤝", element: "Centre" },
-  Family:    { count: 28,  vitality: 0.8,  emoji: "🏠", element: "Homes" },
-  Fasting:   { count: 18,  vitality: 0.5,  emoji: "🌙", element: "Tower" },
-  Knowledge: { count: 22,  vitality: 0.65, emoji: "🏫", element: "School" },
+const categoryData: Record<
+	string,
+	{ count: number; vitality: number; emoji: string; element: string }
+> = {
+	Salah: { count: 156, vitality: 1.0, emoji: "🕌", element: "Masjid" },
+	Quran: { count: 89, vitality: 0.85, emoji: "📚", element: "Library" },
+	Sadaqah: { count: 45, vitality: 0.7, emoji: "🌳", element: "Garden" },
+	Dhikr: { count: 120, vitality: 0.9, emoji: "⛲", element: "Fountain" },
+	Character: { count: 34, vitality: 0.6, emoji: "🤝", element: "Centre" },
+	Family: { count: 28, vitality: 0.8, emoji: "🏠", element: "Homes" },
+	Fasting: { count: 18, vitality: 0.5, emoji: "🌙", element: "Tower" },
+	Knowledge: { count: 22, vitality: 0.65, emoji: "🏫", element: "School" },
 };
 
 const milestones = [
-  { name: "Al-Bidayah", req: 1, desc: "First seed planted" },
-  { name: "Al-Qaryah", req: 7, desc: "Small village" },
-  { name: "Al-Hay", req: 30, desc: "Neighborhood" },
-  { name: "Al-Madinah", req: 100, desc: "Full city" },
-  { name: "Al-Jannah", req: 365, desc: "Paradise garden" },
+	{ name: "Al-Bidayah", req: 1, desc: "First seed planted" },
+	{ name: "Al-Qaryah", req: 7, desc: "Small village" },
+	{ name: "Al-Hay", req: 30, desc: "Neighborhood" },
+	{ name: "Al-Madinah", req: 100, desc: "Full city" },
+	{ name: "Al-Jannah", req: 365, desc: "Paradise garden" },
 ];
 
-const totalDeeds = Object.values(categoryData).reduce((sum, c) => sum + c.count, 0);
-const currentMilestone = milestones.filter(m => totalDeeds >= m.req).pop();
-const nextMilestone = milestones.find(m => totalDeeds < m.req);
+const totalDeeds = Object.values(categoryData).reduce(
+	(sum, c) => sum + c.count,
+	0,
+);
+const currentMilestone = milestones.filter((m) => totalDeeds >= m.req).pop();
+const nextMilestone = milestones.find((m) => totalDeeds < m.req);
 
 const MyCity = () => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
-  const { enabled: soundEnabled, toggle: toggleSound } = useAmbientSounds(timeOfDay);
-  const { t } = useI18n();
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+	const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>("night");
+	const { enabled: soundEnabled, toggle: toggleSound } =
+		useAmbientSounds(timeOfDay);
+	const { t } = useI18n();
 
-  const timeOptions: { value: TimeOfDay; label: string; emoji: string }[] = [
-    { value: "fajr", label: t("timeFajr"), emoji: "🌅" },
-    { value: "morning", label: t("timeMorning"), emoji: "☀️" },
-    { value: "noon", label: t("timeNoon"), emoji: "🌤️" },
-    { value: "evening", label: t("timeEvening"), emoji: "🌇" },
-    { value: "night", label: t("timeNight"), emoji: "🌙" },
-  ];
+	const timeOptions: { value: TimeOfDay; label: string; emoji: string }[] = [
+		{ value: "fajr", label: t("timeFajr"), emoji: "🌅" },
+		{ value: "morning", label: t("timeMorning"), emoji: "☀️" },
+		{ value: "noon", label: t("timeNoon"), emoji: "🌤️" },
+		{ value: "evening", label: t("timeEvening"), emoji: "🌇" },
+		{ value: "night", label: t("timeNight"), emoji: "🌙" },
+	];
 
-  return (
-    <motion.div initial="hidden" animate="visible" variants={stagger} className="container mx-auto px-4 py-6 space-y-5">
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">{t("cityTitle")}</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="outline" className="text-primary">{currentMilestone?.name}</Badge>
-            <p className="text-muted-foreground text-sm">
-              {totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length} {t("dashDistricts")}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" size="sm" className="gap-2" onClick={() => setSelectedCategory(null)}><RotateCcw className="h-4 w-4" /> {t("cityReset")}</Button>
-          <Button variant="outline" size="sm" className="gap-2" onClick={toggleSound}>{soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}{soundEnabled ? t("citySoundOn") : t("citySoundOff")}</Button>
-          <Button variant="outline" size="sm" className="gap-2"><Camera className="h-4 w-4" /> {t("citySnapshot")}</Button>
-          <Button variant="outline" size="sm" className="gap-2"><Share2 className="h-4 w-4" /> {t("cityShare")}</Button>
-        </div>
-      </motion.div>
+	return (
+		<motion.div
+			initial="hidden"
+			animate="visible"
+			variants={stagger}
+			className="container mx-auto px-4 py-6 space-y-5"
+		>
+			<motion.div
+				variants={fadeUp}
+				transition={{ duration: 0.4 }}
+				className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+			>
+				<div>
+					<h1 className="text-2xl md:text-3xl font-bold text-foreground">
+						{t("cityTitle")}
+					</h1>
+					<div className="flex items-center gap-2 mt-1">
+						<Badge variant="outline" className="text-primary">
+							{currentMilestone?.name}
+						</Badge>
+						<p className="text-muted-foreground text-sm">
+							{totalDeeds} {t("cityDeeds")} · {Object.keys(categoryData).length}{" "}
+							{t("dashDistricts")}
+						</p>
+					</div>
+				</div>
+				<div className="flex gap-2 flex-wrap">
+					<Button
+						variant="outline"
+						size="sm"
+						className="gap-2"
+						onClick={() => setSelectedCategory(null)}
+					>
+						<RotateCcw className="h-4 w-4" /> {t("cityReset")}
+					</Button>
+					<Button
+						variant="outline"
+						size="sm"
+						className="gap-2"
+						onClick={toggleSound}
+					>
+						{soundEnabled ? (
+							<Volume2 className="h-4 w-4" />
+						) : (
+							<VolumeX className="h-4 w-4" />
+						)}
+						{soundEnabled ? t("citySoundOn") : t("citySoundOff")}
+					</Button>
+					<Button variant="outline" size="sm" className="gap-2">
+						<Camera className="h-4 w-4" /> {t("citySnapshot")}
+					</Button>
+					<Button variant="outline" size="sm" className="gap-2">
+						<Share2 className="h-4 w-4" /> {t("cityShare")}
+					</Button>
+				</div>
+			</motion.div>
 
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-        <div className="flex gap-1.5 justify-center flex-wrap">
-          {timeOptions.map((opt) => (
-            <Button key={opt.value} variant={timeOfDay === opt.value ? "default" : "outline"} size="sm" className="gap-1.5 h-8 text-xs rounded-full px-3" onClick={() => setTimeOfDay(opt.value)}>
-              {opt.emoji} {opt.label}
-            </Button>
-          ))}
-        </div>
-      </motion.div>
+			<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+				<div className="flex gap-1.5 justify-center flex-wrap">
+					{timeOptions.map((opt) => (
+						<Button
+							key={opt.value}
+							variant={timeOfDay === opt.value ? "default" : "outline"}
+							size="sm"
+							className="gap-1.5 h-8 text-xs rounded-full px-3"
+							onClick={() => setTimeOfDay(opt.value)}
+						>
+							{opt.emoji} {opt.label}
+						</Button>
+					))}
+				</div>
+			</motion.div>
 
-      <motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
-        <Card className="border-border bg-card overflow-hidden rounded-xl relative">
-          <CardContent className="p-0">
-            <div className="absolute bottom-3 left-3 z-10">
-              <Badge variant="secondary" className="text-[10px] opacity-70 backdrop-blur-sm">{t("cityDragHint")}</Badge>
-            </div>
-            <CityVisualization categoryData={categoryData} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} timeOfDay={timeOfDay} />
-          </CardContent>
-        </Card>
-      </motion.div>
+			<motion.div variants={fadeUp} transition={{ duration: 0.5 }}>
+				<Card className="border-border bg-card overflow-hidden rounded-xl relative">
+					<CardContent className="p-0">
+						<div className="absolute bottom-3 left-3 z-10">
+							<Badge
+								variant="secondary"
+								className="text-[10px] opacity-70 backdrop-blur-sm"
+							>
+								{t("cityDragHint")}
+							</Badge>
+						</div>
+						<CityVisualization
+							categoryData={categoryData}
+							selectedCategory={selectedCategory}
+							onSelectCategory={setSelectedCategory}
+							timeOfDay={timeOfDay}
+						/>
+					</CardContent>
+				</Card>
+			</motion.div>
 
-      <AnimatePresence>
-        <BuildingDetail category={selectedCategory} data={selectedCategory ? categoryData[selectedCategory] : null} onClose={() => setSelectedCategory(null)} />
-      </AnimatePresence>
+			<AnimatePresence>
+				<BuildingDetail
+					category={selectedCategory}
+					data={selectedCategory ? categoryData[selectedCategory] : null}
+					onClose={() => setSelectedCategory(null)}
+				/>
+			</AnimatePresence>
 
-      <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-          {Object.entries(categoryData).map(([cat, data]) => (
-            <motion.button key={cat} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)} className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border transition-colors ${selectedCategory === cat ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}>
-              <span className="text-lg">{data.emoji}</span>
-              <span className="text-[10px] font-medium text-foreground">{data.element}</span>
-              <span className="text-[9px] text-muted-foreground">{data.count}</span>
-            </motion.button>
-          ))}
-        </div>
-      </motion.div>
+			<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+				<div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+					{Object.entries(categoryData).map(([cat, data]) => (
+						<motion.button
+							key={cat}
+							whileHover={{ scale: 1.08 }}
+							whileTap={{ scale: 0.95 }}
+							onClick={() =>
+								setSelectedCategory(selectedCategory === cat ? null : cat)
+							}
+							className={`flex flex-col items-center gap-1 p-2.5 rounded-lg border transition-colors ${selectedCategory === cat ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/40"}`}
+						>
+							<span className="text-lg">{data.emoji}</span>
+							<span className="text-[10px] font-medium text-foreground">
+								{data.element}
+							</span>
+							<span className="text-[9px] text-muted-foreground">
+								{data.count}
+							</span>
+						</motion.button>
+					))}
+				</div>
+			</motion.div>
 
-      {nextMilestone && (
-        <motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-          <Card className="border-border bg-card">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-foreground">{t("cityNext")}: {nextMilestone.name}</span>
-                <span className="text-xs text-muted-foreground">{totalDeeds}/{nextMilestone.req}</span>
-              </div>
-              <Progress value={(totalDeeds / nextMilestone.req) * 100} className="h-2.5" />
-              <p className="text-xs text-muted-foreground mt-2">{nextMilestone.desc}</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )}
-    </motion.div>
-  );
+			{nextMilestone && (
+				<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+					<Card className="border-border bg-card">
+						<CardContent className="p-5">
+							<div className="flex items-center justify-between mb-2">
+								<span className="text-sm font-semibold text-foreground">
+									{t("cityNext")}: {nextMilestone.name}
+								</span>
+								<span className="text-xs text-muted-foreground">
+									{totalDeeds}/{nextMilestone.req}
+								</span>
+							</div>
+							<Progress
+								value={(totalDeeds / nextMilestone.req) * 100}
+								className="h-2.5"
+							/>
+							<p className="text-xs text-muted-foreground mt-2">
+								{nextMilestone.desc}
+							</p>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
+		</motion.div>
+	);
 };
 
 export default MyCity;

@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 
-import AppLayout from "@/components/layout/AppLayout";
+import AppLayout from "@/layout/AppLayout";
 import { ProtectedRoute } from "@/features/auth";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
