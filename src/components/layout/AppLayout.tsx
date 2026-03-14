@@ -1,17 +1,29 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
-import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy, Sun, Moon, Monitor, Globe } from "lucide-react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { BarChart3, Building2, BookOpen, Users, User, Home, Settings, Trophy, Sun, Moon, Monitor, Globe, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AppLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, language, setLanguage } = useI18n();
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth", { replace: true });
+  };
+
+  const userInitials = user?.displayName
+    ? user.displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
 
   const navLinks = [
     { to: "/dashboard", label: t("navDashboard"), icon: Home },
@@ -102,11 +114,25 @@ const AppLayout = () => {
             <Button variant="ghost" size="icon" className="hidden md:inline-flex h-8 w-8" asChild>
               <Link to="/settings"><Settings className="h-4 w-4" /></Link>
             </Button>
-            <Link to="/profile">
-              <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">AH</AvatarFallback>
-              </Avatar>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 cursor-pointer">
+                  <AvatarImage src={user?.photoURL ?? undefined} alt={user?.displayName ?? "User"} />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">{userInitials}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="flex items-center gap-2">
+                    <User className="h-4 w-4" /> Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive gap-2">
+                  <LogOut className="h-4 w-4" /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </nav>
