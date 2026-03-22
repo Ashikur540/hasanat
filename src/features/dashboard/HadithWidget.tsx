@@ -3,31 +3,12 @@ import { BookOpen, Loader2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { motion } from "framer-motion";
 import { useHadith } from "@/hooks/useHadith";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const HadithWidget = () => {
 	const { language } = useI18n();
-	const { hadith, loading, error, cachedAt } = useHadith();
+	const { hadith, loading } = useHadith();
 	const isBn = language === "bn";
-
-	const isOffline = cachedAt && !loading && !error;
-	const formatCachedTime = (isoString: string | null) => {
-		if (!isoString) return "";
-		const date = new Date(isoString);
-		if (isBn) {
-			return date.toLocaleString("bn-BD", {
-				month: "short",
-				day: "numeric",
-				hour: "2-digit",
-				minute: "2-digit",
-			});
-		}
-		return date.toLocaleString("en-US", {
-			month: "short",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
 
 	if (loading) {
 		return (
@@ -35,13 +16,9 @@ const HadithWidget = () => {
 				<div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
 					<BookOpen className="w-32 h-32" />
 				</div>
-				<motion.div
-					animate={{ rotate: 360 }}
-					transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-					className="relative z-10"
-				>
-					<Loader2 className="h-8 w-8 text-primary" />
-				</motion.div>
+				<Skeleton className="w-full h-4 mb-2" />
+				<Skeleton className="w-full h-4 mb-2" />
+				<Skeleton className="w-3/4 h-4" />
 			</Card>
 		);
 	}
@@ -82,27 +59,7 @@ const HadithWidget = () => {
 							{isBn ? "আজকের হাদিস" : "Hadith of the Day"}
 						</h3>
 					</div>
-					<div className="flex items-center gap-2">
-						{isOffline && (
-							<span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-								{isBn ? "অফলাইন" : "Offline"}
-							</span>
-						)}
-						<span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-							{hadith.source === "Fallback"
-								? isBn
-									? "ফলব্যাক"
-									: "Fallback"
-								: "Al-Quran Cloud"}
-						</span>
-					</div>
 				</div>
-				{isOffline && cachedAt && (
-					<p className="text-xs text-muted-foreground mt-2">
-						{isBn ? "শেষ আপডেট: " : "Last updated: "}
-						{formatCachedTime(cachedAt)}
-					</p>
-				)}
 			</CardHeader>
 			<CardContent className="space-y-4 relative z-10">
 				{/* Arabic Text */}

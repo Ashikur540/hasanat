@@ -161,18 +161,13 @@ const fetchHadithFromCDN = async (
 
 		clearTimeout(timeoutId);
 
-		if (!response.ok) {
-			console.warn(`[useHadith] Failed to fetch ${edition}/${number}: ${response.status}`);
-			return null;
-		}
+		if (!response.ok) return null;
 
 		const data = (await response.json()) as FawazHadithResponse;
-		console.log(`[useHadith] ✅ Fetched ${edition}/${number}:`, data);
 
 		// Extract hadith text from response
 		const hadith = data.hadiths?.[0];
 		if (hadith?.text) {
-			console.log(`[useHadith] Found text:`, hadith.text.substring(0, 50) + "...");
 			return hadith.text;
 		}
 
@@ -180,7 +175,10 @@ const fetchHadithFromCDN = async (
 	} catch (e) {
 		clearTimeout(timeoutId);
 		const errorMsg = e instanceof Error ? e.message : "Unknown error";
-		console.error(`[useHadith] Fetch error for ${edition}/${number}:`, errorMsg);
+		console.error(
+			`[useHadith] Fetch error for ${edition}/${number}:`,
+			errorMsg,
+		);
 		return null;
 	}
 };
@@ -190,25 +188,25 @@ const fetchHadithFromAPI = async (): Promise<Hadith | null> => {
 		const book = HADITH_BOOKS[Math.floor(Math.random() * HADITH_BOOKS.length)];
 		const hadithNumber = Math.floor(Math.random() * book.max) + 1;
 
-		console.log(`[useHadith] 🔄 Fetching from ${book.name} #${hadithNumber}...`);
-
 		// Fetch English, Arabic, and Bengali simultaneously
 		const [engText, araText, bnText] = await Promise.all([
 			fetchHadithFromCDN(book.edition, hadithNumber),
 			// Arabic edition (if available)
-			fetchHadithFromCDN(book.edition.replace("eng-", "ara-"), hadithNumber).catch(() => null),
+			fetchHadithFromCDN(
+				book.edition.replace("eng-", "ara-"),
+				hadithNumber,
+			).catch(() => null),
 			// Bengali edition (if available)
-			fetchHadithFromCDN(book.edition.replace("eng-", "ben-"), hadithNumber).catch(() => null),
+			fetchHadithFromCDN(
+				book.edition.replace("eng-", "ben-"),
+				hadithNumber,
+			).catch(() => null),
 		]);
 
-		console.log(`[useHadith] 📊 Results:`, {
-			hasEnglish: !!engText,
-			hasArabic: !!araText,
-			hasBengali: !!bnText,
-		});
-
 		if (!engText && !araText) {
-			console.warn(`[useHadith] ⚠️ No text found for ${book.name} #${hadithNumber}`);
+			console.warn(
+				`[useHadith] ⚠️ No text found for ${book.name} #${hadithNumber}`,
+			);
 			return null;
 		}
 
@@ -219,8 +217,6 @@ const fetchHadithFromAPI = async (): Promise<Hadith | null> => {
 			reference: `${book.name} ${hadithNumber}`,
 			source: "fawazahmed0/hadith-api (CDN)",
 		};
-
-		console.log(`[useHadith] ✨ Successfully fetched hadith:`, hadith.reference);
 		return hadith;
 	} catch (e) {
 		const message = e instanceof Error ? e.message : "Unknown error";
@@ -249,18 +245,14 @@ export const useHadith = (): UseHadithReturn => {
 				setLoading(false);
 				return;
 			}
-
-			console.log("[useHadith] 🌐 No cache found, fetching from CDN...");
 			const fetched = await fetchHadithFromAPI();
 
 			if (fetched) {
-				console.log("[useHadith] ✅ Successfully fetched fresh hadith");
 				setHadith(fetched);
 				setCachedHadith(fetched);
 				setCachedAt(new Date().toISOString());
 				setError(null);
 			} else {
-				console.warn("[useHadith] ⚠️ CDN failed, using fallback hadith");
 				const fallback =
 					FALLBACK_HADITHS[Math.floor(Math.random() * FALLBACK_HADITHS.length)];
 				setHadith(fallback);
