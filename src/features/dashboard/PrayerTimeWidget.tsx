@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Sunrise, Sunset, Loader2, AlertCircle, Calendar } from "lucide-react";
+import {
+	Sunrise,
+	Sunset,
+	Loader2,
+	AlertCircle,
+	MapPin,
+	Clock,
+} from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +16,7 @@ import { useLocationService } from "@/hooks/useLocationService";
 import { useTimezoneService } from "@/hooks/useTimezoneService";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useCurrentPrayer } from "@/hooks/useCurrentPrayer";
+import { useReverseGeocode } from "@/hooks/useReverseGeocode";
 
 import {
 	formatTimeLeft,
@@ -22,6 +30,11 @@ const PrayerTimeWidget = () => {
 	const { schedule, sunrise, sunset, loading } = usePrayerTimes();
 	const { lat, lng } = useLocationService();
 	const { timezone } = useTimezoneService();
+	const { locationLabel, loading: geocodeLoading } = useReverseGeocode(
+		lat,
+		lng,
+		language,
+	);
 	const { isOffline } = useOnlineStatus();
 
 	const [, setNowMins] = useState(() => getCurrentTimeInMinutes());
@@ -60,13 +73,28 @@ const PrayerTimeWidget = () => {
 
 				{/* Location/Timezone info */}
 				{lat && lng && timezone && (
-					<div className="px-4 pt-2 pb-1 text-xs text-muted-foreground flex items-center justify-between">
-						<span>
-							{isBn
-								? `স্থান: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`
-								: `Location: ${lat.toFixed(2)}°, ${lng.toFixed(2)}°`}
-						</span>
-						<span>{timezone}</span>
+					<div className="px-3 pt-2.5 pb-1.5 flex items-center justify-between gap-2">
+						{/* Location pill */}
+						<div className="flex items-center gap-1.5 bg-primary/8 border border-primary/15 rounded-full px-2.5 py-1 min-w-0 max-w-[60%]">
+							<div className="relative flex-shrink-0">
+								<MapPin className="h-3 w-3 text-primary" />
+							</div>
+							{geocodeLoading ? (
+								<span className="h-2.5 w-16 rounded-full bg-muted animate-pulse inline-block" />
+							) : (
+								<span className="text-xs font-medium text-foreground/80 truncate transition-opacity duration-300">
+									{locationLabel ?? `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`}
+								</span>
+							)}
+						</div>
+
+						{/* Timezone pill */}
+						<div className="flex items-center gap-1.5 bg-muted/50 border border-border/50 rounded-full px-2.5 py-1 flex-shrink-0">
+							<Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+							<span className="text-xs text-muted-foreground whitespace-nowrap">
+								{timezone.split("/").pop()?.replace(/_/g, " ") ?? timezone}
+							</span>
+						</div>
 					</div>
 				)}
 

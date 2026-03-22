@@ -5,6 +5,7 @@ export interface LocationData {
 	lng: number;
 	timestamp: number;
 	manual: boolean;
+	locationLabel?: string;
 }
 
 export interface UseLocationServiceReturn {
@@ -15,7 +16,7 @@ export interface UseLocationServiceReturn {
 	setCachedLocation: (lat: number, lng: number, manual: boolean) => void;
 }
 
-const LOCATION_CACHE_KEY = "hasanat-location";
+export const LOCATION_CACHE_KEY = "hasanat-location";
 const GEOLOCATION_TIMEOUT = 5000; // 5 seconds
 
 export function useLocationService(): UseLocationServiceReturn {
