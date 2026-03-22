@@ -1,3 +1,4 @@
+import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 import {
 	Card,
@@ -16,12 +17,16 @@ import {
 } from "@/components/ui/select";
 import { Clock } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
-import { useTimezoneService, COMMON_TIMEZONES } from "@/hooks/useTimezoneService";
+import { COMMON_TIMEZONES } from "@/hooks/useTimezoneService";
 import { fadeUp } from "./animations";
+import type { SettingsFormValues } from "./types";
 
 const TimezoneSettings = () => {
 	const { t } = useI18n();
-	const { timezone, isAutoDetected, setTimezone } = useTimezoneService();
+	const { watch, setValue } = useFormContext<SettingsFormValues>();
+	const timeZone = watch("timeZone");
+	const isAutoDetected =
+		timeZone === Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 	return (
 		<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
@@ -37,8 +42,10 @@ const TimezoneSettings = () => {
 						<div className="space-y-1">
 							<Label className="text-sm font-medium">Current Timezone</Label>
 							<p className="text-sm text-foreground">
-								{isAutoDetected ? `${t("settingsTimezoneAuto")}: ` : `${t("settingsTimezoneManual")}: `}
-								<span className="font-mono">{timezone}</span>
+								{isAutoDetected
+									? `${t("settingsTimezoneAuto")}: `
+									: `${t("settingsTimezoneManual")}: `}
+								<span className="font-mono">{timeZone}</span>
 							</p>
 						</div>
 					</div>
@@ -47,7 +54,12 @@ const TimezoneSettings = () => {
 						<Label htmlFor="timezone-select" className="text-sm font-medium">
 							Select Timezone
 						</Label>
-						<Select value={timezone} onValueChange={setTimezone}>
+						<Select
+							value={timeZone}
+							onValueChange={(v) =>
+								setValue("timeZone", v, { shouldDirty: true })
+							}
+						>
 							<SelectTrigger id="timezone-select" className="w-full">
 								<SelectValue />
 							</SelectTrigger>

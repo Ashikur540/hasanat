@@ -1,3 +1,4 @@
+import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 import {
 	Card,
@@ -15,24 +16,52 @@ import { Bell, Send } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useNotifications } from "@/hooks/useNotifications";
 import { fadeUp } from "./animations";
+import type { SettingsFormValues, NotificationSettingsData } from "./types";
 
-type NotificationKey = "dailyReminder" | "streakAlerts" | "deedTips" | "circleUpdates" | "weeklyReport";
+type ToggleKey = Exclude<keyof NotificationSettingsData, "reminderTime">;
 
 const NotificationSettings = () => {
 	const { t } = useI18n();
-	const { settings: notifSettings, updateSetting, sendTestNotification } = useNotifications();
+	// Only used for test notification toasts — state is owned by the form
+	const { sendTestNotification } = useNotifications();
+	const { watch, setValue } = useFormContext<SettingsFormValues>();
+	const notifications = watch("notifications");
 
-	const notificationItems: Array<{
-		key: NotificationKey;
+	const items: Array<{
+		key: ToggleKey;
 		label: string;
 		desc: string;
-		test: "reminder" | "streak" | "tip" | "weekly" | undefined;
+		test?: "reminder" | "streak" | "tip" | "weekly";
 	}> = [
-		{ key: "dailyReminder", label: t("settingsDailyReminder"), desc: t("settingsDailyReminderDesc"), test: "reminder" },
-		{ key: "streakAlerts", label: t("settingsStreakAlerts"), desc: t("settingsStreakAlertsDesc"), test: "streak" },
-		{ key: "deedTips", label: t("settingsDeedTips"), desc: t("settingsDeedTipsDesc"), test: "tip" },
-		{ key: "circleUpdates", label: t("settingsCircleUpdates"), desc: t("settingsCircleUpdatesDesc"), test: undefined },
-		{ key: "weeklyReport", label: t("settingsWeeklyReport"), desc: t("settingsWeeklyReportDesc"), test: "weekly" },
+		{
+			key: "dailyReminder",
+			label: t("settingsDailyReminder"),
+			desc: t("settingsDailyReminderDesc"),
+			test: "reminder",
+		},
+		{
+			key: "streakAlerts",
+			label: t("settingsStreakAlerts"),
+			desc: t("settingsStreakAlertsDesc"),
+			test: "streak",
+		},
+		{
+			key: "deedTips",
+			label: t("settingsDeedTips"),
+			desc: t("settingsDeedTipsDesc"),
+			test: "tip",
+		},
+		{
+			key: "circleUpdates",
+			label: t("settingsCircleUpdates"),
+			desc: t("settingsCircleUpdatesDesc"),
+		},
+		{
+			key: "weeklyReport",
+			label: t("settingsWeeklyReport"),
+			desc: t("settingsWeeklyReportDesc"),
+			test: "weekly",
+		},
 	];
 
 	return (
@@ -45,14 +74,14 @@ const NotificationSettings = () => {
 					<CardDescription>{t("settingsNotifDesc")}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{notificationItems.map(({ key, label, desc, test }) => (
+					{items.map(({ key, label, desc, test }) => (
 						<div key={key} className="flex items-center justify-between">
 							<div className="space-y-0.5 flex-1">
 								<Label className="text-sm font-medium">{label}</Label>
 								<p className="text-xs text-muted-foreground">{desc}</p>
 							</div>
 							<div className="flex items-center gap-2">
-								{test && notifSettings[key] && (
+								{test && notifications[key] && (
 									<Button
 										variant="ghost"
 										size="icon"
@@ -64,8 +93,10 @@ const NotificationSettings = () => {
 									</Button>
 								)}
 								<Switch
-									checked={notifSettings[key]}
-									onCheckedChange={(v) => updateSetting(key, v)}
+									checked={notifications[key]}
+									onCheckedChange={(v) =>
+										setValue(`notifications.${key}`, v, { shouldDirty: true })
+									}
 								/>
 							</div>
 						</div>
@@ -75,13 +106,21 @@ const NotificationSettings = () => {
 
 					<div className="flex items-center justify-between">
 						<div className="space-y-0.5">
-							<Label className="text-sm font-medium">{t("settingsReminderTime")}</Label>
-							<p className="text-xs text-muted-foreground">{t("settingsReminderTimeDesc")}</p>
+							<Label className="text-sm font-medium">
+								{t("settingsReminderTime")}
+							</Label>
+							<p className="text-xs text-muted-foreground">
+								{t("settingsReminderTimeDesc")}
+							</p>
 						</div>
 						<Input
 							type="time"
-							value={notifSettings.reminderTime}
-							onChange={(e) => updateSetting("reminderTime", e.target.value)}
+							value={notifications.reminderTime}
+							onChange={(e) =>
+								setValue("notifications.reminderTime", e.target.value, {
+									shouldDirty: true,
+								})
+							}
 							className="w-[120px]"
 						/>
 					</div>

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useFormContext } from "react-hook-form";
 import {
 	Card,
 	CardContent,
@@ -10,6 +11,7 @@ import { Globe } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { fadeUp } from "./animations";
 import type { Language } from "@/i18n/translations";
+import type { SettingsFormValues } from "./types";
 
 const languages: Array<{
 	value: Language;
@@ -22,7 +24,9 @@ const languages: Array<{
 ];
 
 const LanguageSettings = () => {
-	const { language, setLanguage, t } = useI18n();
+	const { t } = useI18n();
+	const { watch, setValue } = useFormContext<SettingsFormValues>();
+	const language = watch("language");
 
 	return (
 		<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
@@ -39,7 +43,9 @@ const LanguageSettings = () => {
 								key={lang.value}
 								whileHover={{ scale: 1.03 }}
 								whileTap={{ scale: 0.97 }}
-								onClick={() => setLanguage(lang.value)}
+								onClick={() =>
+									setValue("language", lang.value, { shouldDirty: true })
+								}
 								className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
 									language === lang.value
 										? "border-primary bg-primary/10"

@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { useTheme } from "next-themes";
+import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 import { Sun, Moon, Monitor, Palette, Volume2, VolumeX } from "lucide-react";
-
 import {
 	Card,
 	CardContent,
@@ -15,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/i18n/I18nProvider";
 import { fadeUp } from "./animations";
+import type { SettingsFormValues } from "./types";
 
 const themeOptions = [
 	{ value: "light", labelKey: "settingsLight" as const, icon: Sun },
@@ -23,9 +22,10 @@ const themeOptions = [
 ];
 
 const AppearanceSettings = () => {
-	const { theme, setTheme } = useTheme();
 	const { t } = useI18n();
-	const [sounds, setSounds] = useState(true);
+	const { watch, setValue } = useFormContext<SettingsFormValues>();
+	const appearance = watch("appearance");
+	const soundEffects = watch("soundEffects");
 
 	return (
 		<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
@@ -41,13 +41,19 @@ const AppearanceSettings = () => {
 					<div className="grid grid-cols-3 gap-3">
 						{themeOptions.map((opt) => {
 							const Icon = opt.icon;
-							const isActive = theme === opt.value;
+							const isActive = appearance === opt.value;
 							return (
 								<motion.button
 									key={opt.value}
 									whileHover={{ scale: 1.03 }}
 									whileTap={{ scale: 0.97 }}
-									onClick={() => setTheme(opt.value)}
+									onClick={() =>
+										setValue(
+											"appearance",
+											opt.value as SettingsFormValues["appearance"],
+											{ shouldDirty: true },
+										)
+									}
 									className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
 										isActive
 											? "border-primary bg-primary/10"
@@ -85,12 +91,17 @@ const AppearanceSettings = () => {
 							</p>
 						</div>
 						<div className="flex items-center gap-2">
-							{sounds ? (
+							{soundEffects ? (
 								<Volume2 className="h-4 w-4 text-primary" />
 							) : (
 								<VolumeX className="h-4 w-4 text-muted-foreground" />
 							)}
-							<Switch checked={sounds} onCheckedChange={setSounds} />
+							<Switch
+								checked={soundEffects}
+								onCheckedChange={(v) =>
+									setValue("soundEffects", v, { shouldDirty: true })
+								}
+							/>
 						</div>
 					</div>
 				</CardContent>
