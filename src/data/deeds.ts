@@ -129,4 +129,38 @@ export const PRESET_DEEDS: Deed[] = [
   { id: "k8",  name: "Learn a Hadith", category: "Knowledge", difficulty: "easy", basePoints: 5, emoji: "📜", hadithReference: "Tirmidhi 2656 — May Allah brighten their face", description: "Learn and understand a new hadith of the Prophet ﷺ.", isPreset: true },
   { id: "k9",  name: "Attend Friday Khutbah", category: "Knowledge", difficulty: "medium", basePoints: 15, emoji: "🕌", hadithReference: "Muslim 857", description: "Listen attentively to the Friday sermon.", isPreset: true },
   { id: "k10", name: "Write Islamic Notes", category: "Knowledge", difficulty: "medium", basePoints: 15, emoji: "✍️", hadithReference: "Tirmidhi 2682", description: "Take notes from an Islamic lecture or reading session.", isPreset: true },
+  { id: "k11", name: "Watch an Islamic Lecture Online", category: "Knowledge", difficulty: "easy", basePoints: 5, emoji: "🎥", hadithReference: "Az-Zumar 39:9", description: "Watch an educational Islamic lecture or video.", isPreset: true },
+  { id: "k12", name: "Study a Scholar's Biography", category: "Knowledge", difficulty: "medium", basePoints: 15, emoji: "📜", hadithReference: "Tirmidhi 2685", description: "Read about the life and contributions of a classical Islamic scholar.", isPreset: true },
+  { id: "k13", name: "Start or Join a Halaqa", category: "Knowledge", difficulty: "hard", basePoints: 30, emoji: "🕌", hadithReference: "Muslim 2699 — Angels surround gatherings of dhikr", description: "Organize or join a regular Islamic study circle.", isPreset: true },
+
+  // ── Salah extras (2) ──
+  { id: "s13", name: "Pray Salatul Janazah", category: "Salah", difficulty: "medium", basePoints: 15, emoji: "🤲", hadithReference: "Bukhari 1325 — One qirat of reward", description: "Attend and pray the funeral prayer for a Muslim.", isPreset: true },
+  { id: "s14", name: "Sujood al-Shukr", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🙏", hadithReference: "Abu Dawud 2774", description: "Prostrate in gratitude to Allah upon receiving a blessing.", isPreset: true },
+
+  // ── Quran extras (2) ──
+  { id: "q11", name: "Complete a Quran Khatm", category: "Quran", difficulty: "exceptional", basePoints: 100, emoji: "📖", hadithReference: "Tirmidhi 2910 — Intercession on Day of Judgement", description: "Complete the recitation of the entire Quran.", isPreset: true },
+  { id: "q12", name: "Recite Last 3 Surahs (Morning & Evening)", category: "Quran", difficulty: "easy", basePoints: 5, emoji: "📖", hadithReference: "Abu Dawud 5082 — Sufficiency for everything", description: "Recite Al-Ikhlas, Al-Falaq, and An-Nas three times each morning and evening.", isPreset: true },
+
+  // ── Sadaqah extras (3) ──
+  { id: "sa13", name: "Volunteer for Community Service", category: "Sadaqah", difficulty: "hard", basePoints: 30, emoji: "🤝", hadithReference: "Muslim 2699", description: "Give your time to serve the community or a charitable cause.", isPreset: true },
+  { id: "sa14", name: "Help Someone With a Disability", category: "Sadaqah", difficulty: "medium", basePoints: 15, emoji: "♿", hadithReference: "Bukhari 6013", description: "Assist someone with a physical or other difficulty.", isPreset: true },
+  { id: "sa15", name: "Give Secret Charity (Sadaqah Sirriyyah)", category: "Sadaqah", difficulty: "exceptional", basePoints: 100, emoji: "🤫", hadithReference: "Bukhari 1421 — Shaded on Day of Judgement", description: "Give charity secretly so only Allah knows.", isPreset: true },
+
+  // ── Dhikr extras (3) ──
+  { id: "d11", name: "Recite Hasbunallahu wa Ni'mal Wakeel", category: "Dhikr", difficulty: "easy", basePoints: 5, emoji: "📿", hadithReference: "Al-Imran 3:173 — The words of Ibrahim & Prophet ﷺ", description: "Recite 'Hasbunallahu wa ni'mal wakeel' when facing difficulty.", isPreset: true },
+  { id: "d12", name: "Tasbeeh of Fatimah at Bedtime", category: "Dhikr", difficulty: "easy", basePoints: 5, emoji: "🌙", hadithReference: "Bukhari 3113 — Better than a servant", description: "Say SubhanAllah 33×, Alhamdulillah 33×, Allahu Akbar 34× before sleeping.", isPreset: true },
+  { id: "d13", name: "Recite Sleeping Adhkar", category: "Dhikr", difficulty: "easy", basePoints: 5, emoji: "😴", hadithReference: "Bukhari 247", description: "Recite the du'as before sleep: Ayatul Kursi, last two verses of Al-Baqarah, and sleeping du'a.", isPreset: true },
+
+  // ── Character extras (3) ──
+  { id: "c11", name: "Lower the Gaze", category: "Character", difficulty: "medium", basePoints: 15, emoji: "👁️", hadithReference: "An-Nur 24:30 — Guard your chastity", description: "Consciously lower your gaze from what is impermissible.", isPreset: true },
+  { id: "c12", name: "Defend Someone's Honor", category: "Character", difficulty: "medium", basePoints: 15, emoji: "🛡️", hadithReference: "Tirmidhi 1931 — Allah protects them from hellfire", description: "Speak up to protect the honor of a Muslim being spoken ill of.", isPreset: true },
+  { id: "c13", name: "Muhasabah (Self-Audit)", category: "Character", difficulty: "medium", basePoints: 15, emoji: "🪞", hadithReference: "Tirmidhi 2459 — 'Account yourselves before you are accounted'", description: "Sit in reflection and honestly review your day's deeds and intentions.", isPreset: true },
+
+  // ── Family extras (2) ──
+  { id: "f11", name: "Hold a Family Quran Circle", category: "Family", difficulty: "medium", basePoints: 15, emoji: "👨‍👩‍👧", hadithReference: "Muslim 2699", description: "Gather your family to read or listen to Quran together.", isPreset: true },
+  { id: "f12", name: "Make Dua for Your Children", category: "Family", difficulty: "easy", basePoints: 5, emoji: "🤲", hadithReference: "Al-Furqan 25:74", description: "Sincerely pray for your children's guidance, health, and righteousness.", isPreset: true },
+
+  // ── Fasting extras (2) ──
+  { id: "fa9",  name: "Fast 6 Days of Shawwal", category: "Fasting", difficulty: "hard", basePoints: 30, emoji: "🌙", hadithReference: "Muslim 1164 — Like fasting the whole year", description: "Complete any of the 6 voluntary fasts in the month of Shawwal after Ramadan.", isPreset: true },
+  { id: "fa10", name: "Fast First 9 Days of Dhul Hijjah", category: "Fasting", difficulty: "exceptional", basePoints: 100, emoji: "🕋", hadithReference: "Abu Dawud 2437 — Deeds are most beloved in these days", description: "Fast during the first nine days of Dhul Hijjah.", isPreset: true },
 ];

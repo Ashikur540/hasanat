@@ -31,6 +31,9 @@ DEEDCITY_PLAN.md
 Hasana-project-plan.md
 DATABASE_PLAN.md
 
+# Firebase service account (NEVER commit this)
+serviceAccount.json
+
 # AI agent files
 .github/copilot-instructions.md
 CLAUDE.md
