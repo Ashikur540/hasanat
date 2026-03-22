@@ -105,7 +105,7 @@ const DateCalendarWidget = () => {
 							<p className="text-sm font-bold text-foreground leading-tight">
 								{weekday}
 							</p>
-							<p className="text-xs text-muted-foreground mt-0.5">
+							<p className="text-xs text-muted-foreground my-0.5">
 								{isBn ? gregorianBn : gregorianEn}
 							</p>
 						</div>
