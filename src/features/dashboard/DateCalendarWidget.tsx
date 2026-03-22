@@ -42,8 +42,8 @@ const DateCalendarWidget = () => {
 	const isBn = language === "bn";
 
 	return (
-		<Card className="border-border bg-card overflow-hidden">
-			<CardContent className="p-0">
+		<Card className="border-border bg-card overflow-hidden h-full flex flex-col">
+			<CardContent className="p-0 flex flex-col flex-1">
 				{/* Hijri header */}
 				<div className="bg-gradient-to-r from-primary to-primary/80 p-4 text-primary-foreground">
 					<div className="flex items-center justify-between">
@@ -63,7 +63,7 @@ const DateCalendarWidget = () => {
 				</div>
 
 				{/* Gregorian + Bangla */}
-				<div className="p-4 space-y-2.5">
+				<div className="p-4 space-y-2.5 flex-1">
 					<div className="flex items-center gap-2.5">
 						<Calendar className="h-4 w-4 text-muted-foreground" />
 						<div>

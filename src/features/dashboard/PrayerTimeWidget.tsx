@@ -37,15 +37,15 @@ const PrayerTimeWidget = () => {
 
 	if (loading) {
 		return (
-			<Card className="border-border bg-card overflow-hidden h-[180px] flex items-center justify-center">
+			<Card className="border-border bg-card overflow-hidden h-full min-h-[180px] flex items-center justify-center">
 				<Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
 			</Card>
 		);
 	}
 
 	return (
-		<Card className="border-border bg-card overflow-hidden">
-			<CardContent className="p-0">
+		<Card className="border-border bg-card overflow-hidden h-full flex flex-col">
+			<CardContent className="p-0 flex flex-col flex-1">
 				{/* Offline indicator */}
 				{isOffline && (
 					<div className="bg-yellow-500/10 border-b border-yellow-500/20 px-4 py-2 flex items-center gap-2">
@@ -71,8 +71,8 @@ const PrayerTimeWidget = () => {
 				)}
 
 				{/* Current prayer hero */}
-				<div className="bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 p-4">
-					<div className="flex items-center justify-between mb-3">
+				<div className="bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 p-4 flex-1 flex flex-col justify-center gap-3">
+					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-2">
 							<Sunrise className="h-4 w-4 text-accent" />
 							<span className="text-xs text-muted-foreground">
@@ -87,7 +87,7 @@ const PrayerTimeWidget = () => {
 						</div>
 					</div>
 
-					<div className="text-center mb-3">
+					<div className="text-center">
 						<span className="text-3xl mb-1 block">{prayer.current.emoji}</span>
 						<p className="text-lg font-bold text-foreground">
 							{isBn ? prayer.current.bn : prayer.current.en}
@@ -100,7 +100,7 @@ const PrayerTimeWidget = () => {
 						</div>
 					</div>
 
-					<Progress value={prayer.progressPct} className="h-2 mb-2" />
+					<Progress value={prayer.progressPct} className="h-2" />
 					<div className="flex justify-between text-xs text-muted-foreground">
 						<span>{formatTimeInTimezone(prayer.current.start, timezone)}</span>
 						<span className="font-semibold text-foreground">

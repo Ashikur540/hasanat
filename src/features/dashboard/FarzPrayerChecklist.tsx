@@ -60,13 +60,11 @@ const FarzPrayerChecklist = ({ onAllCompleted }: FarzPrayerChecklistProps) => {
 							{Array.from({ length: 5 }).map((_, i) => (
 								<motion.div
 									key={i}
-									animate={{
-										backgroundColor:
-											i < completed ? "#1A7A4A" : "#E5E7EB",
-										scale: i < completed ? 1 : 0.85,
-									}}
+									animate={{ scale: i < completed ? 1 : 0.8 }}
 									transition={{ type: "spring", stiffness: 300, damping: 20 }}
-									className="h-2 w-2 rounded-full"
+									className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+										i < completed ? "bg-primary" : "bg-border"
+									}`}
 								/>
 							))}
 						</div>

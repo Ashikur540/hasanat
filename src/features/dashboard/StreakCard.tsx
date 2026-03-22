@@ -12,7 +12,7 @@ const StreakCard = () => {
   const weekCompleted = weekDots.filter(Boolean).length;
 
   return (
-    <Card className="border-0 overflow-hidden relative">
+    <Card className="border-0 overflow-hidden relative h-full">
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-400 dark:from-emerald-800 dark:via-emerald-700 dark:to-teal-600" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
       <CardContent className="p-6 relative z-10 text-white">
