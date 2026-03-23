@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,80 +9,37 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
 	CATEGORY_INFO,
 	DIFFICULTY_INFO,
-	type DeedCategory,
-	type DeedDifficulty,
 } from "@/data/deeds";
-import { DeedCard, CreateDeedDialog, useDeedQuery } from "@/features/deeds";
+import {
+	ALL_CATEGORIES,
+	ALL_DIFFICULTIES,
+	categoryTranslationKeyMap,
+	DeedCard,
+	CreateDeedDialog,
+	useDeedFilters,
+	useDeedQuery,
+} from "@/features/deeds";
 import { useI18n } from "@/i18n/I18nProvider";
 
-const ALL_CATEGORIES: (DeedCategory | "All")[] = [
-	"All",
-	"Salah",
-	"Quran",
-	"Sadaqah",
-	"Dhikr",
-	"Character",
-	"Family",
-	"Fasting",
-	"Knowledge",
-];
-const ALL_DIFFICULTIES: (DeedDifficulty | "all")[] = [
-	"all",
-	"easy",
-	"medium",
-	"hard",
-	"exceptional",
-];
-
-const PAGE_SIZE = 18;
-
-const catKeyMap: Record<string, string> = {
-	All: "catAll",
-	Salah: "catSalah",
-	Quran: "catQuran",
-	Sadaqah: "catSadaqah",
-	Dhikr: "catDhikr",
-	Character: "catCharacter",
-	Family: "catFamily",
-	Fasting: "catFasting",
-	Knowledge: "catKnowledge",
-};
-
 const Deeds = () => {
-	const [search, setSearch] = useState("");
-	const [category, setCategory] = useState<DeedCategory | "All">("All");
-	const [difficulty, setDifficulty] = useState<DeedDifficulty | "all">("all");
 	const [createOpen, setCreateOpen] = useState(false);
-	const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 	const { t } = useI18n();
 
 	const { allDeeds, isLoading, isError } = useDeedQuery();
-
-	// Reset pagination when filters change
-	useEffect(() => {
-		setVisibleCount(PAGE_SIZE);
-	}, [category, difficulty, search]);
-
-	const filtered = useMemo(
-		() =>
-			allDeeds.filter((d) => {
-				if (category !== "All" && d.category !== category) return false;
-				if (difficulty !== "all" && d.difficulty !== difficulty) return false;
-				if (
-					search &&
-					!d.name.toLowerCase().includes(search.toLowerCase()) &&
-					!d.description.toLowerCase().includes(search.toLowerCase())
-				)
-					return false;
-				return true;
-			}),
-		[allDeeds, category, difficulty, search],
-	);
-
-	const visible = filtered.slice(0, visibleCount);
-	const hasMore = filtered.length > visibleCount;
-
-	const filterKey = `${category}-${difficulty}-${search}`;
+	const {
+		search,
+		setSearch,
+		category,
+		setCategory,
+		difficulty,
+		setDifficulty,
+		filtered,
+		visible,
+		hasMore,
+		remainingCount,
+		filterKey,
+		loadMore,
+	} = useDeedFilters({ deeds: allDeeds });
 
 	return (
 		<motion.div
@@ -128,13 +85,13 @@ const Deeds = () => {
 				<div className="overflow-x-auto">
 					<Tabs
 						value={category}
-						onValueChange={(v) => setCategory(v as DeedCategory | "All")}
+						onValueChange={(v) => setCategory(v as typeof category)}
 					>
 						<TabsList className="h-auto flex-wrap">
 							{ALL_CATEGORIES.map((cat) => (
 								<TabsTrigger key={cat} value={cat} className="gap-1.5 text-xs">
 									{cat !== "All" && <span>{CATEGORY_INFO[cat].emoji}</span>}
-									{t(catKeyMap[cat] as any)}
+									{t(categoryTranslationKeyMap[cat])}
 								</TabsTrigger>
 							))}
 						</TabsList>
@@ -151,7 +108,7 @@ const Deeds = () => {
 							variant={difficulty === d ? "default" : "outline"}
 							size="sm"
 							className="h-7 text-xs"
-							onClick={() => setDifficulty(d)}
+							onClick={() => setDifficulty(d as typeof difficulty)}
 						>
 							{d === "all" ? t("catAll") : DIFFICULTY_INFO[d].label}
 							{d !== "all" && (
@@ -228,12 +185,12 @@ const Deeds = () => {
 						<div className="flex justify-center pt-2">
 							<Button
 								variant="outline"
-								onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+								onClick={loadMore}
 								className="gap-2"
 							>
 								Load More
 								<span className="text-xs text-muted-foreground">
-									({filtered.length - visibleCount} remaining)
+									({remainingCount} remaining)
 								</span>
 							</Button>
 						</div>
