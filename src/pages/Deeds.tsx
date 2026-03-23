@@ -6,10 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Plus, BookOpen, Filter, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-	CATEGORY_INFO,
-	DIFFICULTY_INFO,
-} from "@/data/deeds";
+import { CATEGORY_INFO, DIFFICULTY_INFO } from "@/data/deeds";
 import {
 	ALL_CATEGORIES,
 	ALL_DIFFICULTIES,
@@ -20,6 +17,7 @@ import {
 	useDeedQuery,
 } from "@/features/deeds";
 import { useI18n } from "@/i18n/I18nProvider";
+import { DeedsListSkeleton } from "@/features/deeds/components/DeedsListSkeleton";
 
 const Deeds = () => {
 	const [createOpen, setCreateOpen] = useState(false);
@@ -134,36 +132,8 @@ const Deeds = () => {
 				</motion.div>
 			)}
 
-			{isError && (
-				<Card className="border-destructive/30 bg-destructive/5">
-					<CardContent className="p-6 flex items-center gap-3 text-destructive">
-						<AlertCircle className="h-5 w-5 shrink-0" />
-						<p className="text-sm">Failed to load deeds. Please refresh the page.</p>
-					</CardContent>
-				</Card>
-			)}
-
 			{isLoading ? (
-				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-					{Array.from({ length: 6 }).map((_, i) => (
-						<Card key={i} className="border-border bg-card">
-							<CardContent className="p-5 space-y-3">
-								<div className="flex items-start gap-3">
-									<Skeleton className="h-8 w-8 rounded-md" />
-									<div className="flex-1 space-y-2">
-										<Skeleton className="h-4 w-3/4" />
-										<Skeleton className="h-3 w-full" />
-										<Skeleton className="h-3 w-5/6" />
-										<div className="flex gap-2 pt-1">
-											<Skeleton className="h-5 w-16 rounded-full" />
-											<Skeleton className="h-5 w-14 rounded-full" />
-										</div>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
+				<DeedsListSkeleton />
 			) : (
 				<>
 					<AnimatePresence mode="wait">
@@ -183,11 +153,7 @@ const Deeds = () => {
 
 					{hasMore && (
 						<div className="flex justify-center pt-2">
-							<Button
-								variant="outline"
-								onClick={loadMore}
-								className="gap-2"
-							>
+							<Button variant="outline" onClick={loadMore} className="gap-2">
 								Load More
 								<span className="text-xs text-muted-foreground">
 									({remainingCount} remaining)
