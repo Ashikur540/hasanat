@@ -13,6 +13,7 @@ import Settings from "@/pages/Settings";
 import Leaderboard from "@/pages/Leaderboard";
 import Circles from "@/pages/Circles";
 import Ramadan from "@/pages/Ramadan";
+import MyCustomDeeds from "@/pages/MyCustomDeeds";
 import NotFound from "@/pages/NotFound";
 
 export const router = createBrowserRouter([
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
 					{ path: "/leaderboard", element: <Leaderboard /> },
 					{ path: "/circles", element: <Circles /> },
 					{ path: "/ramadan", element: <Ramadan /> },
+				{ path: "/my-deeds", element: <MyCustomDeeds /> },
 				],
 			},
 		],
