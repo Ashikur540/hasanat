@@ -13,6 +13,7 @@ import {
 	TodaysDeeds,
 	CityPreview,
 } from "@/features/dashboard";
+import { useStreak } from "@/features/dashboard/hooks/useStreak";
 import { useHijriDate } from "@/hooks/useHijriDate";
 
 const fadeUp = {
@@ -29,6 +30,8 @@ const Dashboard = () => {
 	const { day, month, year } = useHijriDate();
 	const { user } = useAuth();
 	const [allFarzCompleted, setAllFarzCompleted] = useState(false);
+
+	const { currentStreak } = useStreak();
 
 	const userName = user?.displayName || "Friend";
 	const greeting = t("dashGreetingTemplate").replace("{name}", userName);
@@ -74,7 +77,7 @@ const Dashboard = () => {
 							</h1>
 							<p className="text-white/55 text-sm mt-1.5 flex items-center gap-2">
 								<span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-300/80 animate-pulse shrink-0" />
-								{`${day} ${month} ${year} · Keep going, you're on a ${23}-days streak!`}
+								{`${day} ${month} ${year} · Keep going, you're on a ${currentStreak}-day streak!`}
 							</p>
 						</div>
 
