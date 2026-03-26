@@ -6,3 +6,8 @@ export { default as StatsBar } from "./StatsBar";
 export { default as StreakCard } from "./StreakCard";
 export { default as TodaysDeeds } from "./TodaysDeeds";
 export { default as CityPreview } from "./CityPreview";
+export { useTodayTodos } from "./hooks/useTodayTodos";
+export { useStreak } from "./hooks/useStreak";
+export { useWeekGraph } from "./hooks/useWeekGraph";
+export { useAddDeedModal } from "./hooks/useAddDeedModal";
+export type { Todo, DeedLog, Streak, WeekGraphDay, ModalDeed } from "./types";

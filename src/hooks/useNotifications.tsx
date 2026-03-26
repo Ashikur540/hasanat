@@ -22,6 +22,8 @@ const deedTips = {
 		"Help a neighbor — the Prophet ﷺ emphasized the rights of neighbors.",
 		"Fast a voluntary Monday or Thursday — following the Sunnah.",
 		"Teach someone something beneficial — a deed that continues after you.",
+		"If you can, share a hadith or Quran verse that inspires you with a friend or on social media — you never know who might need to hear it!",
+		"If you missed a prayer, make it up as soon as you can — it's never too late to return to Allah.",
 	],
 	bn: [
 		"আজ কাউকে হাসুন — এটি সাদাকাহর একটি রূপ! 😊",
@@ -34,6 +36,8 @@ const deedTips = {
 		"একজন প্রতিবেশীকে সাহায্য করুন — নবী ﷺ প্রতিবেশীর অধিকারের উপর জোর দিয়েছেন।",
 		"সোমবার বা বৃহস্পতিবার নফল রোজা রাখুন — সুন্নাহ অনুসরণ।",
 		"কাউকে উপকারী কিছু শেখান — এমন আমল যা আপনার পরেও চলতে থাকে।",
+		"যদি পারেন, তাহলে একটি হাদিস বা কুরআনের আয়াত শেয়ার করুন যা আপনাকে অনুপ্রাণিত করে একটি বন্ধুর সাথে বা সোশ্যাল মিডিয়ায় — আপনি কখন জানবেন কে এটি শুনতে চাইতে পারে!",
+		"যদি আপনি কোনো সালাত মিস করেন, তাহলে যত তাড়াতাড়ি সম্ভব তত দ্রুত এটি কাজা আদায় করুন — আল্লাহর কাছে ফিরে আসা কখনই খুবই দেরি না!",
 	],
 };
 

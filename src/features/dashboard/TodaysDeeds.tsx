@@ -1,176 +1,57 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, X, Sparkles } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { X, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-	PRESET_DEEDS,
-	CATEGORY_INFO,
-	DIFFICULTY_INFO,
-	type Deed,
-	type DeedCategory,
-} from "@/data/deeds";
 import { useI18n } from "@/i18n/I18nProvider";
-
-interface TodayDeed {
-	id: string;
-	deedId: string;
-	emoji: string;
-	name: string;
-	category: DeedCategory;
-	difficulty: string;
-	points: number;
-	completed: boolean;
-}
-
-const initialDeeds: TodayDeed[] = [
-	{
-		id: "t1",
-		deedId: "s1",
-		emoji: "🕌",
-		name: "Pray all 5 Salah on time",
-		category: "Salah",
-		difficulty: "HARD",
-		points: 30,
-		completed: true,
-	},
-	{
-		id: "t2",
-		deedId: "q1",
-		emoji: "📖",
-		name: "Read 1 page of Quran",
-		category: "Quran",
-		difficulty: "MEDIUM",
-		points: 15,
-		completed: false,
-	},
-	{
-		id: "t3",
-		deedId: "d1",
-		emoji: "🤲",
-		name: "Morning Adhkar",
-		category: "Dhikr",
-		difficulty: "MEDIUM",
-		points: 15,
-		completed: true,
-	},
-	{
-		id: "t4",
-		deedId: "sa1",
-		emoji: "🤲",
-		name: "Give any sadaqah today",
-		category: "Sadaqah",
-		difficulty: "HARD",
-		points: 30,
-		completed: false,
-	},
-	{
-		id: "t5",
-		deedId: "s5",
-		emoji: "🌙",
-		name: "Pray 2 rakat Sunnah after Isha",
-		category: "Salah",
-		difficulty: "MEDIUM",
-		points: 15,
-		completed: false,
-	},
-	{
-		id: "t6",
-		deedId: "c1",
-		emoji: "😊",
-		name: "Smile at a fellow Muslim",
-		category: "Character",
-		difficulty: "EASY",
-		points: 5,
-		completed: true,
-	},
-];
+import DeleteConfirmPopover from "@/common/components/DeleteConfirmPopover";
+import { useTodayTodos } from "./hooks/useTodayTodos";
+import { usePrayerChecklistState } from "@/hooks/usePrayerChecklistState";
+import AddDeedDialog from "./AddDeedDialog";
+import type { ModalDeed } from "./types";
 
 const difficultyColors: Record<string, string> = {
-	EASY: "text-emerald-500 dark:text-emerald-400",
-	MEDIUM: "text-primary",
-	HARD: "text-orange-500 dark:text-orange-400",
-	EXCEPTIONAL: "text-amber-500 dark:text-amber-400",
+	easy: "text-emerald-500 dark:text-emerald-400",
+	medium: "text-primary",
+	hard: "text-orange-500 dark:text-orange-400",
+	exceptional: "text-amber-500 dark:text-amber-400",
 };
-
-const categories: DeedCategory[] = [
-	"Salah",
-	"Quran",
-	"Sadaqah",
-	"Dhikr",
-	"Character",
-	"Family",
-	"Fasting",
-	"Knowledge",
-];
 
 interface TodaysDeedsProps {
 	autoCompleteSalah?: boolean;
 }
 
-const TodaysDeeds = ({ autoCompleteSalah }: TodaysDeedsProps) => {
-	const [deeds, setDeeds] = useState<TodayDeed[]>(initialDeeds);
-
-	// Auto-complete salah deed when all farz prayers are done
-	const salahDeedId = "t1";
-	const salahDeed = deeds.find((d) => d.id === salahDeedId);
-	if (autoCompleteSalah && salahDeed && !salahDeed.completed) {
-		setDeeds((prev) =>
-			prev.map((d) => (d.id === salahDeedId ? { ...d, completed: true } : d)),
-		);
-	}
-	const [dialogOpen, setDialogOpen] = useState(false);
-	const [search, setSearch] = useState("");
-	const [filterCat, setFilterCat] = useState<DeedCategory | null>(null);
+const TodaysDeeds = ({ autoCompleteSalah = false }: TodaysDeedsProps) => {
 	const { t } = useI18n();
+	const [dialogOpen, setDialogOpen] = useState(false);
 
-	const completed = deeds.filter((d) => d.completed).length;
-	const addedDeedIds = new Set(deeds.map((d) => d.deedId));
+	const {
+		todos,
+		loading,
+		completedCount,
+		totalCount,
+		addedDeedIds,
+		addDeedToToday,
+		toggleTodo,
+		deleteTodo,
+	} = useTodayTodos(autoCompleteSalah);
 
-	const filteredPresets = useMemo(() => {
-		return PRESET_DEEDS.filter((d) => {
-			if (addedDeedIds.has(d.id)) return false;
-			if (filterCat && d.category !== filterCat) return false;
-			if (search && !d.name.toLowerCase().includes(search.toLowerCase()))
-				return false;
-			return true;
+	const handleAddDeed = async (deed: ModalDeed) => {
+		const added = await addDeedToToday({
+			deedId: deed.id,
+			deedType: deed.deedType,
+			name: deed.name,
+			emoji: deed.emoji,
+			category: deed.category,
+			difficulty: deed.difficulty,
+			points: deed.points,
 		});
-	}, [search, filterCat, addedDeedIds]);
-
-	const toggle = (id: string) =>
-		setDeeds((prev) =>
-			prev.map((d) => (d.id === id ? { ...d, completed: !d.completed } : d)),
-		);
-	const addDeed = (preset: Deed) => {
-		const diffInfo = DIFFICULTY_INFO[preset.difficulty];
-		setDeeds((prev) => [
-			...prev,
-			{
-				id: `t-${Date.now()}-${preset.id}`,
-				deedId: preset.id,
-				emoji: preset.emoji,
-				name: preset.name,
-				category: preset.category,
-				difficulty: diffInfo.label,
-				points: preset.basePoints,
-				completed: false,
-			},
-		]);
+		if (added) setDialogOpen(false);
 	};
-	const removeDeed = (id: string) =>
-		setDeeds((prev) => prev.filter((d) => d.id !== id));
 
 	return (
 		<Card className="border-border bg-card">
@@ -180,167 +61,136 @@ const TodaysDeeds = ({ autoCompleteSalah }: TodaysDeedsProps) => {
 						{t("todaysDeedsTitle")}
 					</CardTitle>
 					<div className="flex items-center gap-3">
-						<Progress
-							value={deeds.length > 0 ? (completed / deeds.length) * 100 : 0}
-							className="w-24 h-2"
-						/>
-						<span className="text-sm font-semibold text-muted-foreground">
-							{completed}/{deeds.length}
-						</span>
+						{!loading && (
+							<>
+								<Progress
+									value={
+										totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+									}
+									className="w-24 h-2"
+								/>
+								<span className="text-sm font-semibold text-muted-foreground">
+									{completedCount}/{totalCount}
+								</span>
+							</>
+						)}
 					</div>
 				</div>
 			</CardHeader>
-			<CardContent className="space-y-2 pt-0">
-				<AnimatePresence mode="popLayout">
-					{deeds.map((d) => (
-						<motion.div
-							key={d.id}
-							layout
-							initial={{ opacity: 0, x: -10 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: 20, height: 0 }}
-							transition={{ duration: 0.25 }}
-							onClick={() => toggle(d.id)}
-							className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all cursor-pointer group ${d.completed ? "border-primary/20 bg-primary/5" : "border-border bg-card hover:border-primary/30 hover:bg-muted/30"}`}
-						>
-							<Checkbox
-								checked={d.completed}
-								onCheckedChange={() => toggle(d.id)}
-								className="h-5 w-5 rounded-md border-2"
-							/>
-							<span className="text-xl shrink-0">{d.emoji}</span>
-							<div className="flex-1 min-w-0">
-								<p
-									className={`text-sm font-medium transition-colors ${d.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
-								>
-									{d.name}
-								</p>
-								<p className="text-xs text-muted-foreground">{d.category}</p>
-							</div>
-							<span
-								className={`text-xs font-bold uppercase ${difficultyColors[d.difficulty]}`}
-							>
-								{d.difficulty}
-							</span>
-							<span
-								className={`text-sm font-bold min-w-[36px] text-right ${d.completed ? "text-primary" : "text-muted-foreground"}`}
-							>
-								+{d.points}
-							</span>
-							<Button
-								size="sm"
-								variant="ghost"
-								className="h-6 w-6 p-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-destructive/10"
-								onClick={(e) => {
-									e.stopPropagation();
-									removeDeed(d.id);
-								}}
-							>
-								<X className="h-3.5 w-3.5 text-destructive" />
-							</Button>
-						</motion.div>
-					))}
-				</AnimatePresence>
 
-				<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-					<DialogTrigger asChild>
-						<Button
-							variant="outline"
-							size="sm"
-							className="w-full mt-2 gap-1.5 h-10 border-dashed"
-						>
-							<Plus className="h-4 w-4" /> {t("todaysDeedsAddDeed")}
-						</Button>
-					</DialogTrigger>
-					<DialogContent className="sm:max-w-screen-md max-h-[85vh] flex flex-col">
-						<DialogHeader>
-							<DialogTitle className="flex items-center gap-2">
-								<Sparkles className="h-4 w-4 text-primary" />{" "}
-								{t("todaysDeedsAddToToday")}
-							</DialogTitle>
-						</DialogHeader>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder={t("todaysDeedsSearch")}
-								value={search}
-								onChange={(e) => setSearch(e.target.value)}
-								className="pl-9"
-							/>
-						</div>
-						<div className="flex flex-wrap gap-1.5">
-							<Button
-								variant={filterCat === null ? "default" : "outline"}
-								size="sm"
-								className="h-7 text-xs rounded-full"
-								onClick={() => setFilterCat(null)}
+			<CardContent className="space-y-2 pt-0">
+				{/* ── Loading skeletons ── */}
+				{loading && (
+					<div className="space-y-2">
+						{[1, 2, 3].map((i) => (
+							<Skeleton key={i} className="h-14 w-full rounded-xl" />
+						))}
+					</div>
+				)}
+
+				{/* ── All todos (mandatory + user-added) ── */}
+				<AnimatePresence mode="popLayout">
+					{todos.map((todo) => {
+						const isMandatory = todo.isMandatory === true;
+
+						return (
+							<motion.div
+								key={todo.id}
+								layout
+								initial={{ opacity: 0, x: -10 }}
+								animate={{ opacity: 1, x: 0 }}
+								exit={{ opacity: 0, x: 20, height: 0 }}
+								transition={{ duration: 0.25 }}
+								onClick={() => !isMandatory && toggleTodo(todo)}
+								className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
+									isMandatory
+										? todo.completed
+											? "border-amber-400/40 bg-amber-50/60 dark:bg-amber-950/20"
+											: "border-amber-300/30 bg-amber-50/30 dark:bg-amber-950/10"
+										: `cursor-pointer group ${
+												todo.completed
+													? "border-primary/20 bg-primary/5"
+													: "border-border bg-card hover:border-primary/30 hover:bg-muted/30"
+											}`
+								}`}
 							>
-								{t("todaysDeedsAll")}
-							</Button>
-							{categories.map((cat) => {
-								const info = CATEGORY_INFO[cat];
-								return (
-									<Button
-										key={cat}
-										variant={filterCat === cat ? "default" : "outline"}
-										size="sm"
-										className="h-7 text-xs rounded-full gap-1"
-										onClick={() => setFilterCat(filterCat === cat ? null : cat)}
-									>
-										{info.emoji} {cat}
-									</Button>
-								);
-							})}
-						</div>
-						<ScrollArea className="flex-1 -mx-1 max-h-[400px]">
-							<div className="space-y-1 px-1">
-								{filteredPresets.length === 0 ? (
-									<p className="text-sm text-muted-foreground text-center py-8">
-										{search
-											? t("todaysDeedsNoMatch")
-											: t("todaysDeedsAllAdded")}
-									</p>
-								) : (
-									filteredPresets.map((preset) => {
-										const diffInfo = DIFFICULTY_INFO[preset.difficulty];
-										return (
-											<motion.div
-												key={preset.id}
-												initial={{ opacity: 0, y: 5 }}
-												animate={{ opacity: 1, y: 0 }}
-												className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors group"
+								<Checkbox
+									checked={todo.completed}
+									disabled={isMandatory}
+									onCheckedChange={() => !isMandatory && toggleTodo(todo)}
+									className={`h-5 w-5 rounded-md border-2 ${
+										isMandatory ? "cursor-not-allowed opacity-80" : ""
+									}`}
+								/>
+								<span className="text-xl shrink-0">{todo.emoji}</span>
+								<div className="flex-1 min-w-0">
+									<div className="flex items-center gap-1.5">
+										<p
+											className={`text-sm font-medium transition-colors ${
+												todo.completed
+													? "line-through text-muted-foreground"
+													: "text-foreground"
+											}`}
+										>
+											{todo.name}
+										</p>
+										{isMandatory && (
+											<Badge
+												variant="outline"
+												className="text-[9px] px-1.5 py-0 border-amber-400/60 text-amber-600 dark:text-amber-400 shrink-0"
 											>
-												<span className="text-lg shrink-0">{preset.emoji}</span>
-												<div className="flex-1 min-w-0">
-													<p className="text-sm font-medium text-foreground truncate">
-														{preset.name}
-													</p>
-													<p className="text-[11px] text-muted-foreground truncate">
-														{preset.description}
-													</p>
-												</div>
-												<Badge
-													variant="outline"
-													className={`text-[9px] px-1.5 py-0 shrink-0 ${diffInfo.color}`}
-												>
-													{diffInfo.label}
-												</Badge>
+												Mandatory
+											</Badge>
+										)}
+									</div>
+									<p className="text-xs text-muted-foreground/70">
+										{isMandatory
+											? todo.completed
+												? "MashaAllah! All prayers done 🤲"
+												: "The first thing accounted for on the Day of Judgment is Salah"
+											: todo.category}
+									</p>
+								</div>
+								<span
+									className={`text-xs font-bold uppercase ${difficultyColors[todo.difficulty]}`}
+								>
+									{todo.difficulty}
+								</span>
+								{isMandatory ? (
+									<div className="h-6 w-6 flex items-center justify-center opacity-30">
+										<Lock className="h-3.5 w-3.5" />
+									</div>
+								) : (
+									<div onClick={(e) => e.stopPropagation()}>
+										<DeleteConfirmPopover
+											trigger={
 												<Button
 													size="sm"
 													variant="ghost"
-													className="h-7 w-7 p-0 shrink-0 opacity-60 group-hover:opacity-100 hover:bg-primary/10"
-													onClick={() => addDeed(preset)}
+													className="h-6 w-6 p-0 opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-destructive/10"
 												>
-													<Plus className="h-4 w-4 text-primary" />
+													<X className="h-3.5 w-3.5 text-destructive" />
 												</Button>
-											</motion.div>
-										);
-									})
+											}
+											title="Remove deed?"
+											description={todo.name}
+											confirmLabel="Remove"
+											onConfirm={() => deleteTodo(todo)}
+										/>
+									</div>
 								)}
-							</div>
-						</ScrollArea>
-					</DialogContent>
-				</Dialog>
+							</motion.div>
+						);
+					})}
+				</AnimatePresence>
+
+				{/* ── Add Deed Dialog ── */}
+				<AddDeedDialog
+					open={dialogOpen}
+					onOpenChange={setDialogOpen}
+					addedDeedIds={addedDeedIds}
+					onAdd={handleAddDeed}
+				/>
 			</CardContent>
 		</Card>
 	);

@@ -239,7 +239,6 @@ export const useHadith = (): UseHadithReturn => {
 			const { hadith: cached, cachedAt: cachedTime } = getCachedHadith();
 
 			if (cached) {
-				console.log("[useHadith] 📦 Using cached hadith from:", cachedTime);
 				setHadith(cached);
 				setCachedAt(cachedTime);
 				setLoading(false);
