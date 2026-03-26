@@ -34,8 +34,8 @@ The **Dashboard** is the central hub where users track their daily Islamic deeds
 ### 4. **Streak System**
 - **Requirements**: All todos complete + All 5 prayers logged
 - **Consecutive days**: Streak increments
-- **Miss a day**: Streak resets to 0 at midnight (00:05 AM BST)
-- Managed by Firebase Cloud Functions (see below)
+- **Miss a day**: Streak resets to 0 based on the user's local day boundary
+- Managed client-side via `useStreak`/`streakService` with Firestore persistence
 
 ---
 
