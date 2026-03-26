@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/i18n/I18nProvider";
 import DeleteConfirmPopover from "@/common/components/DeleteConfirmPopover";
 import { useTodayTodos } from "./hooks/useTodayTodos";
-import { usePrayerChecklistState } from "@/hooks/usePrayerChecklistState";
 import AddDeedDialog from "./AddDeedDialog";
 import type { ModalDeed } from "./types";
 
@@ -114,14 +113,16 @@ const TodaysDeeds = ({ autoCompleteSalah = false }: TodaysDeedsProps) => {
 											}`
 								}`}
 							>
-								<Checkbox
-									checked={todo.completed}
-									disabled={isMandatory}
-									onCheckedChange={() => !isMandatory && toggleTodo(todo)}
-									className={`h-5 w-5 rounded-md border-2 ${
-										isMandatory ? "cursor-not-allowed opacity-80" : ""
-									}`}
-								/>
+								<div onClick={(e) => e.stopPropagation()}>
+									<Checkbox
+										checked={todo.completed}
+										disabled={isMandatory}
+										onCheckedChange={() => toggleTodo(todo)}
+										className={`h-5 w-5 rounded-md border-2 ${
+											isMandatory ? "cursor-not-allowed opacity-80" : ""
+										}`}
+									/>
+								</div>
 								<span className="text-xl shrink-0">{todo.emoji}</span>
 								<div className="flex-1 min-w-0">
 									<div className="flex items-center gap-1.5">

@@ -36,12 +36,6 @@ export const DashboardSkeleton = () => (
 				{/* Streak card */}
 				<Skeleton className="h-64 rounded-xl md:col-span-2 lg:col-span-2" />
 			</div>
-
-			{/* Subtle Islamic loading text */}
-			<div className="flex items-center justify-center gap-2 pt-2">
-				<span className="text-lg animate-pulse">🌿</span>
-				<p className="text-xs text-muted-foreground">Loading your amal...</p>
-			</div>
 		</div>
 	</div>
 );

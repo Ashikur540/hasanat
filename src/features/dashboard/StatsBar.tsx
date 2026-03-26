@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, ResponsiveContainer, Tooltip } from "recharts";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useStreak } from "./hooks/useStreak";
 import { useWeekGraph } from "./hooks/useWeekGraph";
@@ -112,6 +112,20 @@ const StatsBar = () => {
 											barSize={6}
 											margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
 										>
+											<Tooltip
+												cursor={{ fill: "hsl(var(--muted))", radius: 2 }}
+												content={({ active, payload }) => {
+													if (!active || !payload?.length) return null;
+													const { date, count } = payload[0].payload;
+													const day = new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+													return (
+														<div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+															<p className="font-medium text-foreground">{day}</p>
+															<p className="text-muted-foreground">{count} deed{count !== 1 ? "s" : ""}</p>
+														</div>
+													);
+												}}
+											/>
 											<Bar
 												dataKey="count"
 												fill="hsl(var(--primary))"

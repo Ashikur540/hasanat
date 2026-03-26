@@ -12,7 +12,7 @@ import {
 	getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { format } from "date-fns";
+import { format, subDays, parseISO } from "date-fns";
 
 /**
  * Client-side streak management service
@@ -27,25 +27,12 @@ interface StreakData {
 	updatedAt: any;
 }
 
-/**
- * Get yesterday's date string
- */
 function getYesterdayDate(): string {
-	const yesterday = new Date();
-	yesterday.setDate(yesterday.getDate() - 1);
-	const year = yesterday.getFullYear();
-	const month = String(yesterday.getMonth() + 1).padStart(2, "0");
-	const day = String(yesterday.getDate()).padStart(2, "0");
-	return `${year}-${month}-${day}`;
+	return format(subDays(new Date(), 1), "yyyy-MM-dd");
 }
 
-/**
- * Get previous date from a date string
- */
 function getPreviousDate(dateStr: string): string {
-	const d = new Date(dateStr + "T00:00:00Z");
-	d.setUTCDate(d.getUTCDate() - 1);
-	return d.toISOString().split("T")[0];
+	return format(subDays(parseISO(dateStr), 1), "yyyy-MM-dd");
 }
 
 /**
@@ -111,16 +98,11 @@ async function checkStreakConditions(
 			collection(db, "deed_logs"),
 			where("userId", "==", userId),
 			where("date", "==", date),
+			where("deedId", "in", requiredPrayers),
 		),
 	);
 
-	const loggedPrayerIds = new Set(
-		prayerLogsSnap.docs.map((d) => d.data().deedId as string),
-	);
-
-	const allPrayersLogged = requiredPrayers.every((p) =>
-		loggedPrayerIds.has(p),
-	);
+	const allPrayersLogged = prayerLogsSnap.size === requiredPrayers.length;
 
 	return allPrayersLogged;
 }
