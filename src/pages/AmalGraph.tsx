@@ -106,7 +106,13 @@ const AmalGraph = () => {
 							</h2>
 							<Tooltip>
 								<TooltipTrigger asChild>
-									<Info className="w-4 h-4 text-muted-foreground cursor-pointer shrink-0" />
+									<button
+										type="button"
+										aria-label="Show help for activity heatmap"
+										className="w-4 h-4 text-muted-foreground cursor-pointer shrink-0 flex items-center justify-center"
+									>
+										<Info aria-hidden="true" className="w-4 h-4" />
+									</button>
 								</TooltipTrigger>
 								<TooltipContent side="right" className="max-w-64 text-xs p-3">
 									<p className="text-muted-foreground">
