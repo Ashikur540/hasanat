@@ -51,7 +51,7 @@ const AppLayout = () => {
 		{ to: "/amal-graph", label: t("navAmalGraph"), icon: BarChart3 },
 		{ to: "/my-city", label: t("navDeedsCity"), icon: Building2 },
 		{ to: "/deeds", label: t("navDeeds"), icon: BookOpen },
-		{ to: "/circles", label: t("navCircles"), icon: Users },
+		// { to: "/circles", label: t("navCircles"), icon: Users },
 	];
 
 	const mobileLinks = [

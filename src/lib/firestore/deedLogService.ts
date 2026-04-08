@@ -1,27 +1,35 @@
 import {
-  collection,
-  doc,
-  addDoc,
-  deleteDoc,
-  query,
-  where,
-  getDocs,
-  serverTimestamp,
+	collection,
+	doc,
+	addDoc,
+	deleteDoc,
+	query,
+	where,
+	getDocs,
+	serverTimestamp,
+	getDoc as getFirestoreDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { DeedCategory } from "@/data/deeds";
-import { completeDeedWithEffects, uncompleteDeedWithEffects } from "./streakService";
+import {
+	completeDeedWithEffects,
+	uncompleteDeedWithEffects,
+} from "./streakService";
+import {
+	updateLeaderboard,
+	decrementLeaderboard,
+} from "@/features/leaderboard";
 
 export interface DeedLogInput {
-  userId: string;
-  date: string;
-  deedId: string;
-  deedType: "preset" | "custom";
-  todoId: string;
-  name: string;
-  emoji: string;
-  category: DeedCategory;
-  pointsAtLogTime: number;
+	userId: string;
+	date: string;
+	deedId: string;
+	deedType: "preset" | "custom";
+	todoId: string;
+	name: string;
+	emoji: string;
+	category: DeedCategory;
+	pointsAtLogTime: number;
 }
 
 /**
@@ -29,14 +37,20 @@ export interface DeedLogInput {
  * Replaces Firebase Function logic
  */
 export async function createDeedLog(input: DeedLogInput): Promise<void> {
-  // 1. Create the deed_log
-  await addDoc(collection(db, "deed_logs"), {
-    ...input,
-    loggedAt: serverTimestamp(),
-  });
+	// 1. Create the deed_log
+	await addDoc(collection(db, "deed_logs"), {
+		...input,
+		loggedAt: serverTimestamp(),
+	});
 
-  // 2. Update points + check streak (client-side)
-  await completeDeedWithEffects(input.userId, input.pointsAtLogTime);
+	// 2. Update points + check streak (client-side)
+	await completeDeedWithEffects(input.userId, input.pointsAtLogTime);
+
+	// 3. Update leaderboard
+	const userRef = doc(db, "users", input.userId);
+	const userSnap = await getFirestoreDoc(userRef);
+	const displayName = userSnap.data()?.name || "Anonymous";
+	await updateLeaderboard(input.userId, input.pointsAtLogTime, displayName);
 }
 
 /**
@@ -46,24 +60,28 @@ export async function createDeedLog(input: DeedLogInput): Promise<void> {
  * Note: Does NOT revert streak (once earned, stays until midnight)
  */
 export async function deleteDeedLogByTodoId(
-  userId: string,
-  todoId: string,
+	userId: string,
+	todoId: string,
 ): Promise<void> {
-  const q = query(
-    collection(db, "deed_logs"),
-    where("userId", "==", userId),
-    where("todoId", "==", todoId),
-  );
-  const snap = await getDocs(q);
-  
-  // Get points from the deed_log before deleting
-  const points = snap.docs[0]?.data()?.pointsAtLogTime ?? 0;
-  
-  // Delete the deed_log(s)
-  await Promise.all(snap.docs.map((d) => deleteDoc(doc(db, "deed_logs", d.id))));
-  
-  // Subtract points (don't revert streak)
-  if (points > 0) {
-    await uncompleteDeedWithEffects(userId, points);
-  }
+	const q = query(
+		collection(db, "deed_logs"),
+		where("userId", "==", userId),
+		where("todoId", "==", todoId),
+	);
+	const snap = await getDocs(q);
+
+	// Get points from the deed_log before deleting
+	const points = snap.docs[0]?.data()?.pointsAtLogTime ?? 0;
+
+	// Delete the deed_log(s)
+	await Promise.all(
+		snap.docs.map((d) => deleteDoc(doc(db, "deed_logs", d.id))),
+	);
+
+	// Subtract points (don't revert streak)
+	if (points > 0) {
+		await uncompleteDeedWithEffects(userId, points);
+		// Decrement leaderboard
+		await decrementLeaderboard(userId, points);
+	}
 }

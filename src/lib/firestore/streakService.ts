@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { format, subDays, parseISO } from "date-fns";
+import { syncStreakToLeaderboard } from "@/features/leaderboard";
 
 /**
  * Client-side streak management service
@@ -49,7 +50,6 @@ export async function checkStreakReset(userId: string): Promise<void> {
 	const today = format(new Date(), "yyyy-MM-dd");
 	const yesterday = getYesterdayDate();
 
-	// If lastStreakDate is not yesterday or today → streak is broken
 	if (
 		streak.lastStreakDate !== today &&
 		streak.lastStreakDate !== yesterday
@@ -58,6 +58,8 @@ export async function checkStreakReset(userId: string): Promise<void> {
 			currentStreak: 0,
 			updatedAt: serverTimestamp(),
 		});
+		
+		await syncStreakToLeaderboard(userId, 0);
 	}
 }
 
@@ -114,7 +116,6 @@ async function checkStreakConditions(
 export async function checkAndUpdateStreak(userId: string): Promise<void> {
 	const today = format(new Date(), "yyyy-MM-dd");
 
-	// Check if conditions are met
 	const conditionsMet = await checkStreakConditions(userId, today);
 	if (!conditionsMet) return;
 
@@ -122,7 +123,6 @@ export async function checkAndUpdateStreak(userId: string): Promise<void> {
 	const streakSnap = await getDoc(streakRef);
 
 	if (!streakSnap.exists()) {
-		// First-ever streak
 		await setDoc(streakRef, {
 			userId,
 			currentStreak: 1,
@@ -130,12 +130,13 @@ export async function checkAndUpdateStreak(userId: string): Promise<void> {
 			lastStreakDate: today,
 			updatedAt: serverTimestamp(),
 		});
+		
+		await syncStreakToLeaderboard(userId, 1);
 		return;
 	}
 
 	const streak = streakSnap.data() as StreakData;
 
-	// Already counted today — do nothing
 	if (streak.lastStreakDate === today) return;
 
 	const yesterday = getPreviousDate(today);
@@ -149,6 +150,8 @@ export async function checkAndUpdateStreak(userId: string): Promise<void> {
 		lastStreakDate: today,
 		updatedAt: serverTimestamp(),
 	});
+	
+	await syncStreakToLeaderboard(userId, newCurrent);
 }
 
 /**
