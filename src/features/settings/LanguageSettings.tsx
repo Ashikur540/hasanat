@@ -6,8 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Globe } from "lucide-react";
+import { Globe, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { fadeUp } from "./animations";
 import type { Language } from "@/i18n/translations";
@@ -46,12 +45,17 @@ const LanguageSettings = () => {
 								onClick={() =>
 									setValue("language", lang.value, { shouldDirty: true })
 								}
-								className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+								className={`relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
 									language === lang.value
 										? "border-primary bg-primary/10"
 										: "border-border bg-secondary/30 hover:border-primary/40"
 								}`}
 							>
+								{language === lang.value && (
+									<span className="absolute top-2 right-2">
+										<CheckCircle2 className="h-4 w-4 text-primary" />
+									</span>
+								)}
 								<span className="text-2xl">{lang.flag}</span>
 								<div className="text-left">
 									<div
@@ -63,14 +67,6 @@ const LanguageSettings = () => {
 										{lang.native}
 									</div>
 								</div>
-								{language === lang.value && (
-									<Badge
-										variant="outline"
-										className="ml-auto text-[10px] border-primary text-primary"
-									>
-										{t("settingsActive")}
-									</Badge>
-								)}
 							</motion.button>
 						))}
 					</div>
