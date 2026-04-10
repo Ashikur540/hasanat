@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useAuth } from "@/features/auth";
 
 const deedTips = {
 	en: [
@@ -66,6 +67,7 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	const { toast } = useToast();
 	const { t, language } = useI18n();
+	const { user } = useAuth();
 	const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const [settings, setSettings] = useState<NotificationSettings>(() => {
@@ -129,15 +131,29 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 		[toast, t, language],
 	);
 
+	const shouldSuppressAutoNotifications = useCallback(() => {
+		if (typeof window === "undefined") return false;
+		const match = window.location.pathname.match(/^\/profile\/([^/]+)$/);
+		if (!match) return false;
+		const viewedUserId = decodeURIComponent(match[1]);
+		return !user || viewedUserId !== user.uid;
+	}, [user]);
+
 	// Auto deed tips every 2 minutes if enabled
 	useEffect(() => {
 		if (intervalRef.current) clearInterval(intervalRef.current);
 		if (settings.deedTips) {
 			// Show a tip after 30 seconds, then every 2 minutes
 			const timeout = setTimeout(() => {
-				sendTestNotification("tip");
+				if (!shouldSuppressAutoNotifications()) {
+					sendTestNotification("tip");
+				}
 				intervalRef.current = setInterval(
-					() => sendTestNotification("tip"),
+					() => {
+						if (!shouldSuppressAutoNotifications()) {
+							sendTestNotification("tip");
+						}
+					},
 					120000,
 				);
 			}, 30000);
@@ -146,7 +162,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 				if (intervalRef.current) clearInterval(intervalRef.current);
 			};
 		}
-	}, [settings.deedTips, sendTestNotification]);
+	}, [settings.deedTips, sendTestNotification, shouldSuppressAutoNotifications]);
 
 	return (
 		<NotificationContext.Provider

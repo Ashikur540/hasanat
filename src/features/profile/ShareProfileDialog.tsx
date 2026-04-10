@@ -1,137 +1,218 @@
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Twitter, Facebook, MessageCircle, Link2, Send } from "lucide-react";
-import { useState } from "react";
+import {
+	Copy,
+	Check,
+	Twitter,
+	Facebook,
+	MessageCircle,
+	Link2,
+	Send,
+	Download,
+} from "lucide-react";
 import { toast } from "sonner";
+import { ProfileShareCard } from "./components/ProfileShareCard";
+import type { AmalLevel } from "./types";
 
 interface ShareProfileDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  profileName: string;
-  stats: { totalDeeds: number; currentStreak: number; level: string };
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	profileUserId: string;
+	profileName: string;
+	stats: { totalDeeds: number; currentStreak: number; level: AmalLevel };
+	heatmapData: Record<string, number>;
+	photoURL?: string | null;
 }
 
-const ShareProfileDialog = ({ open, onOpenChange, profileName, stats }: ShareProfileDialogProps) => {
-  const [copied, setCopied] = useState(false);
+const ShareProfileDialog = ({
+	open,
+	onOpenChange,
+	profileUserId,
+	profileName,
+	stats,
+	heatmapData,
+	photoURL,
+}: ShareProfileDialogProps) => {
+	const [copied, setCopied] = useState(false);
+	const [downloading, setDownloading] = useState(false);
+	const cardRef = useRef<HTMLDivElement>(null);
 
-  const profileUrl = window.location.href;
-  const shareText = `🌿 ${profileName} has logged ${stats.totalDeeds} good deeds on Hasanat with a ${stats.currentStreak}-day streak! Level: ${stats.level} ✨`;
+	const profileUrl = `${window.location.origin}/profile/${encodeURIComponent(profileUserId)}`;
+	const shareText = `🌿 ${profileName} has logged ${stats.totalDeeds} good deeds on Hasanat with a ${stats.currentStreak}-day streak! Level: ${stats.level} ✨`;
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(profileUrl);
-    setCopied(true);
-    toast.success("Link copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
-  };
+	const handleCopy = async () => {
+		await navigator.clipboard.writeText(profileUrl);
+		setCopied(true);
+		toast.success("Link copied to clipboard!");
+		setTimeout(() => setCopied(false), 2000);
+	};
 
-  const handleCopyStats = async () => {
-    await navigator.clipboard.writeText(shareText);
-    toast.success("Stats copied! Paste it anywhere.");
-  };
+	const handleCopyStats = async () => {
+		await navigator.clipboard.writeText(shareText);
+		toast.success("Stats copied! Paste it anywhere.");
+	};
 
-  const socials = [
-    {
-      name: "Twitter / X",
-      icon: Twitter,
-      color: "hover:bg-sky-500/10 hover:text-sky-500",
-      onClick: () =>
-        window.open(
-          `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(profileUrl)}`,
-          "_blank"
-        ),
-    },
-    {
-      name: "Facebook",
-      icon: Facebook,
-      color: "hover:bg-blue-600/10 hover:text-blue-600",
-      onClick: () =>
-        window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}&quote=${encodeURIComponent(shareText)}`,
-          "_blank"
-        ),
-    },
-    {
-      name: "WhatsApp",
-      icon: MessageCircle,
-      color: "hover:bg-green-500/10 hover:text-green-500",
-      onClick: () =>
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(shareText + "\n" + profileUrl)}`,
-          "_blank"
-        ),
-    },
-    {
-      name: "Telegram",
-      icon: Send,
-      color: "hover:bg-sky-400/10 hover:text-sky-400",
-      onClick: () =>
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(profileUrl)}&text=${encodeURIComponent(shareText)}`,
-          "_blank"
-        ),
-    },
-  ];
+	const handleDownloadCard = async () => {
+		if (!cardRef.current) return;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Share Profile</DialogTitle>
-        </DialogHeader>
+		setDownloading(true);
+		try {
+			const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+			const link = document.createElement("a");
+			link.download = `${profileName.replace(/\s+/g, "-").toLowerCase()}-profile.png`;
+			link.href = dataUrl;
+			link.click();
+			toast.success("Profile card downloaded!");
+		} catch (error) {
+			console.error("Failed to download card:", error);
+			toast.error("Failed to download card. Please try again.");
+		} finally {
+			setDownloading(false);
+		}
+	};
 
-        <div className="space-y-5 py-2">
-          {/* Preview card */}
-          <div className="rounded-xl border border-border bg-muted/30 p-4 text-center space-y-2">
-            <p className="text-3xl">🌿</p>
-            <p className="font-semibold text-foreground">{profileName}</p>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalDeeds} deeds · {stats.currentStreak}-day streak · {stats.level}
-            </p>
-          </div>
+	const socials = [
+		{
+			name: "Twitter / X",
+			icon: Twitter,
+			color: "hover:bg-sky-500/10 hover:text-sky-500",
+			onClick: () =>
+				window.open(
+					`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(profileUrl)}`,
+					"_blank",
+				),
+		},
+		{
+			name: "Facebook",
+			icon: Facebook,
+			color: "hover:bg-blue-600/10 hover:text-blue-600",
+			onClick: () =>
+				window.open(
+					`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}&quote=${encodeURIComponent(shareText)}`,
+					"_blank",
+				),
+		},
+		{
+			name: "WhatsApp",
+			icon: MessageCircle,
+			color: "hover:bg-green-500/10 hover:text-green-500",
+			onClick: () =>
+				window.open(
+					`https://wa.me/?text=${encodeURIComponent(shareText + "\n" + profileUrl)}`,
+					"_blank",
+				),
+		},
+		{
+			name: "Telegram",
+			icon: Send,
+			color: "hover:bg-sky-400/10 hover:text-sky-400",
+			onClick: () =>
+				window.open(
+					`https://t.me/share/url?url=${encodeURIComponent(profileUrl)}&text=${encodeURIComponent(shareText)}`,
+					"_blank",
+				),
+		},
+	];
 
-          {/* Social buttons */}
-          <div className="grid grid-cols-4 gap-2">
-            {socials.map((s) => (
-              <Button
-                key={s.name}
-                variant="outline"
-                className={`flex flex-col items-center gap-1.5 h-auto py-3 transition-colors ${s.color}`}
-                onClick={s.onClick}
-              >
-                <s.icon className="h-5 w-5" />
-                <span className="text-[10px] font-medium">{s.name}</span>
-              </Button>
-            ))}
-          </div>
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="sm:max-w-md">
+				<DialogHeader>
+					<DialogTitle>Share Profile</DialogTitle>
+				</DialogHeader>
 
-          <Separator />
+				<div className="space-y-5 py-2">
+					{/* Preview card */}
+					<div className="rounded-xl border border-border bg-muted/30 p-4 text-center space-y-2">
+						<p className="text-3xl">🌿</p>
+						<p className="font-semibold text-foreground">{profileName}</p>
+						<p className="text-xs text-muted-foreground">
+							{stats.totalDeeds} deeds · {stats.currentStreak}-day streak ·{" "}
+							{stats.level}
+						</p>
+					</div>
 
-          {/* Copy link */}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">Profile Link</p>
-            <div className="flex gap-2">
-              <Input value={profileUrl} readOnly className="text-xs" />
-              <Button variant="outline" size="icon" className="shrink-0" onClick={handleCopy}>
-                {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
-              </Button>
-            </div>
-          </div>
+					{/* Social buttons */}
+					<div className="grid grid-cols-4 gap-2">
+						{socials.map((s) => (
+							<Button
+								key={s.name}
+								variant="outline"
+								className={`flex flex-col items-center gap-1.5 h-auto py-3 transition-colors ${s.color}`}
+								onClick={s.onClick}
+							>
+								<s.icon className="h-5 w-5" />
+								<span className="text-[10px] font-medium">{s.name}</span>
+							</Button>
+						))}
+					</div>
 
-          {/* Copy stats text */}
-          <Button variant="secondary" className="w-full gap-2 text-xs" onClick={handleCopyStats}>
-            <Link2 className="h-3.5 w-3.5" /> Copy Stats as Text
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+					<Separator />
+
+					{/* Copy link */}
+					<div className="space-y-2">
+						<p className="text-xs font-medium text-muted-foreground">
+							Profile Link
+						</p>
+						<div className="flex gap-2">
+							<Input value={profileUrl} readOnly className="text-xs" />
+							<Button
+								variant="outline"
+								size="icon"
+								className="shrink-0"
+								onClick={handleCopy}
+							>
+								{copied ? (
+									<Check className="h-4 w-4 text-primary" />
+								) : (
+									<Copy className="h-4 w-4" />
+								)}
+							</Button>
+						</div>
+					</div>
+
+					{/* Copy stats text */}
+					<Button
+						variant="secondary"
+						className="w-full gap-2 text-xs"
+						onClick={handleCopyStats}
+					>
+						<Link2 className="h-3.5 w-3.5" /> Copy Stats as Text
+					</Button>
+
+					{/* Download card button */}
+					<Button
+						variant="default"
+						className="w-full gap-2 text-xs"
+						onClick={handleDownloadCard}
+						disabled={downloading}
+					>
+						<Download className="h-3.5 w-3.5" />{" "}
+						{downloading ? "Generating..." : "Download Card"}
+					</Button>
+				</div>
+
+				<ProfileShareCard
+					ref={cardRef}
+					name={profileName}
+					level={stats.level}
+					totalDeeds={stats.totalDeeds}
+					currentStreak={stats.currentStreak}
+					heatmapData={heatmapData}
+					photoURL={photoURL}
+				/>
+			</DialogContent>
+		</Dialog>
+	);
 };
 
 export default ShareProfileDialog;

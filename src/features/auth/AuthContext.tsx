@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 							email: firebaseUser.email,
 							photoURL: firebaseUser.photoURL,
 							username: firebaseUser.email?.split("@")[0] ?? firebaseUser.uid,
+							isPublic: true,
 							isOnLeaderboard: false,
 							createdAt: serverTimestamp(),
 						});
