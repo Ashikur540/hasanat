@@ -49,17 +49,20 @@ const AppLayout = () => {
 	const navLinks = [
 		{ to: "/dashboard", label: t("navDashboard"), icon: Home },
 		{ to: "/amal-graph", label: t("navAmalGraph"), icon: BarChart3 },
-		{ to: "/my-city", label: t("navDeedsCity"), icon: Building2 },
+		// { to: "/my-city", label: t("navDeedsCity"), icon: Building2 },
 		{ to: "/deeds", label: t("navDeeds"), icon: BookOpen },
+		{ to: "/leaderboard", label: t("navLeaderboard"), icon: Trophy },
 		// { to: "/circles", label: t("navCircles"), icon: Users },
 	];
 
 	const mobileLinks = [
 		{ to: "/dashboard", label: t("navHome"), icon: Home },
 		{ to: "/amal-graph", label: t("navGraph"), icon: BarChart3 },
-		{ to: "/my-city", label: t("navCity"), icon: Building2 },
-		{ to: "/circles", label: t("navCircles"), icon: Users },
+		{ to: "/deeds", label: t("navDeeds"), icon: BookOpen },
+		// { to: "/my-city", label: t("navCity"), icon: Building2 },
+		// { to: "/circles", label: t("navCircles"), icon: Users },
 		{ to: "/profile", label: t("navProfile"), icon: User },
+		{ to: "/settings", label: t("navSettings"), icon: Settings },
 	];
 
 	const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
@@ -158,17 +161,6 @@ const AppLayout = () => {
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-
-						<Button
-							variant="ghost"
-							size="icon"
-							className="hidden md:inline-flex h-8 w-8"
-							asChild
-						>
-							<Link to="/leaderboard">
-								<Trophy className="h-4 w-4" />
-							</Link>
-						</Button>
 						<Button
 							variant="ghost"
 							size="icon"

@@ -27,7 +27,7 @@ export const router = createBrowserRouter([
 				children: [
 					{ path: "/dashboard", element: <Dashboard /> },
 					{ path: "/amal-graph", element: <AmalGraph /> },
-					{ path: "/my-city", element: <MyCity /> },
+					// { path: "/my-city", element: <MyCity /> },
 					{ path: "/deeds", element: <Deeds /> },
 					{ path: "/profile", element: <Profile /> },
 					{ path: "/settings", element: <Settings /> },

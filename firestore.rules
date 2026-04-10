@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if a profile is public
+    function isPublicProfile(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true;
+    }
+    
+    // Users — read public profiles OR own profile; write own only
+    match /users/{userId} {
+      allow read: if request.auth != null && 
+        (request.auth.uid == userId || resource.data.isPublic == true);
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Todos — user owns their own todos
+    match /todos/{todoId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    
+    // Deed logs — read own OR from public profiles
+    match /deed_logs/{logId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isPublicProfile(resource.data.userId));
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    
+    // Preset deeds — public read, no client writes
+    match /deeds/{deedId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Custom deeds — private deeds only readable by owner
+    match /custom_deeds/{deedId} {
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || resource.data.visibility == "public");
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+    
+    // Streaks — read own OR from public profiles
+    match /streaks/{userId} {
+      allow read: if request.auth != null && 
+        (request.auth.uid == userId || isPublicProfile(userId));
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Circles — any auth user can read/create; only admin can update/delete
+    match /circles/{circleId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.adminId == request.auth.uid;
+      
+      match /members/{userId} {
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Leaderboard — read all; write own only
+    match /leaderboard/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

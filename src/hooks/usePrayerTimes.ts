@@ -70,10 +70,11 @@ export const usePrayerTimes = () => {
         (position) => {
           fetchTimes(position.coords.latitude, position.coords.longitude);
         },
-        (error) => {
-          console.error("Geolocation error:", error);
+        () => {
+          // Keep default schedule when geolocation is unavailable/blocked.
           setLoading(false);
-        }
+        },
+        { timeout: 10000 },
       );
     } else {
       setLoading(false);

@@ -1,54 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/features/auth";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 
 interface ProfileData {
-  name: string;
-  bio: string;
-  location: string;
-  isPublic: boolean;
-  initials: string;
-  joined: string;
+	name: string;
+	bio: string;
+	location: string;
+	isPublic: boolean;
 }
 
 interface EditProfileDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  profile: ProfileData;
-  onSave: (profile: ProfileData) => void;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	profile: ProfileData;
+	onSave: () => void;
 }
 
-const EditProfileDialog = ({ open, onOpenChange, profile, onSave }: EditProfileDialogProps) => {
-  const [form, setForm] = useState<ProfileData>(profile);
+const EditProfileDialog = ({
+	open,
+	onOpenChange,
+	profile,
+	onSave,
+}: EditProfileDialogProps) => {
+	const [form, setForm] = useState<ProfileData>(profile);
+	const [saving, setSaving] = useState(false);
+	const { user } = useAuth();
+	const queryClient = useQueryClient();
 
-  const handleSave = () => {
-    if (!form.name.trim()) {
-      toast.error("Name is required");
-      return;
-    }
-    const initials = form.name
-      .split(" ")
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-    onSave({ ...form, initials });
-    onOpenChange(false);
-    toast.success("Profile updated successfully!");
-  };
+	useEffect(() => {
+		setForm(profile);
+	}, [profile]);
+
+	const handleSave = async () => {
+		if (!form.name.trim()) {
+			toast.error("Name is required");
+			return;
+		}
+
+		if (!user?.uid) {
+			toast.error("Not authenticated");
+			return;
+		}
+
+		setSaving(true);
+		try {
+			await updateDoc(doc(db, "users", user.uid), {
+				name: form.name,
+				bio: form.bio,
+				location: form.location,
+				isPublic: form.isPublic,
+			});
+
+			await queryClient.invalidateQueries({
+				queryKey: ["profile", "user", user.uid],
+			});
+
+			onSave();
+			onOpenChange(false);
+			toast.success("Profile updated successfully!");
+		} catch (error) {
+			console.error("Failed to update profile:", error);
+			toast.error("Failed to update profile. Please try again.");
+		} finally {
+			setSaving(false);
+		}
+	};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,6 +95,9 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSave }: EditProfileD
           <div className="flex justify-center">
             <div className="relative group cursor-pointer">
               <Avatar className="h-20 w-20 border-2 border-border">
+								{user?.photoURL && (
+									<AvatarImage src={user.photoURL} alt={form.name} />
+								)}
                 <AvatarFallback className="bg-primary/15 text-primary text-xl font-bold">
                   {form.name
                     .split(" ")
@@ -125,10 +161,16 @@ const EditProfileDialog = ({ open, onOpenChange, profile, onSave }: EditProfileD
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+						variant="outline"
+						onClick={() => onOpenChange(false)}
+						disabled={saving}
+					>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,40 +1,82 @@
+import { useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Copy, Check, Twitter, Facebook, MessageCircle, Link2, Send } from "lucide-react";
-import { useState } from "react";
+import {
+	Copy,
+	Check,
+	Twitter,
+	Facebook,
+	MessageCircle,
+	Link2,
+	Send,
+	Download,
+} from "lucide-react";
 import { toast } from "sonner";
+import { ProfileShareCard } from "./components/ProfileShareCard";
+import type { AmalLevel } from "./types";
 
 interface ShareProfileDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  profileName: string;
-  stats: { totalDeeds: number; currentStreak: number; level: string };
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	profileName: string;
+	stats: { totalDeeds: number; currentStreak: number; level: AmalLevel };
+	heatmapData: Record<string, number>;
+	photoURL?: string | null;
 }
 
-const ShareProfileDialog = ({ open, onOpenChange, profileName, stats }: ShareProfileDialogProps) => {
-  const [copied, setCopied] = useState(false);
+const ShareProfileDialog = ({
+	open,
+	onOpenChange,
+	profileName,
+	stats,
+	heatmapData,
+	photoURL,
+}: ShareProfileDialogProps) => {
+	const [copied, setCopied] = useState(false);
+	const [downloading, setDownloading] = useState(false);
+	const cardRef = useRef<HTMLDivElement>(null);
 
-  const profileUrl = window.location.href;
-  const shareText = `🌿 ${profileName} has logged ${stats.totalDeeds} good deeds on Hasanat with a ${stats.currentStreak}-day streak! Level: ${stats.level} ✨`;
+	const profileUrl = window.location.href;
+	const shareText = `🌿 ${profileName} has logged ${stats.totalDeeds} good deeds on Hasanat with a ${stats.currentStreak}-day streak! Level: ${stats.level} ✨`;
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(profileUrl);
-    setCopied(true);
-    toast.success("Link copied to clipboard!");
-    setTimeout(() => setCopied(false), 2000);
-  };
+	const handleCopy = async () => {
+		await navigator.clipboard.writeText(profileUrl);
+		setCopied(true);
+		toast.success("Link copied to clipboard!");
+		setTimeout(() => setCopied(false), 2000);
+	};
 
-  const handleCopyStats = async () => {
-    await navigator.clipboard.writeText(shareText);
-    toast.success("Stats copied! Paste it anywhere.");
-  };
+	const handleCopyStats = async () => {
+		await navigator.clipboard.writeText(shareText);
+		toast.success("Stats copied! Paste it anywhere.");
+	};
+
+	const handleDownloadCard = async () => {
+		if (!cardRef.current) return;
+
+		setDownloading(true);
+		try {
+			const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+			const link = document.createElement("a");
+			link.download = `${profileName.replace(/\s+/g, "-").toLowerCase()}-profile.png`;
+			link.href = dataUrl;
+			link.click();
+			toast.success("Profile card downloaded!");
+		} catch (error) {
+			console.error("Failed to download card:", error);
+			toast.error("Failed to download card. Please try again.");
+		} finally {
+			setDownloading(false);
+		}
+	};
 
   const socials = [
     {
@@ -124,11 +166,36 @@ const ShareProfileDialog = ({ open, onOpenChange, profileName, stats }: SharePro
             </div>
           </div>
 
-          {/* Copy stats text */}
-          <Button variant="secondary" className="w-full gap-2 text-xs" onClick={handleCopyStats}>
-            <Link2 className="h-3.5 w-3.5" /> Copy Stats as Text
-          </Button>
-        </div>
+				{/* Copy stats text */}
+				<Button
+					variant="secondary"
+					className="w-full gap-2 text-xs"
+					onClick={handleCopyStats}
+				>
+					<Link2 className="h-3.5 w-3.5" /> Copy Stats as Text
+				</Button>
+
+				{/* Download card button */}
+				<Button
+					variant="default"
+					className="w-full gap-2 text-xs"
+					onClick={handleDownloadCard}
+					disabled={downloading}
+				>
+					<Download className="h-3.5 w-3.5" />{" "}
+					{downloading ? "Generating..." : "Download Card"}
+				</Button>
+			</div>
+
+			<ProfileShareCard
+				ref={cardRef}
+				name={profileName}
+				level={stats.level}
+				totalDeeds={stats.totalDeeds}
+				currentStreak={stats.currentStreak}
+				heatmapData={heatmapData}
+				photoURL={photoURL}
+			/>
       </DialogContent>
     </Dialog>
   );
