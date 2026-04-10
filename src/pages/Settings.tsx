@@ -42,7 +42,6 @@ const Settings = () => {
 				) : (
 					<>
 						<LanguageSettings />
-						<AppearanceSettings />
 						<NotificationSettings />
 						<LocationSettings />
 						<TimezoneSettings />

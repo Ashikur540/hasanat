@@ -27,6 +27,7 @@ import {
 import { format, subDays } from "date-fns";
 import { countToLevel } from "@/lib/amalGraphCalculations";
 import { ProfileCategoryList } from "./ProfileCategoryList";
+import { ProfilePrivateView } from "./ProfilePrivateView";
 import type { ProfileData } from "../types";
 import {
 	BADGES,
@@ -39,6 +40,7 @@ import {
 interface ProfilePageContentProps {
 	data: ProfileData;
 	isOwner: boolean;
+	isPrivateView: boolean;
 	activeTab: string;
 	onActiveTabChange: (tab: string) => void;
 	onEdit: () => void;
@@ -49,6 +51,7 @@ interface ProfilePageContentProps {
 export function ProfilePageContent({
 	data,
 	isOwner,
+	isPrivateView,
 	activeTab,
 	onActiveTabChange,
 	onEdit,
@@ -191,159 +194,165 @@ export function ProfilePageContent({
 				</Card>
 			</motion.div>
 
-			<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-				<Tabs value={activeTab} onValueChange={onActiveTabChange}>
-					<TabsList className="w-full grid grid-cols-3">
-						<TabsTrigger value="overview">{t("profileOverview")}</TabsTrigger>
-						<TabsTrigger value="badges">{t("profileBadges")}</TabsTrigger>
-						<TabsTrigger value="activity">{t("profileActivity")}</TabsTrigger>
-					</TabsList>
+			{isPrivateView ? (
+				<ProfilePrivateView t={t} />
+			) : (
+				<>
+					<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+						<Tabs value={activeTab} onValueChange={onActiveTabChange}>
+							<TabsList className="w-full grid grid-cols-3">
+								<TabsTrigger value="overview">{t("profileOverview")}</TabsTrigger>
+								<TabsTrigger value="badges">{t("profileBadges")}</TabsTrigger>
+								<TabsTrigger value="activity">{t("profileActivity")}</TabsTrigger>
+							</TabsList>
 
-					<TabsContent value="overview" className="space-y-4 mt-4">
-						<ProfileCategoryList categoryBreakdown={data.categoryBreakdown} />
-						<Card className="border-border bg-card">
-							<CardContent className="p-5">
-								<div className="grid grid-cols-2 gap-4">
-									<div className="text-center p-4 rounded-lg bg-accent/10">
-										<Flame className="h-6 w-6 mx-auto text-accent mb-1" />
-										<p className="text-2xl font-bold text-foreground">
-											{data.currentStreak}
-										</p>
-										<p className="text-xs text-muted-foreground">
-											{t("profileCurrentStreak")}
-										</p>
-									</div>
-									<div className="text-center p-4 rounded-lg bg-primary/10">
-										<Trophy className="h-6 w-6 mx-auto text-primary mb-1" />
-										<p className="text-2xl font-bold text-foreground">
-											{data.longestStreak}
-										</p>
-										<p className="text-xs text-muted-foreground">
-											{t("profileLongestStreak")}
-										</p>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					</TabsContent>
-
-					<TabsContent value="badges" className="mt-4">
-						<Card className="border-border bg-card relative">
-							<CardHeader className="pb-2">
-								<CardTitle className="text-sm font-medium text-muted-foreground">
-									{BADGES.filter((badge) => badge.earned).length}/
-									{BADGES.length} {t("profileEarned")}
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-									{BADGES.map((badge) => (
-										<motion.div
-											key={badge.name}
-											whileHover={{ scale: 1.05 }}
-											className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors ${badge.earned ? "border-primary/30 bg-primary/5" : "border-border bg-muted/30 opacity-50"}`}
-										>
-											<span
-												className={`text-2xl ${!badge.earned && "grayscale"}`}
-											>
-												{badge.emoji}
-											</span>
-											<p className="text-[11px] font-semibold text-foreground text-center leading-tight">
-												{badge.name}
-											</p>
-											<p className="text-[9px] text-muted-foreground text-center">
-												{badge.desc}
-											</p>
-											{badge.earned && (
-												<Badge
-													variant="outline"
-													className="text-[8px] border-primary/40 text-primary px-1.5"
-												>
-													{t("profileEarned")}
-												</Badge>
-											)}
-										</motion.div>
-									))}
-								</div>
-							</CardContent>
-							<div className="absolute inset-0 bg-background/80 backdrop-blur-0 flex items-center justify-center z-10 rounded-lg">
-								<div className="text-center space-y-2 p-4">
-									<Lock className="h-10 w-10 mx-auto text-muted-foreground" />
-									<h3 className="text-lg font-bold text-foreground">
-										{t("profileBadgesComingSoon")}
-									</h3>
-									<p className="text-sm text-muted-foreground">
-										{t("profileBadgesComingSoonDesc")}
-									</p>
-								</div>
-							</div>
-						</Card>
-					</TabsContent>
-
-					<TabsContent value="activity" className="mt-4">
-						<Card className="border-border bg-card">
-							<CardHeader className="pb-2">
-								<CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-									<Heart className="h-4 w-4" />{" "}
-									{t("profileActivityWeeks").replace(
-										"{weeks}",
-										String(HEATMAP_WEEKS),
-									)}
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="flex gap-1 justify-center">
-									{Array.from({ length: HEATMAP_WEEKS }).map((_, week) => (
-										<div key={week} className="flex flex-col gap-1">
-											{Array.from({ length: 7 }).map((_, day) => {
-												const idx = week * 7 + day;
-												const level = activityData[idx] || 0;
-												return (
-													<motion.div
-														key={day}
-														initial={{ opacity: 0, scale: 0 }}
-														animate={{ opacity: 1, scale: 1 }}
-														transition={{ delay: idx * 0.008 }}
-														className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm ${HEATMAP_COLORS[level]}`}
-														title={`${data.heatmapData[format(subDays(today, 48 - idx), "yyyy-MM-dd")] ?? 0} ${t("deedDeeds")}`}
-													/>
-												);
-											})}
+							<TabsContent value="overview" className="space-y-4 mt-4">
+								<ProfileCategoryList categoryBreakdown={data.categoryBreakdown} />
+								<Card className="border-border bg-card">
+									<CardContent className="p-5">
+										<div className="grid grid-cols-2 gap-4">
+											<div className="text-center p-4 rounded-lg bg-accent/10">
+												<Flame className="h-6 w-6 mx-auto text-accent mb-1" />
+												<p className="text-2xl font-bold text-foreground">
+													{data.currentStreak}
+												</p>
+												<p className="text-xs text-muted-foreground">
+													{t("profileCurrentStreak")}
+												</p>
+											</div>
+											<div className="text-center p-4 rounded-lg bg-primary/10">
+												<Trophy className="h-6 w-6 mx-auto text-primary mb-1" />
+												<p className="text-2xl font-bold text-foreground">
+													{data.longestStreak}
+												</p>
+												<p className="text-xs text-muted-foreground">
+													{t("profileLongestStreak")}
+												</p>
+											</div>
 										</div>
-									))}
-								</div>
-								<div className="flex items-center justify-center gap-1.5 mt-3">
-									<span className="text-[10px] text-muted-foreground">
-										{t("profileLess")}
-									</span>
-									{HEATMAP_COLORS.map((color, index) => (
-										<div
-											key={index}
-											className={`w-3 h-3 rounded-sm ${color}`}
-										/>
-									))}
-									<span className="text-[10px] text-muted-foreground">
-										{t("profileMore")}
-									</span>
-								</div>
+									</CardContent>
+								</Card>
+							</TabsContent>
+
+							<TabsContent value="badges" className="mt-4">
+								<Card className="border-border bg-card relative">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-muted-foreground">
+											{BADGES.filter((badge) => badge.earned).length}/
+											{BADGES.length} {t("profileEarned")}
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+											{BADGES.map((badge) => (
+												<motion.div
+													key={badge.name}
+													whileHover={{ scale: 1.05 }}
+													className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-colors ${badge.earned ? "border-primary/30 bg-primary/5" : "border-border bg-muted/30 opacity-50"}`}
+												>
+													<span
+														className={`text-2xl ${!badge.earned && "grayscale"}`}
+													>
+														{badge.emoji}
+													</span>
+													<p className="text-[11px] font-semibold text-foreground text-center leading-tight">
+														{badge.name}
+													</p>
+													<p className="text-[9px] text-muted-foreground text-center">
+														{badge.desc}
+													</p>
+													{badge.earned && (
+														<Badge
+															variant="outline"
+															className="text-[8px] border-primary/40 text-primary px-1.5"
+														>
+															{t("profileEarned")}
+														</Badge>
+													)}
+												</motion.div>
+											))}
+										</div>
+									</CardContent>
+									<div className="absolute inset-0 bg-background/80 backdrop-blur-0 flex items-center justify-center z-10 rounded-lg">
+										<div className="text-center space-y-2 p-4">
+											<Lock className="h-10 w-10 mx-auto text-muted-foreground" />
+											<h3 className="text-lg font-bold text-foreground">
+												{t("profileBadgesComingSoon")}
+											</h3>
+											<p className="text-sm text-muted-foreground">
+												{t("profileBadgesComingSoonDesc")}
+											</p>
+										</div>
+									</div>
+								</Card>
+							</TabsContent>
+
+							<TabsContent value="activity" className="mt-4">
+								<Card className="border-border bg-card">
+									<CardHeader className="pb-2">
+										<CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+											<Heart className="h-4 w-4" />{" "}
+											{t("profileActivityWeeks").replace(
+												"{weeks}",
+												String(HEATMAP_WEEKS),
+											)}
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="flex gap-1 justify-center">
+											{Array.from({ length: HEATMAP_WEEKS }).map((_, week) => (
+												<div key={week} className="flex flex-col gap-1">
+													{Array.from({ length: 7 }).map((_, day) => {
+														const idx = week * 7 + day;
+														const level = activityData[idx] || 0;
+														return (
+															<motion.div
+																key={day}
+																initial={{ opacity: 0, scale: 0 }}
+																animate={{ opacity: 1, scale: 1 }}
+																transition={{ delay: idx * 0.008 }}
+																className={`w-4 h-4 sm:w-5 sm:h-5 rounded-sm ${HEATMAP_COLORS[level]}`}
+																title={`${data.heatmapData[format(subDays(today, 48 - idx), "yyyy-MM-dd")] ?? 0} ${t("deedDeeds")}`}
+															/>
+														);
+													})}
+												</div>
+											))}
+										</div>
+										<div className="flex items-center justify-center gap-1.5 mt-3">
+											<span className="text-[10px] text-muted-foreground">
+												{t("profileLess")}
+											</span>
+											{HEATMAP_COLORS.map((color, index) => (
+												<div
+													key={index}
+													className={`w-3 h-3 rounded-sm ${color}`}
+												/>
+											))}
+											<span className="text-[10px] text-muted-foreground">
+												{t("profileMore")}
+											</span>
+										</div>
+									</CardContent>
+								</Card>
+							</TabsContent>
+						</Tabs>
+					</motion.div>
+
+					<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
+						<Card className="border-border bg-card">
+							<CardContent className="p-5 text-center">
+								<p className="text-sm text-foreground italic leading-relaxed">
+									"{t("profileQuote")}"
+								</p>
+								<p className="text-xs text-muted-foreground mt-2">
+									{t("profileQuoteRef")}
+								</p>
 							</CardContent>
 						</Card>
-					</TabsContent>
-				</Tabs>
-			</motion.div>
-
-			<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
-				<Card className="border-border bg-card">
-					<CardContent className="p-5 text-center">
-						<p className="text-sm text-foreground italic leading-relaxed">
-							"{t("profileQuote")}"
-						</p>
-						<p className="text-xs text-muted-foreground mt-2">
-							{t("profileQuoteRef")}
-						</p>
-					</CardContent>
-				</Card>
-			</motion.div>
+					</motion.div>
+				</>
+			)}
 		</motion.div>
 	);
 }

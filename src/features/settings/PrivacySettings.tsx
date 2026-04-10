@@ -61,9 +61,6 @@ const PrivacySettings = () => {
 							</SelectTrigger>
 							<SelectContent>
 								<SelectItem value="public">{t("settingsPublic")}</SelectItem>
-								<SelectItem value="friends">
-									{t("settingsFriendsOnly")}
-								</SelectItem>
 								<SelectItem value="private">{t("settingsPrivate")}</SelectItem>
 							</SelectContent>
 						</Select>

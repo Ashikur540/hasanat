@@ -6,12 +6,12 @@ import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import AmalGraph from "@/pages/AmalGraph";
-import MyCity from "@/pages/MyCity";
+// import MyCity from "@/pages/MyCity";
 import Deeds from "@/pages/Deeds";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import Leaderboard from "@/pages/Leaderboard";
-import Circles from "@/pages/Circles";
+// import Circles from "@/pages/Circles";
 // import Ramadan from "@/pages/Ramadan";
 import MyCustomDeeds from "@/pages/MyCustomDeeds";
 import NotFound from "@/pages/NotFound";
@@ -19,6 +19,7 @@ import NotFound from "@/pages/NotFound";
 export const router = createBrowserRouter([
 	{ path: "/", element: <Index /> },
 	{ path: "/auth", element: <Auth /> },
+	{ path: "/profile/:userId", element: <Profile /> },
 	{
 		element: <ProtectedRoute />,
 		children: [

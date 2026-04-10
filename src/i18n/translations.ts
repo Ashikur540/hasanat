@@ -156,6 +156,8 @@ export const translations = {
 		profileQuoteRef: "— Prophet Muhammad ﷺ (Bukhari & Muslim)",
 		profilePrivate: "This profile is private",
 		profilePrivateDesc: "This user has chosen to keep their profile private",
+		profilePrivateHiddenContent:
+			"Amal overview, badges, and activity are hidden for private profiles.",
 		profileCategoryTooltip:
 			"This shows how your deeds are distributed across categories — based on your full history. The bar reflects how each category compares to your strongest one.",
 		profileDownloadCard: "Download Card",
@@ -276,6 +278,7 @@ export const translations = {
 		settingsDeedTipsDesc: "Receive inspiring deed suggestions",
 		settingsReminderTime: "Reminder time",
 		settingsReminderTimeDesc: "When to send daily reminders",
+		settingsComingSoon: "Coming Soon",
 		settingsLocation: "Prayer Location",
 		settingsLocationDesc: "Set your city for accurate prayer times",
 		settingsLocationPlaceholder: "e.g. Dhaka, London, Mecca",
@@ -542,6 +545,8 @@ export const translations = {
 		profilePrivate: "এই প্রোফাইল ব্যক্তিগত",
 		profilePrivateDesc:
 			"এই ব্যবহারকারী তাদের প্রোফাইল ব্যক্তিগত রাখতে বেছে নিয়েছেন",
+		profilePrivateHiddenContent:
+			"ব্যক্তিগত প্রোফাইলের জন্য আমলের সংক্ষিপ্তসার, ব্যাজ এবং কার্যকলাপ লুকানো থাকে।",
 		profileCategoryTooltip:
 			"এটি দেখায় কিভাবে আপনার কর্মগুলি বিভাগ জুড়ে বিতরণ করা হয়েছে — আপনার সম্পূর্ণ ইতিহাসের উপর ভিত্তি করে। বারটি প্রতিফলিত করে যে প্রতিটি বিভাগ আপনার শক্তিশালীটির সাথে কীভাবে তুলনা করে।",
 		profileDownloadCard: "কার্ড ডাউনলোড করুন",
@@ -661,6 +666,7 @@ export const translations = {
 		settingsDeedTipsDesc: "অনুপ্রেরণামূলক আমলের পরামর্শ পান",
 		settingsReminderTime: "রিমাইন্ডার সময়",
 		settingsReminderTimeDesc: "দৈনিক রিমাইন্ডার কখন পাঠাবে",
+		settingsComingSoon: "শীঘ্রই আসছে",
 		settingsLocation: "নামাজের অবস্থান",
 		settingsLocationDesc: "সঠিক নামাজের সময়ের জন্য আপনার শহর সেট করুন",
 		settingsLocationPlaceholder: "যেমন: ঢাকা, লন্ডন, মক্কা",

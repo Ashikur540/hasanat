@@ -66,6 +66,9 @@ const EditProfileDialog = ({
 				bio: form.bio,
 				location: form.location,
 				isPublic: form.isPublic,
+				"settings.privacy.profileVisibility": form.isPublic
+					? "public"
+					: "private",
 			});
 
 			await queryClient.invalidateQueries({

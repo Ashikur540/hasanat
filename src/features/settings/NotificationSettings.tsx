@@ -10,6 +10,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Send } from "lucide-react";
@@ -19,6 +20,11 @@ import { fadeUp } from "./animations";
 import type { SettingsFormValues, NotificationSettingsData } from "./types";
 
 type ToggleKey = Exclude<keyof NotificationSettingsData, "reminderTime">;
+const COMING_SOON_KEYS: ToggleKey[] = [
+	"streakAlerts",
+	"circleUpdates",
+	"weeklyReport",
+];
 
 const NotificationSettings = () => {
 	const { t } = useI18n();
@@ -77,11 +83,20 @@ const NotificationSettings = () => {
 					{items.map(({ key, label, desc, test }) => (
 						<div key={key} className="flex items-center justify-between">
 							<div className="space-y-0.5 flex-1">
-								<Label className="text-sm font-medium">{label}</Label>
+								<div className="flex items-center gap-2">
+									<Label className="text-sm font-medium">{label}</Label>
+									{COMING_SOON_KEYS.includes(key) && (
+										<Badge variant="outline" className="text-[10px]">
+											{t("settingsComingSoon")}
+										</Badge>
+									)}
+								</div>
 								<p className="text-xs text-muted-foreground">{desc}</p>
 							</div>
 							<div className="flex items-center gap-2">
-								{test && notifications[key] && (
+								{test &&
+									notifications[key] &&
+									!COMING_SOON_KEYS.includes(key) && (
 									<Button
 										variant="ghost"
 										size="icon"
@@ -91,9 +106,10 @@ const NotificationSettings = () => {
 									>
 										<Send className="h-3 w-3" />
 									</Button>
-								)}
+									)}
 								<Switch
 									checked={notifications[key]}
+									disabled={COMING_SOON_KEYS.includes(key)}
 									onCheckedChange={(v) =>
 										setValue(`notifications.${key}`, v, { shouldDirty: true })
 									}
@@ -106,9 +122,14 @@ const NotificationSettings = () => {
 
 					<div className="flex items-center justify-between">
 						<div className="space-y-0.5">
-							<Label className="text-sm font-medium">
-								{t("settingsReminderTime")}
-							</Label>
+							<div className="flex items-center gap-2">
+								<Label className="text-sm font-medium">
+									{t("settingsReminderTime")}
+								</Label>
+								<Badge variant="outline" className="text-[10px]">
+									{t("settingsComingSoon")}
+								</Badge>
+							</div>
 							<p className="text-xs text-muted-foreground">
 								{t("settingsReminderTimeDesc")}
 							</p>
@@ -116,6 +137,7 @@ const NotificationSettings = () => {
 						<Input
 							type="time"
 							value={notifications.reminderTime}
+							disabled
 							onChange={(e) =>
 								setValue("notifications.reminderTime", e.target.value, {
 									shouldDirty: true,

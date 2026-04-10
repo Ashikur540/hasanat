@@ -8,21 +8,20 @@ import {
 	getDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/features/auth";
 import { format } from "date-fns";
 import {
 	calculateAmalGraphStats,
 	type DeedLog,
 } from "@/lib/amalGraphCalculations";
-import { fetchTopLeaderboard } from "@/features/leaderboard/lib/leaderboardService";
-import type { ProfileData, AmalLevel } from "../types";
+import type { ProfileData } from "../types";
 import { computeLevel, ALL_CATEGORIES } from "../types";
-import type { DeedCategory } from "@/data/deeds";
 
 interface UserDoc {
 	name: string;
 	bio?: string;
 	location?: string;
-	isPublic: boolean;
+	isPublic?: boolean;
 	totalPoints: number;
 	photoURL?: string;
 	createdAt: { toDate: () => Date } | null;
@@ -33,25 +32,33 @@ interface StreakDoc {
 	longestStreak: number;
 }
 
-async function fetchUserAndStreak(
-	userId: string,
-): Promise<{ user: UserDoc; streak: StreakDoc } | null> {
-	const [userSnap, streakSnap] = await Promise.all([
-		getDoc(doc(db, "users", userId)),
-		getDoc(doc(db, "streaks", userId)),
-	]);
+interface LeaderboardDoc {
+	allTimeDeeds?: number;
+}
 
-	if (!userSnap.exists()) return null;
+interface FirestoreErrorLike {
+	code?: string;
+}
 
-	const userData = userSnap.data() as UserDoc;
-	const streakData = streakSnap.exists()
+async function fetchUser(userId: string): Promise<UserDoc | "private" | null> {
+	try {
+		const userSnap = await getDoc(doc(db, "users", userId));
+		if (!userSnap.exists()) return null;
+		return userSnap.data() as UserDoc;
+	} catch (error) {
+		const firestoreError = error as FirestoreErrorLike;
+		if (firestoreError.code === "permission-denied") {
+			return "private";
+		}
+		throw error;
+	}
+}
+
+async function fetchStreak(userId: string): Promise<StreakDoc> {
+	const streakSnap = await getDoc(doc(db, "streaks", userId));
+	return streakSnap.exists()
 		? (streakSnap.data() as StreakDoc)
 		: { currentStreak: 0, longestStreak: 0 };
-
-	return {
-		user: userData,
-		streak: streakData,
-	};
 }
 
 async function fetchDeedLogs(userId: string): Promise<DeedLog[]> {
@@ -62,43 +69,73 @@ async function fetchDeedLogs(userId: string): Promise<DeedLog[]> {
 }
 
 async function fetchUserRank(userId: string): Promise<number | null> {
-	const entries = await fetchTopLeaderboard("allTime");
-	const userEntry = entries.find((e) => e.isCurrentUser);
-	if (userEntry) return userEntry.rank;
+	try {
+		const userDoc = await getDoc(doc(db, "leaderboard", userId));
+		if (!userDoc.exists()) return null;
 
-	const userDoc = await getDoc(doc(db, "leaderboard", userId));
-	if (!userDoc.exists()) return null;
+		const userPoints = userDoc.data().allTimePoints || 0;
+		const allDocs = await getDocs(collection(db, "leaderboard"));
+		let rank = 1;
+		allDocs.forEach((d) => {
+			const points = d.data().allTimePoints || 0;
+			if (points > userPoints) rank++;
+		});
 
-	const userPoints = userDoc.data().allTimePoints || 0;
-	const allDocs = await getDocs(collection(db, "leaderboard"));
-	let rank = 1;
-	allDocs.forEach((d) => {
-		const points = d.data().allTimePoints || 0;
-		if (points > userPoints) rank++;
-	});
+		return rank;
+	} catch {
+		return null;
+	}
+}
 
-	return rank;
+async function fetchLeaderboardSummary(
+	userId: string,
+): Promise<LeaderboardDoc | null> {
+	const summarySnap = await getDoc(doc(db, "leaderboard", userId));
+	if (!summarySnap.exists()) return null;
+	return summarySnap.data() as LeaderboardDoc;
 }
 
 export function useProfileData(userId: string) {
+	const { user: viewer } = useAuth();
+	const isOwner = viewer?.uid === userId;
+
 	const userQuery = useQuery({
 		queryKey: ["profile", "user", userId],
-		queryFn: () => fetchUserAndStreak(userId),
+		queryFn: () => fetchUser(userId),
 		enabled: !!userId,
 		staleTime: Infinity,
+	});
+
+	const canViewFullData =
+		userQuery.data !== "private" &&
+		!!userQuery.data &&
+		((userQuery.data.isPublic ?? true) || isOwner);
+
+	const streakQuery = useQuery({
+		queryKey: ["profile", "streak", userId],
+		queryFn: () => fetchStreak(userId),
+		enabled: !!userId && canViewFullData,
+		staleTime: 5 * 60 * 1000,
 	});
 
 	const logsQuery = useQuery({
 		queryKey: ["profile", "logs", userId],
 		queryFn: () => fetchDeedLogs(userId),
-		enabled: !!userId,
+		enabled: !!userId && canViewFullData,
 		staleTime: 5 * 60 * 1000,
 	});
 
 	const rankQuery = useQuery({
 		queryKey: ["profile", "rank", userId],
 		queryFn: () => fetchUserRank(userId),
-		enabled: !!userId,
+		enabled: !!userId && canViewFullData,
+		staleTime: 5 * 60 * 1000,
+	});
+
+	const leaderboardSummaryQuery = useQuery({
+		queryKey: ["profile", "leaderboard-summary", userId],
+		queryFn: () => fetchLeaderboardSummary(userId),
+		enabled: !!userId && userQuery.data !== "private" && !!userQuery.data,
 		staleTime: 5 * 60 * 1000,
 	});
 
@@ -111,10 +148,15 @@ export function useProfileData(userId: string) {
 	}
 
 	const loading =
-		userQuery.isLoading || logsQuery.isLoading || rankQuery.isLoading;
-	const error = userQuery.error || logsQuery.error || rankQuery.error;
+		userQuery.isLoading ||
+		(canViewFullData &&
+			(streakQuery.isLoading || logsQuery.isLoading || rankQuery.isLoading)) ||
+		(!canViewFullData && leaderboardSummaryQuery.isLoading);
+	const error =
+		userQuery.error ||
+		(canViewFullData ? streakQuery.error || logsQuery.error : null);
 
-	if (loading || error || !userQuery.data) {
+	if (loading || error) {
 		return {
 			data: null,
 			loading,
@@ -122,10 +164,60 @@ export function useProfileData(userId: string) {
 		};
 	}
 
-	const { user, streak } = userQuery.data;
+	if (userQuery.data === "private") {
+		const emptyCategoryBreakdown = ALL_CATEGORIES.map((category) => ({
+			category,
+			deedCount: 0,
+			consistencyPct: 0,
+			daysWithThisCat: 0,
+		}));
+
+		return {
+			data: {
+				name: "Private User",
+				bio: "",
+				location: "",
+				isPublic: false,
+				totalPoints: 0,
+				photoURL: null,
+				createdAt: "N/A",
+				currentStreak: 0,
+				longestStreak: 0,
+				totalDeeds: 0,
+				activeDays: 0,
+				consistency: 0,
+				topCategory: "",
+				mostLoggedDeed: null,
+				categoryBreakdown: emptyCategoryBreakdown,
+				heatmapData: {},
+				rank: null,
+				level: computeLevel(0),
+			},
+			loading: false,
+			error: null,
+		};
+	}
+
+	if (!userQuery.data) {
+		return {
+			data: null,
+			loading: false,
+			error: null,
+		};
+	}
+
+	const user = userQuery.data;
+	const leaderboardSummary = leaderboardSummaryQuery.data;
+	const fallbackDeeds = leaderboardSummary?.allTimeDeeds ?? 0;
+	const streak = streakQuery.data ?? { currentStreak: 0, longestStreak: 0 };
 	const logs = logsQuery.data ?? [];
 
 	const stats = calculateAmalGraphStats(logs, "year");
+	const totalDeeds = canViewFullData ? stats.totalDeeds : fallbackDeeds;
+	const activeDays = canViewFullData ? stats.activeDays : 0;
+	const consistency = canViewFullData ? stats.consistency : 0;
+	const topCategory = canViewFullData ? stats.topCategory : "";
+	const heatmapData = canViewFullData ? stats.heatmapData : {};
 
 	const categoryBreakdownZeroPadded = ALL_CATEGORIES.map((cat) => {
 		const existing = stats.categoryBreakdown.find((c) => c.category === cat);
@@ -155,7 +247,7 @@ export function useProfileData(userId: string) {
 		name: user.name || "Anonymous",
 		bio: user.bio || "",
 		location: user.location || "",
-		isPublic: user.isPublic ?? false,
+		isPublic: user.isPublic ?? true,
 		totalPoints: user.totalPoints || 0,
 		photoURL: user.photoURL || null,
 		createdAt: user.createdAt
@@ -163,15 +255,15 @@ export function useProfileData(userId: string) {
 			: "N/A",
 		currentStreak: streak.currentStreak,
 		longestStreak: streak.longestStreak,
-		totalDeeds: stats.totalDeeds,
-		activeDays: stats.activeDays,
-		consistency: stats.consistency,
-		topCategory: stats.topCategory,
+		totalDeeds,
+		activeDays,
+		consistency,
+		topCategory,
 		mostLoggedDeed,
-		categoryBreakdown: categoryBreakdownZeroPadded,
-		heatmapData: stats.heatmapData,
+		categoryBreakdown: canViewFullData ? categoryBreakdownZeroPadded : [],
+		heatmapData,
 		rank: rankQuery.data ?? null,
-		level: computeLevel(stats.totalDeeds),
+		level: computeLevel(totalDeeds),
 	};
 
 	return {

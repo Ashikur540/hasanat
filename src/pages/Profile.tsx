@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Lock } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useI18n } from "@/i18n/I18nProvider";
 import {
@@ -62,29 +61,12 @@ const Profile = () => {
 		);
 	}
 
-	if (!data.isPublic && !isOwner) {
-		return (
-			<div className="container mx-auto px-4 py-6 max-w-2xl">
-				<Card className="border-border bg-card">
-					<CardContent className="p-8 text-center space-y-3">
-						<Lock className="h-12 w-12 mx-auto text-muted-foreground" />
-						<h2 className="text-xl font-bold text-foreground">
-							{t("profilePrivate")}
-						</h2>
-						<p className="text-sm text-muted-foreground">
-							{t("profilePrivateDesc")}
-						</p>
-					</CardContent>
-				</Card>
-			</div>
-		);
-	}
-
 	return (
 		<>
 			<ProfilePageContent
 				data={data}
 				isOwner={isOwner}
+				isPrivateView={!data.isPublic && !isOwner}
 				activeTab={activeTab}
 				onActiveTabChange={setActiveTab}
 				onEdit={() => setEditOpen(true)}
@@ -105,6 +87,7 @@ const Profile = () => {
 			<ShareProfileDialog
 				open={shareOpen}
 				onOpenChange={setShareOpen}
+				profileUserId={targetUserId}
 				profileName={data.name}
 				stats={{
 					totalDeeds: data.totalDeeds,

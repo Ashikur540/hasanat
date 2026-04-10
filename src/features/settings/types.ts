@@ -10,7 +10,7 @@ export interface NotificationSettingsData {
 }
 
 export interface PrivacySettingsData {
-	profileVisibility: "public" | "friends" | "private";
+	profileVisibility: "public" | "private";
 	leaderboardOptIn: boolean;
 }
 
@@ -37,7 +37,7 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
 		reminderTime: "08:00",
 	},
 	privacy: {
-		profileVisibility: "friends",
+		profileVisibility: "public",
 		leaderboardOptIn: true,
 	},
 };
