@@ -602,7 +602,7 @@ const Dashboard = () => {
 										initial={{ scale: 0.85, opacity: 0 }}
 										animate={{ scale: 1, opacity: 1 }}
 										exit={{ scale: 0.85, opacity: 0 }}
-										className="bg-white/15 backdrop-blur-sm border border-white/25 rounded-xl px-4 py-2.5 text-right absolute bottom-2 right-4 sm:block hidden"
+										className="bg-white/15 backdrop-blur-sm border border-white/25 rounded-xl px-4 py-2.5 text-right absolute bottom-2 right-2 sm:right-10 sm:block hidden"
 									>
 										<p className="text-white text-xs font-bold tracking-wide">
 											All Farz ✓
@@ -617,7 +617,7 @@ const Dashboard = () => {
 										initial={{ scale: 0.85, opacity: 0 }}
 										animate={{ scale: 1, opacity: 1 }}
 										exit={{ scale: 0.85, opacity: 0 }}
-										className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2.5 text-right"
+										className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2.5 text-right absolute bottom-2 right-2 sm:right-10 sm:block hidden"
 									>
 										<p className="text-white/70 text-xs font-semibold tracking-wide">
 											Farz Prayers

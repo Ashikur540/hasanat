@@ -140,7 +140,7 @@ export function ProfilePageContent({
 								</div>
 							)}
 						</div>
-						<div className="grid grid-cols-4 gap-3 mt-5">
+						<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
 							{[
 								{
 									label: t("profileTotalDeeds"),
@@ -201,13 +201,19 @@ export function ProfilePageContent({
 					<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
 						<Tabs value={activeTab} onValueChange={onActiveTabChange}>
 							<TabsList className="w-full grid grid-cols-3">
-								<TabsTrigger value="overview">{t("profileOverview")}</TabsTrigger>
+								<TabsTrigger value="overview">
+									{t("profileOverview")}
+								</TabsTrigger>
 								<TabsTrigger value="badges">{t("profileBadges")}</TabsTrigger>
-								<TabsTrigger value="activity">{t("profileActivity")}</TabsTrigger>
+								<TabsTrigger value="activity">
+									{t("profileActivity")}
+								</TabsTrigger>
 							</TabsList>
 
 							<TabsContent value="overview" className="space-y-4 mt-4">
-								<ProfileCategoryList categoryBreakdown={data.categoryBreakdown} />
+								<ProfileCategoryList
+									categoryBreakdown={data.categoryBreakdown}
+								/>
 								<Card className="border-border bg-card">
 									<CardContent className="p-5">
 										<div className="grid grid-cols-2 gap-4">

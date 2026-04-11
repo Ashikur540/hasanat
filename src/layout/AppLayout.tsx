@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
 import { useAuth, useAuthActions } from "@/features/auth";
+import { MosqueLogo } from "@/components/brand/MosqueLogo";
 
 const AppLayout = () => {
 	const location = useLocation();
@@ -74,9 +75,7 @@ const AppLayout = () => {
 			<nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl">
 				<div className="container mx-auto flex h-14 items-center justify-between px-4">
 					<Link to="/dashboard" className="flex items-center gap-2">
-						<div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center ">
-							<HasanatLogo className="size-6" />
-						</div>
+						<MosqueLogo />
 						<span className="text-lg font-bold mt-1 text-foreground">
 							{t("appName")}
 						</span>
