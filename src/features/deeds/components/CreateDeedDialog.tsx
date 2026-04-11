@@ -32,6 +32,7 @@ import {
 	type DeedDifficulty,
 } from "@/data/deeds";
 import { useDeedMutation } from "@/features/deeds/hooks/useDeedMutation";
+import type { CreatedCustomDeed } from "@/features/deeds/hooks/useDeedMutation";
 import type { CustomDeed } from "@/features/deeds/types";
 
 interface CreateDeedDialogProps {
@@ -40,6 +41,10 @@ interface CreateDeedDialogProps {
 	/** When provided the dialog operates in edit mode */
 	editDeed?: CustomDeed;
 	onEditSuccess?: () => void;
+	onCreateSuccess?: (
+		createdDeed: CreatedCustomDeed,
+		addToTodo: boolean,
+	) => Promise<void> | void;
 }
 
 const CreateDeedDialog = ({
@@ -47,6 +52,7 @@ const CreateDeedDialog = ({
 	onOpenChange,
 	editDeed,
 	onEditSuccess,
+	onCreateSuccess,
 }: CreateDeedDialogProps) => {
 	const isEdit = !!editDeed;
 
@@ -111,10 +117,10 @@ const CreateDeedDialog = ({
 					hadithReference: hadith.trim(),
 					description: description.trim(),
 					visibility,
-					// addToTodo wires into the todo system in a future phase
 				},
 				{
-					onSuccess: () => {
+					onSuccess: async (createdDeed) => {
+						await onCreateSuccess?.(createdDeed, addToTodo);
 						resetCreate();
 						onOpenChange(false);
 					},

@@ -6,7 +6,9 @@ export { default as DeedsCategoryFilter } from "./components/DeedsCategoryFilter
 export { default as DeedsDifficultyFilter } from "./components/DeedsDifficultyFilter";
 export { useDeedQuery } from "./hooks/useDeedQuery";
 export { useDeedMutation } from "./hooks/useDeedMutation";
+export type { CreatedCustomDeed } from "./hooks/useDeedMutation";
 export { useDeedFilters } from "./hooks/useDeedFilters";
+export { mapDeedToTodayTodoInput } from "./utils/mapDeedToTodayTodoInput";
 export { useCustomDeedQuery } from "./custom-deeds/hooks/useCustomDeedQuery";
 export {
 	DeedsDeleteDialog,

@@ -96,6 +96,10 @@ export function useTodayTodos(allPrayersCompleted: boolean = false) {
 			}
 
 			await addTodo({ ...input, userId: user.uid, date: today });
+			toast({
+				title: "Added to today's list",
+				description: `${input.emoji} ${input.name} has been added to your today checklist.`,
+			});
 			return true;
 		},
 		[user, today, toast],

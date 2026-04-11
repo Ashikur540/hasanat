@@ -21,6 +21,15 @@ interface CreateCustomDeedInput {
 	visibility: "public" | "private";
 }
 
+export interface CreatedCustomDeed {
+	id: string;
+	name: string;
+	emoji: string;
+	category: DeedCategory;
+	difficulty: DeedDifficulty;
+	basePoints: number;
+}
+
 interface UpdateCustomDeedInput {
 	id: string;
 	name: string;
@@ -44,7 +53,7 @@ export function useDeedMutation() {
 	const createCustomDeed = useMutation({
 		mutationFn: async (deed: CreateCustomDeedInput) => {
 			if (!user) throw new Error("Not authenticated");
-			await addDoc(collection(db, "custom_deeds"), {
+			const ref = await addDoc(collection(db, "custom_deeds"), {
 				...deed,
 				isPreset: false,
 				userId: user.uid,
@@ -53,6 +62,14 @@ export function useDeedMutation() {
 				createdAt: serverTimestamp(),
 				updatedAt: serverTimestamp(),
 			});
+			return {
+				id: ref.id,
+				name: deed.name,
+				emoji: deed.emoji,
+				category: deed.category,
+				difficulty: deed.difficulty,
+				basePoints: deed.basePoints,
+			} satisfies CreatedCustomDeed;
 		},
 		onSuccess: invalidate,
 	});

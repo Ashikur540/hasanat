@@ -8,16 +8,21 @@ import {
 	CreateDeedDialog,
 	useDeedFilters,
 	useDeedQuery,
+	mapDeedToTodayTodoInput,
+	type CreatedCustomDeed,
 } from "@/features/deeds";
+import { useTodayTodos } from "@/features/dashboard";
 import DeedsSearchBar from "@/features/deeds/components/DeedsSearchBar";
 import DeedsCategoryFilter from "@/features/deeds/components/DeedsCategoryFilter";
 import DeedsDifficultyFilter from "@/features/deeds/components/DeedsDifficultyFilter";
 import { useI18n } from "@/i18n/I18nProvider";
 import { DeedsListSkeleton } from "@/features/deeds/components/DeedsListSkeleton";
+import type { Deed } from "@/data/deeds";
 
 const Deeds = () => {
 	const [createOpen, setCreateOpen] = useState(false);
 	const { t } = useI18n();
+	const { addDeedToToday } = useTodayTodos();
 
 	const { allDeeds, isLoading, isError } = useDeedQuery();
 	const {
@@ -34,6 +39,21 @@ const Deeds = () => {
 		filterKey,
 		loadMore,
 	} = useDeedFilters({ deeds: allDeeds });
+
+	const handleAddFromDeedCard = async (deed: Deed) => {
+		await addDeedToToday(mapDeedToTodayTodoInput(deed));
+	};
+
+	const handleCreatedDeed = async (
+		createdDeed: CreatedCustomDeed,
+		addToTodo: boolean,
+	) => {
+		if (!addToTodo) return;
+
+		await addDeedToToday(
+			mapDeedToTodayTodoInput({ ...createdDeed, deedType: "custom" }),
+		);
+	};
 
 	return (
 		<motion.div
@@ -116,7 +136,12 @@ const Deeds = () => {
 							className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
 						>
 							{visible.map((deed, i) => (
-								<DeedCard key={deed.id} deed={deed} index={i} />
+								<DeedCard
+									key={deed.id}
+									deed={deed}
+									index={i}
+									onAddToTodo={handleAddFromDeedCard}
+								/>
 							))}
 						</motion.div>
 					</AnimatePresence>
@@ -148,7 +173,11 @@ const Deeds = () => {
 				</>
 			)}
 
-			<CreateDeedDialog open={createOpen} onOpenChange={setCreateOpen} />
+			<CreateDeedDialog
+				open={createOpen}
+				onOpenChange={setCreateOpen}
+				onCreateSuccess={handleCreatedDeed}
+			/>
 		</motion.div>
 	);
 };
