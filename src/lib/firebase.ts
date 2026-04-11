@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import {
+	browserLocalPersistence,
+	getAuth,
+	GoogleAuthProvider,
+	setPersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
@@ -18,6 +23,10 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+setPersistence(auth, browserLocalPersistence).catch((error: unknown) => {
+	console.error("Failed to configure auth persistence:", error);
+});
 
 // Analytics only runs in browser (not during SSR/build)
 isSupported().then((supported) => {

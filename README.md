@@ -60,6 +60,19 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Progressive Web App (PWA)
+
+The app is configured as an installable PWA for mobile:
+
+- Android/Chromium browsers: use the in-app **Settings → Install App** button or browser install prompt
+- iOS Safari: use **Share → Add to Home Screen**
+
+### Local verification
+
+1. Run `npm run build`
+2. Run `npm run preview`
+3. Open the preview URL on mobile (or device emulation) and install from Settings
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.

@@ -300,6 +300,15 @@ export const translations = {
 		settingsAccount: "Account",
 		settingsSignOut: "Sign out",
 		settingsDeleteAccount: "Delete account",
+		settingsInstallAppTitle: "Install App",
+		settingsInstallAppDesc: "Install Hasanat on your phone for a faster, app-like experience.",
+		settingsInstallAppButton: "Install now",
+		settingsInstallAppInstalled: "App is already installed on this device.",
+		settingsInstallAppManual: "Open browser menu",
+		settingsInstallAppBrowser:
+			"Open your browser menu and choose Install app / Add to Home screen.",
+		settingsInstallAppIos:
+			"In Safari, tap Share and choose Add to Home Screen.",
 
 		// Notifications
 		notifReminderTitle: "🕌 Time for your deeds!",
@@ -688,6 +697,16 @@ export const translations = {
 		settingsAccount: "অ্যাকাউন্ট",
 		settingsSignOut: "সাইন আউট",
 		settingsDeleteAccount: "অ্যাকাউন্ট মুছুন",
+		settingsInstallAppTitle: "অ্যাপ ইনস্টল করুন",
+		settingsInstallAppDesc:
+			"দ্রুত ও অ্যাপের মতো অভিজ্ঞতার জন্য আপনার ফোনে হাসানাত ইনস্টল করুন।",
+		settingsInstallAppButton: "এখন ইনস্টল করুন",
+		settingsInstallAppInstalled: "এই ডিভাইসে অ্যাপটি ইতিমধ্যেই ইনস্টল করা আছে।",
+		settingsInstallAppManual: "ব্রাউজার মেনু খুলুন",
+		settingsInstallAppBrowser:
+			"আপনার ব্রাউজার মেনু থেকে Install app / Add to Home screen নির্বাচন করুন।",
+		settingsInstallAppIos:
+			"Safari-তে Share চাপুন, তারপর Add to Home Screen নির্বাচন করুন।",
 
 		// Notifications
 		notifReminderTitle: "🕌 আমলের সময়!",

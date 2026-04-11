@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { FormProvider } from "react-hook-form";
-import { Loader2 } from "lucide-react";
 import {
 	LanguageSettings,
 	AppearanceSettings,
@@ -8,6 +7,7 @@ import {
 	LocationSettings,
 	TimezoneSettings,
 	PrivacySettings,
+	PwaInstallSettings,
 	AccountSettings,
 	fadeUp,
 	stagger,
@@ -46,6 +46,7 @@ const Settings = () => {
 						<LocationSettings />
 						<TimezoneSettings />
 						<PrivacySettings />
+						<PwaInstallSettings />
 						<AccountSettings />
 					</>
 				)}
