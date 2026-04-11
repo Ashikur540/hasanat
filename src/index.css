@@ -1,151 +1,284 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 60 20% 98%;
-    --foreground: 153 37% 17%;
+	:root {
+		--background: 170 20% 90%;
+		--foreground: 177 42% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 153 37% 17%;
+		--card: 0 0% 100%;
+		--card-foreground: 177 42% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 153 37% 17%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 177 42% 15%;
 
-    --primary: 150 66% 29%;
-    --primary-foreground: 60 20% 98%;
+		--primary: 171 74% 24%;
+		--primary-foreground: 48 30% 98%;
 
-    --secondary: 145 52% 91%;
-    --secondary-foreground: 153 37% 17%;
+		--secondary: 170 38% 92%;
+		--secondary-foreground: 177 42% 15%;
 
-    --muted: 60 10% 94%;
-    --muted-foreground: 0 0% 40%;
+		--muted: 165 20% 93%;
+		--muted-foreground: 177 18% 34%;
 
-    --accent: 42 50% 56%;
-    --accent-foreground: 0 0% 100%;
+		--accent: 37 97% 62%;
+		--accent-foreground: 181 55% 12%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+		--destructive: 0 84% 60%;
+		--destructive-foreground: 0 0% 100%;
 
-    --border: 150 15% 88%;
-    --input: 150 15% 88%;
-    --ring: 150 66% 29%;
+		--border: 169 20% 84%;
+		--input: 169 20% 84%;
+		--ring: 37 97% 62%;
 
-    --radius: 0.75rem;
+		--radius: 0.75rem;
 
-    --sidebar-background: 150 20% 97%;
-    --sidebar-foreground: 153 37% 17%;
-    --sidebar-primary: 150 66% 29%;
-    --sidebar-primary-foreground: 60 20% 98%;
-    --sidebar-accent: 145 52% 91%;
-    --sidebar-accent-foreground: 153 37% 17%;
-    --sidebar-border: 150 15% 88%;
-    --sidebar-ring: 150 66% 29%;
+		--sidebar-background: 171 80% 22%;
+		--sidebar-foreground: 48 26% 95%;
+		--sidebar-primary: 37 97% 62%;
+		--sidebar-primary-foreground: 181 55% 12%;
+		--sidebar-accent: 169 70% 28%;
+		--sidebar-accent-foreground: 48 26% 95%;
+		--sidebar-border: 170 50% 30%;
+		--sidebar-ring: 37 97% 62%;
 
-    --success: 152 56% 39%;
-    --success-foreground: 0 0% 100%;
-    --gold: 42 50% 56%;
-    --gold-foreground: 0 0% 100%;
+		--success: 159 66% 39%;
+		--success-foreground: 0 0% 100%;
+		--gold: 37 97% 62%;
+		--gold-foreground: 181 55% 12%;
 
-    --heatmap-0: 0 0% 92%;
-    --heatmap-1: 140 40% 80%;
-    --heatmap-2: 145 50% 62%;
-    --heatmap-3: 148 58% 42%;
-    --heatmap-4: 150 66% 29%;
-  }
+		--heatmap-0: 165 20% 92%;
+		--heatmap-1: 164 44% 78%;
+		--heatmap-2: 164 55% 60%;
+		--heatmap-3: 165 66% 42%;
+		--heatmap-4: 171 74% 24%;
+	}
 
-  .dark {
-    --background: 240 15% 8%;
-    --foreground: 220 15% 90%;
+	.dark {
+		--background: 184 56% 6%;
+		--foreground: 52 32% 93%;
 
-    --card: 240 12% 12%;
-    --card-foreground: 220 15% 92%;
+		--card: 183 45% 15%;
+		--card-foreground: 52 32% 93%;
 
-    --popover: 240 12% 12%;
-    --popover-foreground: 220 15% 92%;
+		--popover: 183 45% 15%;
+		--popover-foreground: 52 32% 93%;
 
-    --primary: 155 60% 48%;
-    --primary-foreground: 240 15% 6%;
+		--primary: 165 73% 42%;
+		--primary-foreground: 183 64% 9%;
 
-    --secondary: 240 10% 16%;
-    --secondary-foreground: 220 15% 88%;
+		--secondary: 182 32% 21%;
+		--secondary-foreground: 52 32% 93%;
 
-    --muted: 240 10% 16%;
-    --muted-foreground: 220 8% 55%;
+		--muted: 182 32% 19%;
+		--muted-foreground: 171 17% 73%;
 
-    --accent: 42 55% 58%;
-    --accent-foreground: 0 0% 100%;
+		--accent: 37 96% 63%;
+		--accent-foreground: 181 55% 12%;
 
-    --destructive: 0 65% 45%;
-    --destructive-foreground: 220 15% 95%;
+		--destructive: 0 65% 45%;
+		--destructive-foreground: 220 15% 95%;
 
-    --border: 240 8% 18%;
-    --input: 240 8% 18%;
-    --ring: 155 60% 48%;
+		--border: 182 28% 26%;
+		--input: 182 28% 26%;
+		--ring: 37 96% 63%;
 
-    --sidebar-background: 240 12% 10%;
-    --sidebar-foreground: 220 15% 90%;
-    --sidebar-primary: 155 60% 48%;
-    --sidebar-primary-foreground: 240 15% 6%;
-    --sidebar-accent: 240 10% 16%;
-    --sidebar-accent-foreground: 220 15% 88%;
-    --sidebar-border: 240 8% 18%;
-    --sidebar-ring: 155 60% 48%;
+		--sidebar-background: 183 64% 11%;
+		--sidebar-foreground: 52 32% 93%;
+		--sidebar-primary: 37 96% 63%;
+		--sidebar-primary-foreground: 181 55% 12%;
+		--sidebar-accent: 182 38% 23%;
+		--sidebar-accent-foreground: 52 32% 93%;
+		--sidebar-border: 182 28% 26%;
+		--sidebar-ring: 37 96% 63%;
 
-    --success: 155 60% 48%;
-    --success-foreground: 0 0% 100%;
-    --gold: 42 55% 58%;
-    --gold-foreground: 0 0% 100%;
+		--success: 164 70% 44%;
+		--success-foreground: 0 0% 100%;
+		--gold: 37 96% 63%;
+		--gold-foreground: 181 55% 12%;
 
-    --heatmap-0: 240 10% 16%;
-    --heatmap-1: 155 25% 25%;
-    --heatmap-2: 155 40% 35%;
-    --heatmap-3: 155 50% 42%;
-    --heatmap-4: 155 60% 48%;
-  }
+		--heatmap-0: 183 34% 18%;
+		--heatmap-1: 164 36% 30%;
+		--heatmap-2: 164 48% 38%;
+		--heatmap-3: 165 60% 45%;
+		--heatmap-4: 165 73% 53%;
+	}
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+	* {
+		@apply border-border;
+	}
 
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
-  }
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+		font-family: "Inter", sans-serif;
+	}
 
-  .font-arabic {
-    font-family: 'Noto Naskh Arabic', serif;
-  }
+	.font-arabic {
+		font-family: "Noto Naskh Arabic", serif;
+	}
 }
 
 /* Background patterns */
 .bg-grid-pattern {
-  background-image:
-    linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
-  background-size: 40px 40px;
+	background-image:
+		linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+		linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+	background-size: 40px 40px;
+}
+
+.bg-rect-pattern {
+	background-image:
+		linear-gradient(to right, hsl(var(--primary) / 0.08) 1px, transparent 1px),
+		linear-gradient(to bottom, hsl(var(--primary) / 0.08) 1px, transparent 1px);
+	background-size: 48px 48px;
+}
+
+.bg-circuit-pattern {
+	background-image:
+		repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 27px,
+			hsl(var(--primary) / 0.1) 27px,
+			hsl(var(--primary) / 0.1) 28px,
+			transparent 28px,
+			transparent 55px,
+			hsl(var(--primary) / 0.1) 55px,
+			hsl(var(--primary) / 0.1) 56px
+		),
+		repeating-linear-gradient(
+			90deg,
+			transparent,
+			transparent 27px,
+			hsl(var(--primary) / 0.1) 27px,
+			hsl(var(--primary) / 0.1) 28px,
+			transparent 28px,
+			transparent 55px,
+			hsl(var(--primary) / 0.1) 55px,
+			hsl(var(--primary) / 0.1) 56px
+		),
+		radial-gradient(
+			circle at 28px 28px,
+			hsl(var(--primary) / 0.14) 2px,
+			transparent 2px
+		),
+		radial-gradient(
+			circle at 56px 56px,
+			hsl(var(--primary) / 0.14) 2px,
+			transparent 2px
+		);
+	background-size: 56px 56px;
+}
+
+.pattern-fade-bottom {
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		transparent 0%,
+		black 12%,
+		black 82%,
+		transparent 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		transparent 0%,
+		black 12%,
+		black 82%,
+		transparent 100%
+	);
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
 }
 
 .bg-dot-pattern {
-  background-image: radial-gradient(circle, hsl(var(--border) / 0.5) 1px, transparent 1px);
-  background-size: 24px 24px;
+	background-image: radial-gradient(
+		circle,
+		hsl(var(--border) / 0.5) 1px,
+		transparent 1px
+	);
+	background-size: 24px 24px;
 }
 
 .bg-gradient-mesh {
-  background-image:
-    radial-gradient(at 20% 20%, hsl(var(--primary) / 0.06) 0px, transparent 50%),
-    radial-gradient(at 80% 80%, hsl(var(--accent) / 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 0%, hsl(var(--primary) / 0.04) 0px, transparent 60%);
+	background-image:
+		radial-gradient(
+			at 50% -10%,
+			hsl(var(--primary) / 0.14) 0px,
+			transparent 58%
+		),
+		radial-gradient(
+			at 14% 88%,
+			hsl(var(--primary) / 0.12) 0px,
+			transparent 55%
+		),
+		radial-gradient(at 84% 82%, hsl(var(--accent) / 0.07) 0px, transparent 52%),
+		linear-gradient(
+			to bottom,
+			hsl(var(--background) / 0.98),
+			hsl(var(--background))
+		);
+}
+
+.dark .bg-rect-pattern {
+	background-image:
+		linear-gradient(to right, hsl(var(--primary) / 0.14) 1px, transparent 1px),
+		linear-gradient(to bottom, hsl(var(--primary) / 0.14) 1px, transparent 1px);
+	background-size: 48px 48px;
+}
+
+.dark .bg-circuit-pattern {
+	background-image:
+		repeating-linear-gradient(
+			0deg,
+			transparent,
+			transparent 27px,
+			hsl(var(--primary) / 0.2) 27px,
+			hsl(var(--primary) / 0.2) 28px,
+			transparent 28px,
+			transparent 55px,
+			hsl(var(--primary) / 0.2) 55px,
+			hsl(var(--primary) / 0.2) 56px
+		),
+		repeating-linear-gradient(
+			90deg,
+			transparent,
+			transparent 27px,
+			hsl(var(--primary) / 0.2) 27px,
+			hsl(var(--primary) / 0.2) 28px,
+			transparent 28px,
+			transparent 55px,
+			hsl(var(--primary) / 0.2) 55px,
+			hsl(var(--primary) / 0.2) 56px
+		),
+		radial-gradient(
+			circle at 28px 28px,
+			hsl(var(--primary) / 0.25) 2px,
+			transparent 2px
+		),
+		radial-gradient(
+			circle at 56px 56px,
+			hsl(var(--primary) / 0.25) 2px,
+			transparent 2px
+		);
+	background-size: 56px 56px;
 }
 
 .dark .bg-gradient-mesh {
-  background-image:
-    radial-gradient(at 20% 20%, hsl(var(--primary) / 0.08) 0px, transparent 50%),
-    radial-gradient(at 80% 80%, hsl(var(--accent) / 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 0%, hsl(155 60% 48% / 0.05) 0px, transparent 60%);
+	background-image:
+		radial-gradient(at 50% -8%, hsl(var(--primary) / 0.24) 0px, transparent 58%),
+		radial-gradient(
+			at 12% 88%,
+			hsl(var(--primary) / 0.16) 0px,
+			transparent 55%
+		),
+		radial-gradient(at 84% 82%, hsl(var(--accent) / 0.1) 0px, transparent 54%),
+		linear-gradient(
+			to bottom,
+			hsl(var(--background) / 0.98),
+			hsl(var(--background))
+		);
 }

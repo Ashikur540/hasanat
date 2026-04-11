@@ -28,42 +28,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-			try {
-				if (firebaseUser) {
-					console.log(
-						"✅ Signed in:",
-						firebaseUser.displayName,
-						firebaseUser.email,
-					);
-					const userRef = doc(db, "users", firebaseUser.uid);
-					const userSnap = await getDoc(userRef);
-					if (!userSnap.exists()) {
-						await setDoc(userRef, {
-							uid: firebaseUser.uid,
-							name: firebaseUser.displayName,
-							email: firebaseUser.email,
-							photoURL: firebaseUser.photoURL,
-							username: firebaseUser.email?.split("@")[0] ?? firebaseUser.uid,
-							isPublic: true,
-							isOnLeaderboard: false,
-							createdAt: serverTimestamp(),
-						});
-						console.log("📝 New user doc created in Firestore");
-					}
-				} else {
-					console.log("👤 No user signed in");
-				}
-				setUser(firebaseUser);
-			} catch (err) {
-				console.error("❌ Auth state error:", err);
-				setUser(firebaseUser);
-			} finally {
-				setLoading(false);
-			}
-		});
+		let unsubscribe = () => undefined;
+		let cancelled = false;
 
-		return unsubscribe;
+		const initializeAuth = async () => {
+			if (cancelled) {
+				return;
+			}
+
+			unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+				try {
+					if (firebaseUser) {
+						const userRef = doc(db, "users", firebaseUser.uid);
+						const userSnap = await getDoc(userRef);
+						if (!userSnap.exists()) {
+							await setDoc(userRef, {
+								uid: firebaseUser.uid,
+								name: firebaseUser.displayName,
+								email: firebaseUser.email,
+								photoURL: firebaseUser.photoURL,
+								username: firebaseUser.email?.split("@")[0] ?? firebaseUser.uid,
+								isPublic: true,
+								isOnLeaderboard: false,
+								createdAt: serverTimestamp(),
+							});
+						}
+					}
+					setUser(firebaseUser);
+				} catch (err) {
+					setUser(firebaseUser);
+				} finally {
+					setLoading(false);
+				}
+			});
+		};
+
+		initializeAuth();
+
+		return () => {
+			cancelled = true;
+			unsubscribe();
+		};
 	}, []);
 
 	const signInWithGoogle = async () => {

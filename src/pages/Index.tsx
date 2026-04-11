@@ -25,7 +25,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background bg-gradient-mesh">
-      <div className="fixed inset-0 bg-dot-pattern pointer-events-none opacity-40" />
+      <div className="fixed inset-0 bg-circuit-pattern pattern-fade-bottom pointer-events-none opacity-50" />
       <motion.nav
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

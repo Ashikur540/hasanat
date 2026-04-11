@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/features/auth/AuthContext";
 
 export const useAuthActions = () => {
@@ -14,9 +15,22 @@ export const useAuthActions = () => {
     try {
       await signInWithGoogle();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "";
-      if (!msg.includes("popup-closed"))
-        setError("Sign in failed. Please try again.");
+      if (err instanceof FirebaseError) {
+        if (err.code === "auth/unauthorized-domain") {
+          setError(
+            "This domain is not authorized in Firebase Auth. Add it in Firebase Console → Authentication → Settings → Authorized domains.",
+          );
+        } else if (err.code === "auth/popup-blocked") {
+          setError("Popup was blocked. Please allow popups and try again.");
+        } else if (err.code !== "auth/popup-closed-by-user") {
+          setError("Sign in failed. Please try again.");
+        }
+      } else {
+        const msg = err instanceof Error ? err.message : "";
+        if (!msg.includes("popup-closed")) {
+          setError("Sign in failed. Please try again.");
+        }
+      }
       console.error("Sign in error:", err);
     } finally {
       setLoading(false);
