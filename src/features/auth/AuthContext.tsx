@@ -12,7 +12,14 @@ import {
 	signOut as firebaseSignOut,
 } from "firebase/auth";
 import { auth, db, googleProvider } from "@/lib/firebase";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+	doc,
+	setDoc,
+	getDoc,
+	updateDoc,
+	serverTimestamp,
+} from "firebase/firestore";
+import { getUserPhotoURL } from "@/lib/userAvatar";
 
 interface AuthContextType {
 	user: User | null;
@@ -41,17 +48,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 					if (firebaseUser) {
 						const userRef = doc(db, "users", firebaseUser.uid);
 						const userSnap = await getDoc(userRef);
+						const resolvedPhotoURL = getUserPhotoURL(firebaseUser);
 						if (!userSnap.exists()) {
 							await setDoc(userRef, {
 								uid: firebaseUser.uid,
 								name: firebaseUser.displayName,
 								email: firebaseUser.email,
-								photoURL: firebaseUser.photoURL,
+								photoURL: resolvedPhotoURL,
 								username: firebaseUser.email?.split("@")[0] ?? firebaseUser.uid,
 								isPublic: true,
 								isOnLeaderboard: false,
 								createdAt: serverTimestamp(),
 							});
+						} else if (
+							resolvedPhotoURL &&
+							!(userSnap.data() as { photoURL?: string | null }).photoURL
+						) {
+							await updateDoc(userRef, { photoURL: resolvedPhotoURL });
 						}
 					}
 					setUser(firebaseUser);

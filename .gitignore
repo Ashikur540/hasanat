@@ -30,7 +30,7 @@ dist-ssr
 DEEDCITY_PLAN.md
 Hasana-project-plan.md
 DATABASE_PLAN.md
-
+.firebase
 # Firebase service account (NEVER commit this)
 serviceAccount.json
 

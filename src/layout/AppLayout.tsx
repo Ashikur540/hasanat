@@ -25,6 +25,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { getUserPhotoURL } from "@/lib/userAvatar";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
 import { useAuth, useAuthActions } from "@/features/auth";
@@ -39,6 +40,7 @@ const AppLayout = () => {
 	const { user } = useAuth();
 	const { handleSignOut } = useAuthActions();
 	const isActive = (path: string) => location.pathname === path;
+	const userPhotoURL = getUserPhotoURL(user);
 
 	const userInitials = user?.displayName
 		? user.displayName
@@ -197,7 +199,7 @@ const AppLayout = () => {
 									<DropdownMenuTrigger asChild>
 										<Avatar className="h-8 w-8 cursor-pointer">
 											<AvatarImage
-												src={user.photoURL ?? undefined}
+												src={userPhotoURL ?? undefined}
 												alt={user.displayName ?? "User"}
 											/>
 											<AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">

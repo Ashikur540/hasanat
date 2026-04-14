@@ -8,7 +8,7 @@ import { DEFAULT_SETTINGS, type SettingsFormValues } from "../types";
 import type { Language } from "@/i18n/translations";
 
 export function useSettingsForm() {
-	const { settings, isLoading, updateSettings } = useSettingsApi();
+	const { settings, hasStoredAppearance, isLoading, updateSettings } = useSettingsApi();
 	const { setLanguage } = useI18n();
 	const { setTheme } = useTheme();
 
@@ -34,16 +34,30 @@ export function useSettingsForm() {
 		updateSettings(JSON.parse(debouncedJson) as SettingsFormValues);
 	}, [debouncedJson, updateSettings]);
 
-	// Apply language and theme to the UI immediately on every change
-	// (including the initial load when `values` resets the form)
+	// Apply theme/language once when Firestore settings first load.
+	// Using a ref so this only runs on initial load, not on every re-fetch.
+	const settingsApplied = useRef(false);
+	useEffect(() => {
+		if (!settings || settingsApplied.current) return;
+		settingsApplied.current = true;
+		const hasLocalThemePreference =
+			typeof window !== "undefined" && window.localStorage.getItem("theme") !== null;
+		if (hasStoredAppearance && !hasLocalThemePreference) {
+			setTheme(settings.appearance);
+		}
+		setLanguage(settings.language as Language);
+	}, [settings, hasStoredAppearance, setTheme, setLanguage]);
+
+	// Apply theme/language immediately when the user explicitly changes a field.
+	// We intentionally skip `name === undefined` (full form reset from Firestore
+	// reload) to avoid overwriting the active theme mid-session.
 	useEffect(() => {
 		const sub = form.watch((values, { name }) => {
-			// name is undefined on a full reset (values prop syncing)
-			if (!name || name === "language") {
-				if (values.language) setLanguage(values.language as Language);
+			if (name === "language" && values.language) {
+				setLanguage(values.language as Language);
 			}
-			if (!name || name === "appearance") {
-				if (values.appearance) setTheme(values.appearance);
+			if (name === "appearance" && values.appearance) {
+				setTheme(values.appearance);
 			}
 		});
 		return () => sub.unsubscribe();
