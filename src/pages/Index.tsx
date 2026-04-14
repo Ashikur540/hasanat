@@ -75,7 +75,8 @@ const Index = () => {
 					property="og:description"
 					content="The GitHub for your spiritual life. Track daily amal (good deeds), visualize consistency with a 52-week Amal Graph, and inspire the Ummah with every action."
 				/>
-				<meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+				<meta property="og:image" content={`${SITE_URL}/og-image.webp`} />
+				<meta property="og:image:type" content="image/webp" />
 				<meta property="og:image:width" content="1200" />
 				<meta property="og:image:height" content="630" />
 				<meta property="og:site_name" content="Hasanat" />
@@ -86,7 +87,7 @@ const Index = () => {
 					name="twitter:description"
 					content="Track daily Islamic good deeds, build streaks, visualize your spiritual growth. 80+ verified deeds with Hadith references."
 				/>
-				<meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+				<meta name="twitter:image" content={`${SITE_URL}/og-image.webp`} />
 				<script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
 			</Helmet>
 			<div className="min-h-screen bg-background">
