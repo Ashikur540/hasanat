@@ -16,7 +16,7 @@ const Auth = () => {
 		<Helmet>
 			<title>Sign In | Hasanat</title>
 			<meta name="robots" content="noindex" />
-			<link rel="canonical" href="https://hasanat.app/auth" />
+			<link rel="canonical" href="https://hasanat-3375b.web.app/auth" />
 		</Helmet>
 		<div className="min-h-screen bg-background flex items-center justify-center px-4">
 			<div className="absolute inset-0 -z-10">
