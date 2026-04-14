@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth";
+import { getUserPhotoURL } from "@/lib/userAvatar";
 import { format } from "date-fns";
 import {
 	calculateAmalGraphStats,
@@ -242,6 +243,7 @@ export function useProfileData(userId: string) {
 
 	const mostLoggedDeed =
 		Object.values(deedCounts).sort((a, b) => b.count - a.count)[0] ?? null;
+	const viewerPhotoURL = isOwner ? getUserPhotoURL(viewer) : null;
 
 	const data: ProfileData = {
 		name: user.name || "Anonymous",
@@ -249,7 +251,7 @@ export function useProfileData(userId: string) {
 		location: user.location || "",
 		isPublic: user.isPublic ?? true,
 		totalPoints: user.totalPoints || 0,
-		photoURL: user.photoURL || null,
+		photoURL: user.photoURL || viewerPhotoURL || null,
 		createdAt: user.createdAt
 			? format(user.createdAt.toDate(), "MMM yyyy")
 			: "N/A",

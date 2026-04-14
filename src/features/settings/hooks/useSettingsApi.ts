@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth";
 import { useToast } from "@/hooks/use-toast";
 import { fetchSettings, patchSettings } from "@/lib/settingsService";
-import type { SettingsFormValues } from "../types";
+import { DEFAULT_SETTINGS, type SettingsFormValues } from "../types";
 
 const settingsKey = (uid: string) => ["settings", uid] as const;
 
@@ -22,7 +22,10 @@ export function useSettingsApi() {
 	const mutation = useMutation({
 		mutationFn: (data: SettingsFormValues) => patchSettings(uid!, data),
 		onSuccess: (_, variables) => {
-			queryClient.setQueryData(settingsKey(uid!), variables);
+			queryClient.setQueryData(settingsKey(uid!), {
+				settings: variables,
+				hasStoredAppearance: true,
+			});
 			toast({ title: "Settings saved" });
 		},
 		onError: () => {
@@ -35,7 +38,8 @@ export function useSettingsApi() {
 	});
 
 	return {
-		settings: query.data,
+		settings: query.data?.settings ?? DEFAULT_SETTINGS,
+		hasStoredAppearance: query.data?.hasStoredAppearance ?? false,
 		isLoading: query.isLoading,
 		updateSettings: mutation.mutate,
 		isSaving: mutation.isPending,

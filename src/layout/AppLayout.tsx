@@ -25,6 +25,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { getUserPhotoURL } from "@/lib/userAvatar";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
 import { useAuth, useAuthActions } from "@/features/auth";
@@ -39,6 +40,7 @@ const AppLayout = () => {
 	const { user } = useAuth();
 	const { handleSignOut } = useAuthActions();
 	const isActive = (path: string) => location.pathname === path;
+	const userPhotoURL = getUserPhotoURL(user);
 
 	const userInitials = user?.displayName
 		? user.displayName
@@ -85,7 +87,7 @@ const AppLayout = () => {
 					"fixed top-0 left-0 right-0 z-50 border-x-0 border-t-0 transition-all duration-300",
 					scrolled
 						? "glass-panel"
-						: "bg-background/90 backdrop-blur-xl border-none border-border shadow-none",
+						: "bg-transparent backdrop-blur-0 border-none border-transparent shadow-none",
 				)}
 			>
 				<div className="container mx-auto flex h-14 items-center justify-between px-4">
@@ -197,7 +199,7 @@ const AppLayout = () => {
 									<DropdownMenuTrigger asChild>
 										<Avatar className="h-8 w-8 cursor-pointer">
 											<AvatarImage
-												src={user.photoURL ?? undefined}
+												src={userPhotoURL ?? undefined}
 												alt={user.displayName ?? "User"}
 											/>
 											<AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">

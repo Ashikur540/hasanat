@@ -7,28 +7,42 @@ import {
 
 const userRef = (uid: string) => doc(db, "users", uid);
 
-export async function fetchSettings(uid: string): Promise<SettingsFormValues> {
+export interface SettingsPayload {
+	settings: SettingsFormValues;
+	hasStoredAppearance: boolean;
+}
+
+export async function fetchSettings(uid: string): Promise<SettingsPayload> {
 	const snap = await getDoc(userRef(uid));
-	if (!snap.exists()) return DEFAULT_SETTINGS;
+	if (!snap.exists()) {
+		return {
+			settings: DEFAULT_SETTINGS,
+			hasStoredAppearance: false,
+		};
+	}
 	const userData = snap.data();
 	const raw = userData.settings ?? {};
+	const hasStoredAppearance = typeof raw.appearance === "string";
 	const profileVisibilityFromUser =
 		userData.isPublic === false ? "private" : "public";
 	// Merge with defaults so new fields are always present
 	return {
-		...DEFAULT_SETTINGS,
-		...raw,
-		notifications: {
-			...DEFAULT_SETTINGS.notifications,
-			...(raw.notifications ?? {}),
+		settings: {
+			...DEFAULT_SETTINGS,
+			...raw,
+			notifications: {
+				...DEFAULT_SETTINGS.notifications,
+				...(raw.notifications ?? {}),
+			},
+			privacy: {
+				...DEFAULT_SETTINGS.privacy,
+				...(raw.privacy ?? {}),
+				profileVisibility:
+					raw.privacy?.profileVisibility ?? profileVisibilityFromUser,
+			},
 		},
-		privacy: {
-			...DEFAULT_SETTINGS.privacy,
-			...(raw.privacy ?? {}),
-			profileVisibility:
-				raw.privacy?.profileVisibility ?? profileVisibilityFromUser,
-		},
-	} as SettingsFormValues;
+		hasStoredAppearance,
+	} as SettingsPayload;
 }
 
 export async function patchSettings(

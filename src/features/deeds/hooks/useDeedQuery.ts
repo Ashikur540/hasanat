@@ -2,12 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth";
-import type { Deed } from "@/data/deeds";
-
-async function fetchPresetDeeds(): Promise<Deed[]> {
-	const snap = await getDocs(collection(db, "deeds"));
-	return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Deed));
-}
+import { PRESET_DEEDS, type Deed } from "@/data/deeds";
 
 async function fetchCustomDeeds(userId: string): Promise<Deed[]> {
 	const q = query(
@@ -21,12 +16,6 @@ async function fetchCustomDeeds(userId: string): Promise<Deed[]> {
 export function useDeedQuery() {
 	const { user } = useAuth();
 
-	const presetQuery = useQuery({
-		queryKey: ["deeds", "preset"],
-		queryFn: fetchPresetDeeds,
-		staleTime: Infinity,
-	});
-
 	const customQuery = useQuery({
 		queryKey: ["deeds", "custom", user?.uid ?? "anon"],
 		queryFn: () => fetchCustomDeeds(user!.uid),
@@ -35,13 +24,13 @@ export function useDeedQuery() {
 	});
 
 	const allDeeds: Deed[] = [
-		...(presetQuery.data ?? []),
+		...PRESET_DEEDS,
 		...(customQuery.data ?? []),
 	];
 
 	return {
 		allDeeds,
-		isLoading: presetQuery.isLoading,
-		isError: presetQuery.isError,
+		isLoading: false,
+		isError: false,
 	};
 }
