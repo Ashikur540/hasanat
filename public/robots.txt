@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://hasanat.app/sitemap.xml
+Sitemap: https://hasanat-3375b.web.app/sitemap.xml

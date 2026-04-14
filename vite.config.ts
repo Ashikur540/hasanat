@@ -77,7 +77,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     sitemap({
-      hostname: "https://hasanat.app",
+      hostname: "https://hasanat-3375b.web.app",
       dynamicRoutes: ["/deeds"],
       exclude: ["/dashboard", "/amal-graph", "/settings", "/leaderboard", "/my-deeds", "/profile", "/my-city", "/circles", "/ramadan", "/auth"],
     }),

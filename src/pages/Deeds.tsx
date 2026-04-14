@@ -69,7 +69,7 @@ const Deeds = () => {
 		<Helmet>
 			<title>Deed Library | Hasanat</title>
 			<meta name="description" content="Browse 80+ verified Islamic good deeds from Quran and Sunnah. Track Salah, Quran, Sadaqah, Dhikr, and more." />
-			<link rel="canonical" href="https://hasanat.app/deeds" />
+			<link rel="canonical" href="https://hasanat-3375b.web.app/deeds" />
 		</Helmet>
 		<motion.div
 			initial={{ opacity: 0 }}
