@@ -1,86 +1,55 @@
-# Welcome to your Lovable project
+# Hasanat
 
-## Project info
+Hasanat is a React + TypeScript web app for tracking daily good deeds (amal), building consistency, and visualizing spiritual progress.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Tech stack
 
-## How can I edit this code?
+- Vite
+- React 18
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Firebase
+- TanStack Query
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Getting started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+cd hasanat
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run dev        # Start local dev server
+npm run build      # Production build
+npm run build:dev  # Development build output
+npm run preview    # Preview production build locally
+npm run lint       # ESLint
+npm run test       # Vitest (run once)
+```
 
-**Use GitHub Codespaces**
+## PWA
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The app is installable as a Progressive Web App.
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## Progressive Web App (PWA)
-
-The app is configured as an installable PWA for mobile:
-
-- Android/Chromium browsers: use the in-app **Settings → Install App** button or browser install prompt
+- Android/Chromium: use **Settings → Install App** or browser install prompt
 - iOS Safari: use **Share → Add to Home Screen**
 
-### Local verification
+### Verify locally
 
-1. Run `npm run build`
-2. Run `npm run preview`
-3. Open the preview URL on mobile (or device emulation) and install from Settings
+1. `npm run build`
+2. `npm run preview`
+3. Open on mobile and install from browser/app prompt
 
-## How can I deploy this project?
+## Repository rename note
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+If the repository was previously named `radiant-digital-faith`, update your local remote after rename:
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```sh
+git remote set-url origin https://github.com/<owner>/hasanat.git
+git remote -v
+```
