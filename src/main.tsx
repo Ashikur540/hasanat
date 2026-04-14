@@ -7,7 +7,7 @@ import { registerPwaServiceWorker } from "@/lib/pwa";
 registerPwaServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
-	<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+	<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 		<App />
 	</ThemeProvider>,
 );

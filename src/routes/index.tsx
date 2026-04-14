@@ -1,29 +1,40 @@
+import { lazy, Suspense, type ReactNode } from "react";
 import { createBrowserRouter } from "react-router-dom";
 
 import AppLayout from "@/layout/AppLayout";
 import { ProtectedRoute } from "@/features/auth";
-import Index from "@/pages/Index";
-import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import AmalGraph from "@/pages/AmalGraph";
-// import MyCity from "@/pages/MyCity";
-import Deeds from "@/pages/Deeds";
-import Profile from "@/pages/Profile";
-import Settings from "@/pages/Settings";
-import Leaderboard from "@/pages/Leaderboard";
-// import Circles from "@/pages/Circles";
-// import Ramadan from "@/pages/Ramadan";
-import MyCustomDeeds from "@/pages/MyCustomDeeds";
-import NotFound from "@/pages/NotFound";
+
+const Index = lazy(() => import("@/pages/Index"));
+const Auth = lazy(() => import("@/pages/Auth"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const AmalGraph = lazy(() => import("@/pages/AmalGraph"));
+const Deeds = lazy(() => import("@/pages/Deeds"));
+const Profile = lazy(() => import("@/pages/Profile"));
+const Settings = lazy(() => import("@/pages/Settings"));
+const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
+const MyCustomDeeds = lazy(() => import("@/pages/MyCustomDeeds"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+const withRouteSuspense = (element: ReactNode) => (
+	<Suspense
+		fallback={
+			<div className="container mx-auto px-4 py-6 text-sm text-muted-foreground">
+				Loading...
+			</div>
+		}
+	>
+		{element}
+	</Suspense>
+);
 
 export const router = createBrowserRouter([
-	{ path: "/", element: <Index /> },
-	{ path: "/auth", element: <Auth /> },
-	{ path: "/profile/:userId", element: <Profile /> },
+	{ path: "/", element: withRouteSuspense(<Index />) },
+	{ path: "/auth", element: withRouteSuspense(<Auth />) },
+	{ path: "/profile/:userId", element: withRouteSuspense(<Profile />) },
 	// Public routes — accessible without login (AppLayout handles unauth state)
 	{
 		element: <AppLayout />,
-		children: [{ path: "/deeds", element: <Deeds /> }],
+		children: [{ path: "/deeds", element: withRouteSuspense(<Deeds />) }],
 	},
 	// Protected routes — redirect to /auth if not logged in
 	{
@@ -32,18 +43,18 @@ export const router = createBrowserRouter([
 			{
 				element: <AppLayout />,
 				children: [
-					{ path: "/dashboard", element: <Dashboard /> },
-					{ path: "/amal-graph", element: <AmalGraph /> },
+					{ path: "/dashboard", element: withRouteSuspense(<Dashboard />) },
+					{ path: "/amal-graph", element: withRouteSuspense(<AmalGraph />) },
 					// { path: "/my-city", element: <MyCity /> },
-					{ path: "/profile", element: <Profile /> },
-					{ path: "/settings", element: <Settings /> },
-					{ path: "/leaderboard", element: <Leaderboard /> },
+					{ path: "/profile", element: withRouteSuspense(<Profile />) },
+					{ path: "/settings", element: withRouteSuspense(<Settings />) },
+					{ path: "/leaderboard", element: withRouteSuspense(<Leaderboard />) },
 					// { path: "/circles", element: <Circles /> },
 					// { path: "/ramadan", element: <Ramadan /> },
-					{ path: "/my-deeds", element: <MyCustomDeeds /> },
+					{ path: "/my-deeds", element: withRouteSuspense(<MyCustomDeeds />) },
 				],
 			},
 		],
 	},
-	{ path: "*", element: <NotFound /> },
+	{ path: "*", element: withRouteSuspense(<NotFound />) },
 ]);

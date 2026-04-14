@@ -24,10 +24,10 @@ const HeroSection = () => {
       {/* Background circuit pattern */}
       <div className="absolute inset-0 bg-circuit-pattern pattern-fade-bottom pointer-events-none opacity-20 dark:opacity-40" />
 
-      {/* Radial glow */}
+      {/* Radial glow — opacity-only animation avoids expensive scale+blur repaints */}
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
         className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 dark:bg-emerald-custom/10 blur-3xl -z-10 pointer-events-none"
       />

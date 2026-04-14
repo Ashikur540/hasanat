@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Heart, BookOpen, Coins, Activity } from "lucide-react";
 
 const MINI_HEATMAP: number[] = [
@@ -34,32 +33,20 @@ const HeroDashboardMockup = () => {
   return (
     // Outer wrapper — relative so floating elements can overflow
     <div className="relative w-full">
-      {/* ── Floating heart card ── top-right, outside the card */}
-      <motion.div
-        animate={{ y: [0, -10, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="hero-float-icon absolute -top-6 -right-4 z-30 w-14 h-14 rounded-2xl bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl"
-      >
+      {/* ── Floating heart card ── top-right — CSS animation (no JS timer) */}
+      <div className="hero-float-icon animate-float absolute -top-6 -right-4 z-30 w-14 h-14 rounded-2xl bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl">
         <Heart className="w-6 h-6 text-rose-400" fill="currentColor" />
-      </motion.div>
+      </div>
 
-      {/* ── Floating book icon ── left side, mid-height */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-        className="hero-float-icon hero-float-icon-delay-1 absolute left-0 top-[42%] -translate-x-1/2 z-30 w-12 h-12 rounded-2xl bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl"
-      >
+      {/* ── Floating book icon ── left side — CSS animation */}
+      <div className="hero-float-icon hero-float-icon-delay-1 animate-float-slow absolute left-0 top-[42%] -translate-x-1/2 z-30 w-12 h-12 rounded-2xl bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl">
         <BookOpen className="w-5 h-5 text-blue-400" />
-      </motion.div>
+      </div>
 
-      {/* ── Floating coins badge ── bottom-right */}
-      <motion.div
-        animate={{ y: [0, -9, 0] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="hero-float-icon hero-float-icon-delay-2 absolute -bottom-4 right-6 z-30 w-12 h-12 rounded-full bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl"
-      >
+      {/* ── Floating coins badge ── bottom-right — CSS animation */}
+      <div className="hero-float-icon hero-float-icon-delay-2 animate-float-delayed absolute -bottom-4 right-6 z-30 w-12 h-12 rounded-full bg-white/18 dark:bg-white/12 border border-white/35 dark:border-white/25 backdrop-blur-md flex items-center justify-center shadow-2xl">
         <Coins className="w-5 h-5 text-amber-400" />
-      </motion.div>
+      </div>
 
       {/* ── Main dashboard card ── */}
       <div
@@ -67,8 +54,7 @@ const HeroDashboardMockup = () => {
         className="ml-10 mr-2"
       >
         <div
-          className="bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl rounded-2xl border border-border dark:border-white/10 overflow-hidden shadow-[-20px_20px_60px_rgba(0,0,0,0.08)] dark:shadow-[-20px_20px_60px_rgba(0,0,0,0.6)]"
-          style={{ transform: "rotateX(8deg) rotateY(-8deg) rotateZ(2deg)" }}
+          className="hero-3d-card bg-white/80 dark:bg-white/[0.04] backdrop-blur-xl rounded-2xl border border-border dark:border-white/10 overflow-hidden shadow-[-20px_20px_60px_rgba(0,0,0,0.08)] dark:shadow-[-20px_20px_60px_rgba(0,0,0,0.6)]"
         >
           {/* Emerald glow orb — dark mode only */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {
 	Flame,
@@ -27,7 +28,7 @@ const LEVEL_CLASSES: Record<number, string> = {
 const ProfileSection = () => {
 	const { t } = useI18n();
 
-	const FEATURES = [
+	const FEATURES = useMemo(() => [
 		{
 			icon: Flame,
 			iconClass: "text-amber-500 dark:text-gold-custom",
@@ -44,18 +45,18 @@ const ProfileSection = () => {
 			title: t("profileFeature2Title"),
 			description: t("profileFeature2Desc"),
 		},
-	];
+	], [t]);
 
-	const STATS = [
+	const STATS = useMemo(() => [
 		{ label: t("profileStatStreak"), value: "28d", accent: true },
 		{ label: t("profileStatDeeds"), value: "725", accent: false },
 		{ label: t("profileStatPoints"), value: "2.4k", accent: false },
-	];
+	], [t]);
 
-	const RECENT_DEEDS = [
+	const RECENT_DEEDS = useMemo(() => [
 		{ label: t("profileDeed1"), pts: 30 },
 		{ label: t("profileDeed2"), pts: 5 },
-	];
+	], [t]);
 
 	return (
 		<section
@@ -72,7 +73,7 @@ const ProfileSection = () => {
 				<motion.div
 					initial="hidden"
 					whileInView="visible"
-					viewport={{ once: true, margin: "-50px" }}
+					viewport={{ once: true, amount: 0.2 }}
 					variants={stagger}
 					className="space-y-6"
 				>
