@@ -1,14 +1,26 @@
+import { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
-import {
-	LandingNav,
-	HeroSection,
-	SpiritualGapSection,
-	AmalGraphSection,
-	DeedsLibrarySection,
-	ProfileSection,
-	LeaderboardSection,
-	LandingFooter,
-} from "@/features/landing";
+import { LandingNav, HeroSection } from "@/features/landing";
+
+// Below-fold sections — lazy-loaded so they don't block the initial paint
+const SpiritualGapSection = lazy(
+	() => import("@/features/landing/components/SpiritualGapSection")
+);
+const AmalGraphSection = lazy(
+	() => import("@/features/landing/components/AmalGraphSection")
+);
+const DeedsLibrarySection = lazy(
+	() => import("@/features/landing/components/DeedsLibrarySection")
+);
+const ProfileSection = lazy(
+	() => import("@/features/landing/components/ProfileSection")
+);
+const LeaderboardSection = lazy(
+	() => import("@/features/landing/components/LeaderboardSection")
+);
+const LandingFooter = lazy(
+	() => import("@/features/landing/components/LandingFooter")
+);
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -79,19 +91,21 @@ const Index = () => {
 			<div className="min-h-screen bg-background">
 				<LandingNav />
 				<main>
+					{/* Above-fold — loaded eagerly */}
 					<HeroSection />
 
-					<SpiritualGapSection />
-
-					<AmalGraphSection />
-
-					<DeedsLibrarySection />
-
-					<ProfileSection />
-
-					<LeaderboardSection />
+					{/* Below-fold — lazy-loaded, defers parse/exec until needed */}
+					<Suspense fallback={null}>
+						<SpiritualGapSection />
+						<AmalGraphSection />
+						<DeedsLibrarySection />
+						<ProfileSection />
+						<LeaderboardSection />
+					</Suspense>
 				</main>
-				<LandingFooter />
+				<Suspense fallback={null}>
+					<LandingFooter />
+				</Suspense>
 			</div>
 		</>
 	);

@@ -1,4 +1,129 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800;900&display=swap");
+/* ─── Self-hosted fonts — no external network dependency ──────────────────── */
+
+/* Inter */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-300.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-500italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/inter-v20-latin-800.woff2") format("woff2");
+}
+
+/* Playfair Display */
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/playfair-display-v40-latin-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/playfair-display-v40-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/playfair-display-v40-latin-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/playfair-display-v40-latin-800.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/playfair-display-v40-latin-900.woff2") format("woff2");
+}
+
+/* Noto Naskh Arabic */
+@font-face {
+  font-family: "Noto Naskh Arabic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-naskh-arabic-v44-latin-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Noto Naskh Arabic";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/noto-naskh-arabic-v44-latin-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Noto Naskh Arabic";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/noto-naskh-arabic-v44-latin-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Noto Naskh Arabic";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-naskh-arabic-v44-latin-700.woff2") format("woff2");
+}
 
 @tailwind base;
 @tailwind components;
@@ -375,21 +500,31 @@
 }
 .animate-float {
 	animation: float 6s ease-in-out infinite;
+	will-change: transform;
 }
 .animate-float-delayed {
 	animation: float 6s ease-in-out 2s infinite;
+	will-change: transform;
 }
 .animate-float-slow {
 	animation: floatAlt 8s ease-in-out 1s infinite;
+	will-change: transform;
 }
 .animate-pulse-glow {
 	animation: pulseGlow 4s ease-in-out infinite;
+	will-change: opacity, box-shadow;
 }
 
 .hero-float-icon {
 	position: absolute;
 	overflow: hidden;
 	isolation: isolate;
+}
+
+/* 3D perspective card — promote composited layer upfront to avoid reflow on first paint */
+.hero-3d-card {
+	will-change: transform;
+	transform: rotateX(8deg) rotateY(-8deg) rotateZ(2deg);
 }
 
 .hero-float-icon::before {

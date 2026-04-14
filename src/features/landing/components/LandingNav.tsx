@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon, Languages } from "lucide-react";
@@ -17,17 +17,27 @@ const LandingNav = () => {
 	const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 	const toggleLanguage = () => setLanguage(language === "en" ? "bn" : "en");
 
-	const NAV_LINKS = [
-		{ label: t("footerLinkFeatures"), href: "#features" },
-		{ label: t("footerLinkDeedsLibrary"), href: "#library" },
-		{ label: t("footerLinkLeaderboard"), href: "#leaderboard" },
-	];
+	const NAV_LINKS = useMemo(
+		() => [
+			{ label: t("footerLinkFeatures"), href: "#features" },
+			{ label: t("footerLinkDeedsLibrary"), href: "#library" },
+			{ label: t("footerLinkLeaderboard"), href: "#leaderboard" },
+		],
+		[t]
+	);
 
 	useEffect(() => {
-		const onScroll = () => setScrolled(window.scrollY > 12);
+		let rafId: number;
+		const onScroll = () => {
+			cancelAnimationFrame(rafId);
+			rafId = requestAnimationFrame(() => setScrolled(window.scrollY > 12));
+		};
 		window.addEventListener("scroll", onScroll, { passive: true });
 		onScroll();
-		return () => window.removeEventListener("scroll", onScroll);
+		return () => {
+			window.removeEventListener("scroll", onScroll);
+			cancelAnimationFrame(rafId);
+		};
 	}, []);
 
 	return (
@@ -39,7 +49,7 @@ const LandingNav = () => {
 				"fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-x-0 border-t-0",
 				scrolled
 					? "glass-panel"
-					: "bg-background/90 backdrop-blur-xl border-none border-border shadow-none",
+					: "bg-transparent backdrop-blur-0 border-none border-transparent shadow-none",
 			].join(" ")}
 		>
 			<div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 md:px-12">

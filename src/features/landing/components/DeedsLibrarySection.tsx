@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { BookOpen, Heart, Coins, Sun, Library } from "lucide-react";
@@ -9,7 +10,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 const DeedsLibrarySection = () => {
 	const { t } = useI18n();
 
-	const DEEDS = [
+	const DEEDS = useMemo(() => [
 		{
 			icon: BookOpen,
 			iconColorClass: "text-blue-700 dark:text-blue-400",
@@ -50,7 +51,7 @@ const DeedsLibrarySection = () => {
 			points: 100,
 			hadithQuote: t("libraryDeed4Hadith"),
 		},
-	];
+	], [t]);
 
 	return (
 		<section
@@ -93,7 +94,7 @@ const DeedsLibrarySection = () => {
 				<motion.div
 					initial="hidden"
 					whileInView="visible"
-					viewport={{ once: true, margin: "-50px" }}
+					viewport={{ once: true, amount: 0.1 }}
 					variants={stagger}
 					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
 				>

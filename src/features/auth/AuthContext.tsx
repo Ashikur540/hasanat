@@ -11,8 +11,7 @@ import {
 	signInWithPopup,
 	signOut as firebaseSignOut,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db, googleProvider } from "@/lib/firebase";
+import { auth, getDb, googleProvider } from "@/lib/firebase";
 
 interface AuthContextType {
 	user: User | null;
@@ -39,6 +38,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 			unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
 				try {
 					if (firebaseUser) {
+						// Firestore loads lazily — only after a user is confirmed signed in
+						const { doc, setDoc, getDoc, serverTimestamp } = await import("firebase/firestore");
+						const db = await getDb();
 						const userRef = doc(db, "users", firebaseUser.uid);
 						const userSnap = await getDoc(userRef);
 						if (!userSnap.exists()) {
