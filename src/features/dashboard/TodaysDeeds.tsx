@@ -39,17 +39,19 @@ const TodaysDeeds = ({ autoCompleteSalah = false }: TodaysDeedsProps) => {
 		deleteTodo,
 	} = useTodayTodos(autoCompleteSalah);
 
-	const handleAddDeed = async (deed: ModalDeed) => {
-		const added = await addDeedToToday({
-			deedId: deed.id,
-			deedType: deed.deedType,
-			name: deed.name,
-			emoji: deed.emoji,
-			category: deed.category,
-			difficulty: deed.difficulty,
-			points: deed.points,
-		});
-		if (added) setDialogOpen(false);
+	const handleAddDeed = async (deeds: ModalDeed[]) => {
+		for (const deed of deeds) {
+			await addDeedToToday({
+				deedId: deed.id,
+				deedType: deed.deedType,
+				name: deed.name,
+				emoji: deed.emoji,
+				category: deed.category,
+				difficulty: deed.difficulty,
+				points: deed.points,
+			});
+		}
+		setDialogOpen(false);
 	};
 
 	return (

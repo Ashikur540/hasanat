@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
         short_name: "Hasanat",
         description:
           "Track daily good deeds, visualize your Amal Graph, and stay consistent.",
-        start_url: "/",
+        start_url: "/dashboard",
         scope: "/",
         display: "standalone",
         orientation: "portrait",

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
@@ -13,17 +14,30 @@ const NAV_LINKS = [
 ];
 
 const LandingNav = () => {
+	const [scrolled, setScrolled] = useState(false);
 	const { theme, setTheme } = useTheme();
 	const { user } = useAuth();
 
 	const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
+
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > 12);
+		window.addEventListener("scroll", onScroll, { passive: true });
+		onScroll();
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
 
 	return (
 		<motion.nav
 			initial={{ y: -20, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.4 }}
-			className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-panel border-x-0 border-t-0"
+			className={[
+				"fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-x-0 border-t-0",
+				scrolled
+					? "glass-panel"
+					: "bg-background/90 backdrop-blur-xl border-none border-border shadow-none",
+			].join(" ")}
 		>
 			<div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 md:px-12">
 				{/* Logo */}

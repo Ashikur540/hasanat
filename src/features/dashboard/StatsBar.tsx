@@ -32,19 +32,19 @@ const StatsBar = () => {
 			emoji: "⭐",
 			label: t("statsPointsToday"),
 			value: isLoading ? null : String(todayPoints),
-			sub: t("statsFromYesterday"),
+			// sub: t("statsFromYesterday"),
 		},
 		{
 			emoji: "📋",
 			label: t("statsDeedsToday"),
 			value: isLoading ? null : `${completedCount}/${totalCount}`,
-			sub: t("statsRemaining"),
+			// sub: t("statsRemaining"),
 		},
 		{
 			emoji: "🔥",
 			label: t("streakCurrent"),
 			value: isLoading ? null : String(currentStreak),
-			sub: `${t("commonDays")} streak`,
+			// sub: `${t("commonDays")} streak`,
 		},
 		// {
 		// 	emoji: "🌍",
@@ -84,9 +84,9 @@ const StatsBar = () => {
 									{s.value}
 								</p>
 							)}
-							<p className="text-[10px] text-muted-foreground mt-1.5 leading-none">
+							{/* <p className="text-[10px] text-muted-foreground mt-1.5 leading-none">
 								{s.sub}
-							</p>
+							</p> */}
 						</div>
 					))}
 
@@ -117,11 +117,21 @@ const StatsBar = () => {
 												content={({ active, payload }) => {
 													if (!active || !payload?.length) return null;
 													const { date, count } = payload[0].payload;
-													const day = new Date(date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+													const day = new Date(
+														date + "T00:00:00",
+													).toLocaleDateString(undefined, {
+														weekday: "short",
+														month: "short",
+														day: "numeric",
+													});
 													return (
 														<div className="rounded-md border bg-popover px-2.5 py-1.5 text-xs shadow-md">
-															<p className="font-medium text-foreground">{day}</p>
-															<p className="text-muted-foreground">{count} deed{count !== 1 ? "s" : ""}</p>
+															<p className="font-medium text-foreground">
+																{day}
+															</p>
+															<p className="text-muted-foreground">
+																{count} deed{count !== 1 ? "s" : ""}
+															</p>
 														</div>
 													);
 												}}
@@ -137,9 +147,9 @@ const StatsBar = () => {
 								</div>
 							</div>
 						)}
-						<p className="text-[10px] text-muted-foreground mt-1.5 leading-none">
+						{/* <p className="text-[10px] text-muted-foreground mt-1.5 leading-none">
 							{t("statsFromYesterday")}
-						</p>
+						</p> */}
 					</div>
 				</div>
 			</CardContent>

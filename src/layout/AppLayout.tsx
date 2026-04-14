@@ -1,9 +1,8 @@
+import { useEffect, useState } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
 	BarChart3,
-	Building2,
 	BookOpen,
-	Users,
 	User,
 	Home,
 	Settings,
@@ -32,6 +31,7 @@ import { useAuth, useAuthActions } from "@/features/auth";
 import { AppLogo } from "@/common/icons/AppLogo";
 
 const AppLayout = () => {
+	const [scrolled, setScrolled] = useState(false);
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { t, language, setLanguage } = useI18n();
@@ -70,10 +70,24 @@ const AppLayout = () => {
 
 	const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
 
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > 12);
+		window.addEventListener("scroll", onScroll, { passive: true });
+		onScroll();
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
+
 	return (
 		<div className="min-h-screen bg-background bg-gradient-mesh flex flex-col">
 			<div className="fixed inset-0 bg-circuit-pattern pattern-fade-bottom pointer-events-none z-0 opacity-55" />
-			<nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-x-0 border-t-0">
+			<nav
+				className={cn(
+					"fixed top-0 left-0 right-0 z-50 border-x-0 border-t-0 transition-all duration-300",
+					scrolled
+						? "glass-panel"
+						: "bg-background/90 backdrop-blur-xl border-none border-border shadow-none",
+				)}
+			>
 				<div className="container mx-auto flex h-14 items-center justify-between px-4">
 					<Link to="/dashboard" className="flex items-center gap-2.5 group">
 						<AppLogo className="h-9 w-9 group-hover:brightness-110 transition-[filter]" />
