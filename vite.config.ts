@@ -7,6 +7,62 @@ import sitemap from "vite-plugin-sitemap";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  esbuild:
+    mode === "production"
+      ? {
+          drop: ["debugger"],
+          pure: ["console.log", "console.debug", "console.info"],
+        }
+      : undefined,
+  build: {
+    target: "esnext",
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            // clsx/CVA/tailwind-merge MUST come before recharts — recharts
+            // bundles clsx internally, so without this it becomes the only
+            // source of clsx in the build and gets pulled into every page
+            // that uses shadcn's cva() (i.e., every page with a Button).
+            if (
+              id.includes("clsx") ||
+              id.includes("class-variance-authority") ||
+              id.includes("tailwind-merge")
+            ) {
+              return "vendor-utils";
+            }
+            if (
+              id.includes("react-dom") ||
+              id.includes("react-router") ||
+              id.includes("/react/")
+            ) {
+              return "vendor-react";
+            }
+            // Split Firestore into its own chunk — it only loads after sign-in
+            if (id.includes("firestore") || id.includes("@firebase/firestore")) {
+              return "vendor-firestore";
+            }
+            if (id.includes("firebase")) {
+              return "vendor-firebase";
+            }
+            if (id.includes("framer-motion")) {
+              return "vendor-motion";
+            }
+            if (id.includes("recharts") || id.includes("d3-")) {
+              return "vendor-charts";
+            }
+            if (id.includes("three") || id.includes("@react-three")) {
+              return "vendor-3d";
+            }
+            if (id.includes("@radix-ui")) {
+              return "vendor-radix";
+            }
+          }
+        },
+      },
+    },
+  },
   server: {
     host: "::",
     port: 8080,
@@ -79,7 +135,7 @@ export default defineConfig(({ mode }) => ({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json}"],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json,woff2}"],
         runtimeCaching: [
           {
             urlPattern: ({ request }) =>

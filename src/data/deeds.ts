@@ -33,11 +33,11 @@ export const DIFFICULTY_INFO: Record<DeedDifficulty, { label: string; points: nu
 
 export const PRESET_DEEDS: Deed[] = [
   // ── Salah (12) ──
-  { id: "s1",  name: "Fajr Prayer", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Bukhari 574", description: "Perform the Fajr (dawn) prayer on time.", isPreset: true },
-  { id: "s2",  name: "Dhuhr Prayer", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Muslim 612", description: "Perform the Dhuhr (noon) prayer on time.", isPreset: true },
-  { id: "s3",  name: "Asr Prayer", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Bukhari 555", description: "Perform the Asr (afternoon) prayer on time.", isPreset: true },
-  { id: "s4",  name: "Maghrib Prayer", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Muslim 626", description: "Perform the Maghrib (sunset) prayer on time.", isPreset: true },
-  { id: "s5",  name: "Isha Prayer", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Bukhari 566", description: "Perform the Isha (night) prayer on time.", isPreset: true },
+  { id: "s1",  name: "Tahiyyatul Masjid", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Bukhari 1163", description: "Pray 2 rak'ah upon entering the mosque before sitting.", isPreset: true },
+  { id: "s2",  name: "Make Wudu Perfectly", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "💧", hadithReference: "Muslim 234 — sins fall with the water", description: "Perform wudu slowly and mindfully, reciting the du'a after each step.", isPreset: true },
+  { id: "s3",  name: "Recite Du'a After Adhan", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🤲", hadithReference: "Bukhari 614 — intercession guaranteed", description: "Say the du'a after hearing the adhan.", isPreset: true },
+  { id: "s4",  name: "Salatul Tawbah", category: "Salah", difficulty: "medium", basePoints: 15, emoji: "🕌", hadithReference: "Abu Dawud 1521 — sins forgiven", description: "Pray 2 rak'ah of repentance after committing a sin.", isPreset: true },
+  { id: "s5",  name: "Pray 2 Rak'ah After Wudu", category: "Salah", difficulty: "easy", basePoints: 5, emoji: "🕌", hadithReference: "Bukhari 160 — Bilal's footsteps heard in Jannah", description: "Pray 2 rak'ah immediately after making wudu.", isPreset: true },
   { id: "s6",  name: "Pray in Congregation", category: "Salah", difficulty: "medium", basePoints: 15, emoji: "🕌", hadithReference: "Bukhari 645 — 27× reward", description: "Perform any obligatory prayer in congregation at the mosque.", isPreset: true },
   { id: "s7",  name: "Tahajjud (Night Prayer)", category: "Salah", difficulty: "hard", basePoints: 30, emoji: "🌙", hadithReference: "Muslim 1163", description: "Wake up in the last third of the night to pray voluntary prayers.", isPreset: true },
   { id: "s8",  name: "Duha Prayer", category: "Salah", difficulty: "medium", basePoints: 15, emoji: "☀️", hadithReference: "Muslim 720", description: "Pray 2-8 rak'ah after sunrise (forenoon prayer).", isPreset: true },

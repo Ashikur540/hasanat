@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
 import { fadeUp, stagger } from "../animations";
@@ -15,11 +16,11 @@ const LEVEL_CLASSES = [
 const AmalGraphSection = () => {
 	const { t } = useI18n();
 
-	const features = [
+	const features = useMemo(() => [
 		{ title: t("graphFeature1Title"), desc: t("graphFeature1Desc") },
 		{ title: t("graphFeature2Title"), desc: t("graphFeature2Desc") },
 		{ title: t("graphFeature3Title"), desc: t("graphFeature3Desc") },
-	];
+	], [t]);
 
 	return (
 		<section
@@ -32,7 +33,7 @@ const AmalGraphSection = () => {
 				<motion.div
 					initial="hidden"
 					whileInView="visible"
-					viewport={{ once: true }}
+					viewport={{ once: true, amount: 0.2 }}
 					variants={stagger}
 					className="text-center mb-12"
 				>
@@ -69,7 +70,7 @@ const AmalGraphSection = () => {
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
+					viewport={{ once: true, amount: 0.2 }}
 					transition={{ duration: 0.6, delay: 0.1 }}
 					className="bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl border border-border dark:border-white/[0.08] shadow-sm dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] rounded-3xl p-6 md:p-10 relative overflow-hidden"
 				>
@@ -124,7 +125,7 @@ const AmalGraphSection = () => {
 							key={f.title}
 							initial={{ opacity: 0, y: 15 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true }}
+							viewport={{ once: true, amount: 0.2 }}
 							transition={{ duration: 0.4 }}
 							className="bg-card/60 dark:bg-white/[0.03] border border-border dark:border-white/[0.06] rounded-2xl p-5"
 						>

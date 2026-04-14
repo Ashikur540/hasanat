@@ -34,9 +34,8 @@ const LandingDeedCard = ({
     <motion.div
       variants={fadeUp}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -5 }}
-      // landing-deed-card class triggers the dark-mode glass CSS from index.css
-      className="landing-deed-card group bg-card dark:bg-transparent border border-border rounded-2xl p-6 flex flex-col gap-4 cursor-default transition-colors duration-300 hover:border-primary/30"
+      // hover lift via CSS — avoids Framer Motion layout reads on every hover
+      className="landing-deed-card group bg-card dark:bg-transparent border border-border rounded-2xl p-6 flex flex-col gap-4 cursor-default transition-[colors,transform] duration-300 hover:border-primary/30 hover:-translate-y-1.5"
     >
       {/* Icon + difficulty */}
       <div className="flex items-start justify-between">
