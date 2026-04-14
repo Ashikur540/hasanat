@@ -10,7 +10,7 @@ import {
 	Sun,
 	Moon,
 	Monitor,
-	Globe,
+	Languages,
 	BookHeart,
 	LogOut,
 	Leaf,
@@ -120,8 +120,11 @@ const AppLayout = () => {
 						{/* Language dropdown */}
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="icon" className="h-8 w-8">
-									<Globe className="h-4 w-4" />
+								<Button variant="ghost" size="icon" className="h-8 w-8 relative">
+									<Languages className="h-4 w-4" />
+									<span className="absolute -bottom-0.5 -right-0.5 text-[9px] font-bold leading-none bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center">
+										{language === "en" ? "বা" : "EN"}
+									</span>
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">

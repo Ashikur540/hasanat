@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import {
 	LandingNav,
 	HeroSection,
@@ -46,10 +47,35 @@ const jsonLd = {
 const Index = () => {
 	return (
 		<>
-			<script
-				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-			/>
+			<Helmet>
+				<title>Hasanat — Track Your Amal | The GitHub for Good Deeds</title>
+				<meta
+					name="description"
+					content="Hasanat (AmalTrack) helps Muslims track daily Islamic good deeds (amal), build streaks, and visualize spiritual growth with a GitHub-style Amal Graph. 80+ verified deeds with Quran and Hadith references."
+				/>
+				<meta name="robots" content="index, follow" />
+				<link rel="canonical" href="https://hasanat.app/" />
+				<meta property="og:type" content="website" />
+				<meta property="og:url" content="https://hasanat.app/" />
+				<meta property="og:title" content="Hasanat — Track Your Amal | The GitHub for Good Deeds" />
+				<meta
+					property="og:description"
+					content="The GitHub for your spiritual life. Track daily amal (good deeds), visualize consistency with a 52-week Amal Graph, and inspire the Ummah with every action."
+				/>
+				<meta property="og:image" content="https://hasanat.app/og-image.png" />
+				<meta property="og:image:width" content="1200" />
+				<meta property="og:image:height" content="630" />
+				<meta property="og:site_name" content="Hasanat" />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta name="twitter:site" content="@HasanatApp" />
+				<meta name="twitter:title" content="Hasanat — Track Your Amal | The GitHub for Good Deeds" />
+				<meta
+					name="twitter:description"
+					content="Track daily Islamic good deeds, build streaks, visualize your spiritual growth. 80+ verified deeds with Hadith references."
+				/>
+				<meta name="twitter:image" content="https://hasanat.app/og-image.png" />
+				<script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
+			</Helmet>
 			<div className="min-h-screen bg-background">
 				<LandingNav />
 				<main>

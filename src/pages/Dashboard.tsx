@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import confetti from "canvas-confetti";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -30,13 +32,60 @@ const Dashboard = () => {
 	const { day, month, year } = useHijriDate();
 	const { user } = useAuth();
 	const [allFarzCompleted, setAllFarzCompleted] = useState(false);
+	const [allTodayCompleted, setAllTodayCompleted] = useState(false);
+	const previousAllTodayCompleted = useRef<boolean | null>(null);
 
 	const { currentStreak } = useStreak();
 
 	const userName = user?.displayName || "Friend";
 	const greeting = t("dashGreetingTemplate").replace("{name}", userName);
 
+	useEffect(() => {
+		if (previousAllTodayCompleted.current === null) {
+			previousAllTodayCompleted.current = allTodayCompleted;
+			return;
+		}
+
+		const becameComplete =
+			previousAllTodayCompleted.current === false && allTodayCompleted;
+		previousAllTodayCompleted.current = allTodayCompleted;
+
+		if (!becameComplete) {
+			return;
+		}
+
+		if (
+			typeof window !== "undefined" &&
+			window.matchMedia("(prefers-reduced-motion: reduce)").matches
+		) {
+			return;
+		}
+
+		void confetti({
+			particleCount: 120,
+			spread: 90,
+			startVelocity: 45,
+			origin: { y: 0.65 },
+			scalar: 0.95,
+		});
+
+		window.setTimeout(() => {
+			void confetti({
+				particleCount: 70,
+				spread: 70,
+				startVelocity: 35,
+				origin: { y: 0.7 },
+				scalar: 0.85,
+			});
+		}, 240);
+	}, [allTodayCompleted]);
+
 	return (
+		<>
+		<Helmet>
+			<title>Dashboard | Hasanat</title>
+			<meta name="robots" content="noindex" />
+		</Helmet>
 		<motion.div
 			initial="hidden"
 			animate="visible"
@@ -658,7 +707,10 @@ const Dashboard = () => {
 					transition={{ duration: 0.4 }}
 					className="col-span-1 md:col-span-2 lg:col-span-2"
 				>
-					<TodaysDeeds autoCompleteSalah={allFarzCompleted} />
+					<TodaysDeeds
+						autoCompleteSalah={allFarzCompleted}
+						onAllTodayCompletedChange={setAllTodayCompleted}
+					/>
 				</motion.div>
 
 				{/* ── Zone C: Info strip — 4 equal cards, all h-full ── */}
@@ -709,7 +761,7 @@ const Dashboard = () => {
 					transition={{ duration: 0.4 }}
 					className="col-span-1 md:col-span-2 lg:col-span-4"
 				>
-					<Card className="border-border/30 bg-muted/15">
+					<Card className="border-border/30 bg-muted">
 						<CardContent className="p-4 text-center">
 							<p className="text-xs text-muted-foreground/60 italic leading-relaxed max-w-2xl mx-auto">
 								"{t("dashPointsDisclaimer")}"
@@ -719,6 +771,7 @@ const Dashboard = () => {
 				</motion.div>
 			</div>
 		</motion.div>
+		</>
 	);
 };
 

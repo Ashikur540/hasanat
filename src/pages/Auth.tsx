@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth, GoogleSignInButton } from "@/features/auth";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -11,6 +12,12 @@ const Auth = () => {
 	if (user) return <Navigate to="/dashboard" replace />;
 
 	return (
+		<>
+		<Helmet>
+			<title>Sign In | Hasanat</title>
+			<meta name="robots" content="noindex" />
+			<link rel="canonical" href="https://hasanat.app/auth" />
+		</Helmet>
 		<div className="min-h-screen bg-background flex items-center justify-center px-4">
 			<div className="absolute inset-0 -z-10">
 				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl" />
@@ -39,6 +46,7 @@ const Auth = () => {
 				</CardContent>
 			</Card>
 		</div>
+		</>
 	);
 };
 

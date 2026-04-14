@@ -8,6 +8,7 @@ import {
 	Share,
 } from "lucide-react";
 import { fadeUp, stagger } from "../animations";
+import { useI18n } from "@/i18n/I18nProvider";
 
 // 2 rows × 18 columns = 36 cells
 const PROFILE_HEATMAP: number[] = [
@@ -23,28 +24,39 @@ const LEVEL_CLASSES: Record<number, string> = {
 	4: "bg-heatmap-4 dark:shadow-[0_0_5px_rgba(80,200,120,0.5)]",
 };
 
-const FEATURES = [
-	{
-		icon: Flame,
-		iconClass: "text-amber-500 dark:text-gold-custom",
-		iconBgClass:
-			"bg-amber-100 dark:bg-gold-custom/10 border-amber-200 dark:border-gold-custom/20",
-		title: "The Noor Streak",
-		description:
-			"Track consecutive days of deed logging. Your Noor (light) grows stronger with every unbroken day — miss one and you'll want to rebuild.",
-	},
-	{
-		icon: ShieldCheck,
-		iconClass: "text-primary dark:text-emerald-custom",
-		iconBgClass:
-			"bg-primary/10 dark:bg-emerald-custom/10 border-primary/20 dark:border-emerald-custom/20",
-		title: "Privacy First (Ikhlas)",
-		description:
-			"Hide individual deeds or your entire profile. Sincerity before visibility — share only what you choose.",
-	},
-];
-
 const ProfileSection = () => {
+	const { t } = useI18n();
+
+	const FEATURES = [
+		{
+			icon: Flame,
+			iconClass: "text-amber-500 dark:text-gold-custom",
+			iconBgClass:
+				"bg-amber-100 dark:bg-gold-custom/10 border-amber-200 dark:border-gold-custom/20",
+			title: t("profileFeature1Title"),
+			description: t("profileFeature1Desc"),
+		},
+		{
+			icon: ShieldCheck,
+			iconClass: "text-primary dark:text-emerald-custom",
+			iconBgClass:
+				"bg-primary/10 dark:bg-emerald-custom/10 border-primary/20 dark:border-emerald-custom/20",
+			title: t("profileFeature2Title"),
+			description: t("profileFeature2Desc"),
+		},
+	];
+
+	const STATS = [
+		{ label: t("profileStatStreak"), value: "28d", accent: true },
+		{ label: t("profileStatDeeds"), value: "725", accent: false },
+		{ label: t("profileStatPoints"), value: "2.4k", accent: false },
+	];
+
+	const RECENT_DEEDS = [
+		{ label: t("profileDeed1"), pts: 30 },
+		{ label: t("profileDeed2"), pts: 5 },
+	];
+
 	return (
 		<section
 			aria-label="Profile Feature"
@@ -70,20 +82,19 @@ const ProfileSection = () => {
 						className="inline-flex items-center gap-2 bg-amber-100 dark:bg-gold-custom/10 text-amber-700 dark:text-gold-custom px-3 py-1.5 rounded-full text-sm font-medium border border-amber-200 dark:border-gold-custom/20"
 					>
 						<Flame className="w-4 h-4" />
-						Shareable Profile
+						{t("profileBadge")}
 					</motion.div>
 
 					{/* Shiny title */}
 					<motion.h2
 						variants={fadeUp}
 						transition={{ duration: 0.4 }}
-						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white leading-tight"
+						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white leading-tight font-serif"
 					>
-						A Spiritual Portfolio
+						{t("profileHeading")}
 						<br />
-						to{" "}
 						<span className="text-primary dark:text-emerald-custom dark:drop-shadow-[0_0_10px_rgba(80,200,120,0.4)]">
-							Inspire
+							{t("profileHeadingHighlight")}
 						</span>
 					</motion.h2>
 
@@ -92,12 +103,7 @@ const ProfileSection = () => {
 						transition={{ duration: 0.4 }}
 						className="text-muted-foreground dark:text-gray-400 text-base md:text-lg leading-relaxed"
 					>
-						Share your progress without compromising your sincerity. Every
-						believer gets a profile at{" "}
-						<code className="bg-muted dark:bg-white/10 px-2 py-0.5 rounded text-foreground dark:text-white font-mono text-sm border border-border dark:border-white/10">
-							hasanat.app/@username
-						</code>
-						. Inspire your family and friends to join the race for good.
+						{t("profileDesc")}
 					</motion.p>
 
 					<motion.ul variants={stagger} className="space-y-4 pt-2">
@@ -216,11 +222,7 @@ const ProfileSection = () => {
 
 									{/* Stats row */}
 									<div className="grid grid-cols-3 gap-2">
-										{[
-											{ label: "Noor Streak", value: "28d", accent: true },
-											{ label: "Deeds", value: "725", accent: false },
-											{ label: "Points", value: "2.4k", accent: false },
-										].map((s) => (
+										{STATS.map((s) => (
 											<div
 												key={s.label}
 												className="text-center bg-white/70 dark:bg-white/[0.06] rounded-xl py-5 border border-gray-200/80 dark:border-white/[0.06]"
@@ -241,7 +243,7 @@ const ProfileSection = () => {
 									<div>
 										<p className="text-[11px] font-semibold text-gray-500 dark:text-gray-300 mb-2 flex items-center gap-1.5">
 											<Activity className="w-3.5 h-3.5 text-primary dark:text-emerald-custom" />
-											Amal Graph
+											{t("profileAmalGraph")}
 										</p>
 										{/* 2 rows of heatmap cells */}
 										<div className="flex flex-col gap-1 py-2.5">
@@ -263,10 +265,7 @@ const ProfileSection = () => {
 
 									{/* Recent deeds */}
 									<div className="space-y-2">
-										{[
-											{ label: "Read Surah Al-Kahf", pts: 30 },
-											{ label: "Hidden Sadaqah", pts: 5 },
-										].map((d) => (
+										{RECENT_DEEDS.map((d) => (
 											<div
 												key={d.label}
 												className="flex items-center justify-between bg-white/60 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.06] rounded-xl px-3 py-2.5"

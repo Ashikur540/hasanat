@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Languages } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { AppLogo } from "@/common/icons/AppLogo";
 import { useAuth } from "@/features/auth";
-
-const NAV_LINKS = [
-	{ label: "Features", href: "#features" },
-	{ label: "Deeds Library", href: "#library" },
-	{ label: "Leaderboard", href: "#leaderboard" },
-];
+import { useI18n } from "@/i18n/I18nProvider";
 
 const LandingNav = () => {
 	const [scrolled, setScrolled] = useState(false);
 	const { theme, setTheme } = useTheme();
 	const { user } = useAuth();
+	const { t, language, setLanguage } = useI18n();
 
 	const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
+	const toggleLanguage = () => setLanguage(language === "en" ? "bn" : "en");
+
+	const NAV_LINKS = [
+		{ label: t("footerLinkFeatures"), href: "#features" },
+		{ label: t("footerLinkDeedsLibrary"), href: "#library" },
+		{ label: t("footerLinkLeaderboard"), href: "#leaderboard" },
+	];
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 12);
@@ -52,7 +55,7 @@ const LandingNav = () => {
 				<div className="hidden md:flex items-center gap-8">
 					{NAV_LINKS.map((link) => (
 						<a
-							key={link.label}
+							key={link.href}
 							href={link.href}
 							className="text-sm font-medium text-muted-foreground dark:text-gray-300 hover:text-foreground dark:hover:text-white transition-colors"
 						>
@@ -62,7 +65,20 @@ const LandingNav = () => {
 				</div>
 
 				{/* Auth CTAs + Theme toggle */}
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-1">
+					{/* Language toggle */}
+					<button
+						onClick={toggleLanguage}
+						aria-label="Switch language"
+						title={language === "en" ? "Switch to বাংলা" : "Switch to English"}
+						className="w-9 h-9 rounded-full flex items-center justify-center text-muted-foreground dark:text-gray-400 hover:text-foreground dark:hover:text-white hover:bg-secondary dark:hover:bg-white/[0.08] transition-colors relative"
+					>
+						<Languages className="w-4 h-4" />
+						<span className="absolute -bottom-0.5 -right-0.5 text-[9px] font-bold leading-none bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center">
+							{language === "en" ? "বা" : "EN"}
+						</span>
+					</button>
+
 					{/* Theme toggle */}
 					<button
 						onClick={toggleTheme}
@@ -76,9 +92,9 @@ const LandingNav = () => {
 						)}
 					</button>
 
-					<Button size="sm" className="rounded-full px-5" asChild>
+					<Button size="sm" className="rounded-full px-5 ml-1" asChild>
 						<Link to={user ? "/dashboard" : "/auth"}>
-							{user ? "Go to Dashboard" : "Get Started"}
+							{user ? t("heroCTADashboard") : t("landingGetStarted")}
 						</Link>
 					</Button>
 				</div>

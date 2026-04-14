@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { fadeUp, stagger } from "../animations";
 import HeroDashboardMockup from "./HeroDashboardMockup";
 import { useAuth } from "@/features/auth";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const AVATAR_INITIALS = [
   { initials: "A", bg: "bg-slate-500 dark:bg-slate-700" },
@@ -16,6 +17,8 @@ const AVATAR_INITIALS = [
 
 const HeroSection = () => {
   const { user } = useAuth();
+  const { t } = useI18n();
+
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden landing-hero-mesh">
       {/* Background circuit pattern */}
@@ -78,16 +81,16 @@ const HeroSection = () => {
             بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم
           </motion.p>
 
-          {/* Main heading — Playfair Display in dark mode */}
+          {/* Main heading */}
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.05 }}
             className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
           >
-            <span className="text-foreground dark:text-white">Build Your Legacy.</span>
+            <span className="text-foreground dark:text-white">{t("heroTitle")}</span>
             <br />
             <span className="text-primary dark:text-emerald-custom dark:drop-shadow-[0_0_15px_rgba(80,200,120,0.5)]">
-              Track Your Amal.
+              {t("heroTitleHighlight")}
             </span>
           </motion.h1>
 
@@ -97,8 +100,7 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-xl"
           >
-            The spiritual heatmap for the modern Muslim. Log your worship, visualize your
-            consistency, and transform small actions into a lifelong legacy.
+            {t("heroDesc")}
           </motion.p>
 
           {/* CTAs */}
@@ -113,7 +115,7 @@ const HeroSection = () => {
               asChild
             >
               <Link to={user ? "/dashboard" : "/auth"}>
-                {user ? "Go to Dashboard" : "Start My Journey — It's Free"}
+                {user ? t("heroCTADashboard") : t("heroCTAPrimary")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -125,7 +127,7 @@ const HeroSection = () => {
             >
               <a href="#features">
                 <PlayCircle className="mr-2 h-5 w-5" />
-                View Demo
+                {t("heroCTADemo")}
               </a>
             </Button>
           </motion.div>
@@ -147,14 +149,14 @@ const HeroSection = () => {
               ))}
             </div>
             <p className="text-sm text-muted-foreground dark:text-gray-400">
-              Join{" "}
+              {t("heroSocialProofBefore")}{" "}
               <span className="text-foreground dark:text-white font-semibold">5,000+</span>{" "}
-              believers building their spiritual momentum.
+              {t("heroSocialProofAfter")}
             </p>
           </motion.div>
         </motion.div>
 
-        {/* Right column — dashboard mockup (overflow-visible for floating elements) */}
+        {/* Right column — dashboard mockup */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -22,9 +22,13 @@ const difficultyColors: Record<string, string> = {
 
 interface TodaysDeedsProps {
 	autoCompleteSalah?: boolean;
+	onAllTodayCompletedChange?: (allCompleted: boolean) => void;
 }
 
-const TodaysDeeds = ({ autoCompleteSalah = false }: TodaysDeedsProps) => {
+const TodaysDeeds = ({
+	autoCompleteSalah = false,
+	onAllTodayCompletedChange,
+}: TodaysDeedsProps) => {
 	const { t } = useI18n();
 	const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -38,6 +42,13 @@ const TodaysDeeds = ({ autoCompleteSalah = false }: TodaysDeedsProps) => {
 		toggleTodo,
 		deleteTodo,
 	} = useTodayTodos(autoCompleteSalah);
+
+	const allTodayCompleted =
+		!loading && totalCount > 0 && completedCount === totalCount;
+
+	useEffect(() => {
+		onAllTodayCompletedChange?.(allTodayCompleted);
+	}, [allTodayCompleted, onAllTodayCompletedChange]);
 
 	const handleAddDeed = async (deeds: ModalDeed[]) => {
 		for (const deed of deeds) {

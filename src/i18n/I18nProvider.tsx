@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { translations, type Language, type TranslationKey } from "@/i18n/translations";
 
 interface I18nContextType {
@@ -14,6 +14,10 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem("hasanat-lang");
     return (saved === "bn" ? "bn" : "en") as Language;
   });
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);

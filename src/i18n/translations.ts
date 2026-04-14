@@ -301,7 +301,8 @@ export const translations = {
 		settingsSignOut: "Sign out",
 		settingsDeleteAccount: "Delete account",
 		settingsInstallAppTitle: "Install App",
-		settingsInstallAppDesc: "Install Hasanat on your phone for a faster, app-like experience.",
+		settingsInstallAppDesc:
+			"Install Hasanat on your phone for a faster, app-like experience.",
 		settingsInstallAppButton: "Install now",
 		settingsInstallAppInstalled: "App is already installed on this device.",
 		settingsInstallAppManual: "Open browser menu",
@@ -394,6 +395,141 @@ export const translations = {
 		// Common
 		commonDays: "days",
 		commonSend: "Send",
+
+		// ── Landing page (current redesign) ──────────────────────────────────
+		// HeroSection
+		heroTitle: "Build Your Legacy.",
+		heroTitleHighlight: "Track Your Amal.",
+		heroDesc:
+			"The spiritual heatmap for the modern Muslim. Log your worship, visualize your consistency, and transform small actions into a lifelong legacy.",
+		heroCTAPrimary: "Start My Journey — It's Free",
+		heroCTADashboard: "Go to Dashboard",
+		heroCTADemo: "View Demo",
+		heroSocialProofBefore: "Join",
+		heroSocialProofAfter: "believers building their spiritual momentum.",
+
+		// SpiritualGapSection
+		gapEyebrow: "Why Hasanat Exists",
+		gapHeading: "Another Day. Another Good Intention Slipped By.",
+		gapSubtext:
+			"Every Muslim knows this feeling. We created Hasanat because we felt it too.",
+		gapProblemTitle: "The Noise of Dunya",
+		gapProblemDesc:
+			"Every Muslim knows this feeling: we intend to pray five salah, read Quran, and stay consistent, but the day slips away.",
+		gapProblemItem1:
+			"You meant to pray Fajr, got distracted, and another day passed",
+		gapProblemItem2:
+			"No record of your progress means no clear visibility of growth",
+		gapProblemItem3:
+			"Guilt after missing days makes restarting feel heavier than it should",
+		gapEmptyRecord: "Empty Record",
+		gapSolutionTitle: "The Mirror of the Soul",
+		gapSolutionDesc:
+			"AmalTrack makes the invisible record visible. It helps you bridge the gap between intentions and actions.",
+		gapSolutionItem1:
+			"Daily deed checklist keeps salah, Quran, and sadaqah in front of you",
+		gapSolutionItem2:
+			"Amal Graph helps you see every good entry and where consistency forms",
+		gapSolutionItem3:
+			"Momentum builds when each deed is logged and visible over time",
+		gapConsistentAction: "Consistent Action",
+		gapLive: "Growth",
+
+		// AmalGraphSection
+		graphBadge: "The Amal Graph",
+		graphHeading: "Visibility Breeds",
+		graphHeadingHighlight: "Consistency",
+		graphSubtext:
+			"The same dopamine loop that drives world-class developers is now repurposed for your Akhirah. Watch your green dots grow day by day.",
+		graphStatsTitle: "Annual Amal Overview",
+		graphTotalDeeds: "total deeds logged this year",
+		graphWeeksOf: "weeks of tracking",
+		graphLess: "Less",
+		graphMore: "More",
+		graphFeature1Title: "365-Day Heatmap",
+		graphFeature1Desc:
+			"A full-year view of your worship rhythm so consistency is visible at a glance.",
+		graphFeature2Title: "Streak Multipliers",
+		graphFeature2Desc:
+			"Protect your momentum with streak-driven boosts that reward daily consistency.",
+		graphFeature3Title: "Consistency Analytics",
+		graphFeature3Desc:
+			"See patterns in your strongest weeks and identify where your routine needs support.",
+
+		// DeedsLibrarySection
+		libraryBadge: "Verified Deeds",
+		libraryHeading: "80+ Verified Deeds from Quran & Sunnah",
+		libraryDesc:
+			"Never wonder what to do next. Access a curated library of Sunnah prayers, Adhkar, and Sadaqah, all backed by authentic references.",
+		libraryCTA: "View Full Library",
+		libraryCategories:
+			"Deeds span 8 categories: Salah · Quran · Sadaqah · Dhikr · Character · Family · Fasting · Knowledge",
+		libraryDeed1Title: "Read Surah Al-Kahf",
+		libraryDeed1Desc:
+			"Read the entire Surah Al-Kahf on Friday to gain a light between the two Fridays.",
+		libraryDeed1Hadith:
+			"Whoever reads Surah Al-Kahf on Friday will be illuminated with light. (Muslim)",
+		libraryDeed2Title: "Forgive Someone",
+		libraryDeed2Desc:
+			"Let go of a grudge and sincerely forgive someone who has wronged you for the sake of Allah.",
+		libraryDeed2Hadith:
+			"Allah will forgive the one who forgives others. Show mercy and you will be shown mercy. (Bukhari)",
+		libraryDeed3Title: "Hidden Sadaqah",
+		libraryDeed3Desc:
+			"Give charity secretly so that your left hand does not know what your right hand has given.",
+		libraryDeed3Hadith:
+			"The best charity is that given in secret to a person in need. (Al-Tabarani)",
+		libraryDeed4Title: "Fajr in Congregation",
+		libraryDeed4Desc: "Pray the Fajr prayer in congregation at the Masjid.",
+		libraryDeed4Hadith:
+			"Whoever prays Fajr in congregation, it is as if he prayed the whole night. (Muslim)",
+
+		// ProfileSection
+		profileBadge: "Shareable Profile",
+		profileHeading: "A Spiritual Portfolio",
+		profileHeadingHighlight: "to Inspire",
+		profileDesc:
+			"Share your progress without compromising your sincerity. Every believer gets a profile at hasanat.app/@username. Inspire your family and friends to join the race for good.",
+		profileFeature1Title: "The Noor Streak",
+		profileFeature1Desc:
+			"Track consecutive days of deed logging. Your Noor (light) grows stronger with every unbroken day — miss one and you'll want to rebuild.",
+		profileFeature2Title: "Privacy First (Ikhlas)",
+		profileFeature2Desc:
+			"Hide individual deeds or your entire profile. Sincerity before visibility — share only what you choose.",
+		profileStatStreak: "Noor Streak",
+		profileStatDeeds: "Deeds",
+		profileStatPoints: "Points",
+		profileAmalGraph: "Amal Graph",
+		profileDeed1: "Read Surah Al-Kahf",
+		profileDeed2: "Hidden Sadaqah",
+
+		// LandingFooter
+		footerDesc:
+			"The spiritual productivity platform helping Muslims build consistency, track daily amal (good deeds), and inspire the Ummah.",
+		footerProductHeading: "Product",
+		footerComingSoonHeading: "Coming Soon",
+		footerLegalHeading: "Legal & Privacy",
+		footerUpcomingBadge: "Upcoming",
+		footerLinkFeatures: "Features",
+		footerLinkSpiritualGap: "Spiritual Gap",
+		footerLinkDeedsLibrary: "Deeds Library",
+		footerLinkLeaderboard: "Leaderboard",
+		footerLinkRamadanMode: "Ramadan Mode",
+		footerLinkAmalGraph: "Amal Graph",
+		footerLinkProfileShare: "Profile Share",
+		footerUpcoming1: "Deed City",
+		footerUpcoming2: "Accountability Circles",
+		footerUpcoming3: "Ramadan Mode",
+		footerUpcoming4: "Bad Deed Tracker",
+		footerUpcoming5: "Kaffara Calculator",
+		footerPrivacyPolicy: "Privacy Policy",
+		footerTermsOfService: "Terms of Service",
+		footerFatwa: "Fatwa & Guidelines",
+		footerCopyright: "© 2025 Hasanat / AmalTrack. All rights reserved.",
+		footerNiyyah:
+			"Niyyah: We use this platform to build consistency with sincerity for Allah alone.",
+		footerPointsDisclaimer:
+			"Points and streaks are for motivation only. The true reward is with Allah (SWT).",
 	},
 	bn: {
 		// App
@@ -793,6 +929,135 @@ export const translations = {
 		// Common
 		commonDays: "দিন",
 		commonSend: "পাঠান",
+
+		// ── Landing page (current redesign) ──────────────────────────────────
+		// HeroSection
+		heroTitle: "আপনার উত্তরাধিকার গড়ুন।",
+		heroTitleHighlight: "আপনার আমল ট্র্যাক করুন।",
+		heroDesc:
+			"আধুনিক মুসলিমের জন্য আধ্যাত্মিক হিটম্যাপ। আপনার ইবাদত লগ করুন, ধারাবাহিকতা দেখুন এবং ছোট আমলকে চিরস্থায়ী উত্তরাধিকারে পরিণত করুন।",
+		heroCTAPrimary: "আমার যাত্রা শুরু করুন — বিনামূল্যে",
+		heroCTADashboard: "ড্যাশবোর্ডে যান",
+		heroCTADemo: "ডেমো দেখুন",
+		heroSocialProofBefore: "যোগ দিন",
+		heroSocialProofAfter: "বিশ্বাসীরা তাদের আধ্যাত্মিক গতি তৈরি করছেন।",
+
+		// SpiritualGapSection
+		gapEyebrow: "কেন হাসানাত তৈরি হয়েছে",
+		gapHeading: "আরেকটি দিন। আরেকটি ভালো উদ্দেশ্য হাতছাড়া হয়ে গেল।",
+		gapSubtext:
+			"প্রতিটি মুসলিম এই অনুভূতি জানেন। আমরা হাসানাত তৈরি করেছি কারণ আমরাও এটা অনুভব করেছি।",
+		gapProblemTitle: "দুনিয়ার কোলাহল",
+		gapProblemDesc:
+			"প্রতিটি মুসলিম এই অনুভূতি জানেন: আমরা পাঁচ ওয়াক্ত সালাহ পড়তে, কুরআন তেলাওয়াত করতে এবং ধারাবাহিক থাকতে চাই — কিন্তু দিনটা কোথায় শেষ হয় বোঝা যায় না।",
+		gapProblemItem1: "ফজরের নিয়ত ছিল, মনোযোগ সরে গেল, আরেকটা দিন চলে গেল",
+		gapProblemItem2: "অগ্রগতির কোনো রেকর্ড নেই, তাই বৃদ্ধিও চোখে পড়ে না",
+		gapProblemItem3: "দিন মিস হলে অপরাধবোধ আসে, আবার শুরু করা আরও কঠিন মনে হয়",
+		gapEmptyRecord: "খালি রেকর্ড",
+		gapSolutionTitle: "আত্মার দর্পণ",
+		gapSolutionDesc:
+			"AmalTrack অদৃশ্য রেকর্ডকে দৃশ্যমান করে। নিয়ত ও আমলের মধ্যকার ব্যবধান পূরণ করতে সাহায্য করে।",
+		gapSolutionItem1: "দৈনিক আমল চেকলিস্ট সালাহ, কুরআন ও সাদাকাহকে সামনে রাখে",
+		gapSolutionItem2: "আমল গ্রাফ প্রতিটি ভালো কাজ ও ধারাবাহিকতার জায়গা দেখায়",
+		gapSolutionItem3: "প্রতিটি আমল লগ হলে এবং দৃশ্যমান হলে মোমেন্টাম তৈরি হয়",
+		gapConsistentAction: "ধারাবাহিক আমল",
+		gapLive: "অগ্রগতি",
+
+		// AmalGraphSection
+		graphBadge: "আমল গ্রাফ",
+		graphHeading: "দৃশ্যমানতাই আনে",
+		graphHeadingHighlight: "ধারাবাহিকতা",
+		graphSubtext:
+			"বিশ্বমানের ডেভেলপারদের চালিত করার একই ডোপামিন লুপ এখন আপনার আখিরাতের জন্য ব্যবহার হচ্ছে। প্রতিদিন আপনার সবুজ বিন্দুগুলো বাড়তে দেখুন।",
+		graphStatsTitle: "বার্ষিক আমল ওভারভিউ",
+		graphTotalDeeds: "মোট আমল এই বছরে লগ হয়েছে",
+		graphWeeksOf: "সপ্তাহের ট্র্যাকিং",
+		graphLess: "কম",
+		graphMore: "বেশি",
+		graphFeature1Title: "৩৬৫ দিনের হিটম্যাপ",
+		graphFeature1Desc:
+			"পুরো বছরের ইবাদতের ছন্দ এক নজরে দেখুন — ধারাবাহিকতা স্পষ্ট হয়ে ওঠে।",
+		graphFeature2Title: "স্ট্রিক মাল্টিপ্লায়ার",
+		graphFeature2Desc:
+			"স্ট্রিক-চালিত বোনাস দিয়ে মোমেন্টাম রক্ষা করুন যা দৈনিক ধারাবাহিকতাকে পুরস্কৃত করে।",
+		graphFeature3Title: "ধারাবাহিকতা বিশ্লেষণ",
+		graphFeature3Desc:
+			"আপনার সবচেয়ে শক্তিশালী সপ্তাহগুলোর প্যাটার্ন দেখুন এবং রুটিনের দুর্বল জায়গা চিহ্নিত করুন।",
+
+		// DeedsLibrarySection
+		libraryBadge: "যাচাইকৃত আমল",
+		libraryHeading: "কুরআন ও সুন্নাহ থেকে ৮০+ যাচাইকৃত আমল",
+		libraryDesc:
+			"কী করবেন ভেবে সময় নষ্ট করবেন না। সুন্নাহর নামাজ, আযকার ও সাদাকাহর একটি কিউরেটেড লাইব্রেরি, সব নির্ভরযোগ্য রেফারেন্সসহ।",
+		libraryCTA: "সম্পূর্ণ লাইব্রেরি দেখুন",
+		libraryCategories:
+			"৮টি ক্যাটাগরিতে আমল: সালাহ · কুরআন · সাদাকাহ · যিকর · চরিত্র · পরিবার · রোজা · জ্ঞান",
+		libraryDeed1Title: "সূরা আল-কাহফ পড়ুন",
+		libraryDeed1Desc:
+			"দুই জুমার মধ্যে নূর পেতে শুক্রবার পুরো সূরা আল-কাহফ পড়ুন।",
+		libraryDeed1Hadith:
+			"যে ব্যক্তি শুক্রবার সূরা আল-কাহফ পড়বে, সে দুই জুমার মধ্যে আলোকিত হবে। (মুসলিম)",
+		libraryDeed2Title: "কাউকে ক্ষমা করুন",
+		libraryDeed2Desc:
+			"আল্লাহর সন্তুষ্টির জন্য আপনাকে কষ্ট দিয়েছে এমন কাউকে আন্তরিকভাবে ক্ষমা করুন।",
+		libraryDeed2Hadith:
+			"আল্লাহ তাকে ক্ষমা করেন যে অন্যকে ক্ষমা করে। দয়া দেখাও, তোমার প্রতিও দয়া দেখানো হবে। (বুখারি)",
+		libraryDeed3Title: "গোপন সাদাকাহ",
+		libraryDeed3Desc:
+			"গোপনে দান করুন, যাতে বাম হাত না জানে ডান হাত কী দিয়েছে।",
+		libraryDeed3Hadith:
+			"সর্বোত্তম সাদাকাহ হলো প্রয়োজনগ্রস্ত ব্যক্তিকে গোপনে দেওয়া। (আল-তাবারানি)",
+		libraryDeed4Title: "জামাতে ফজর",
+		libraryDeed4Desc: "মসজিদে জামাতের সাথে ফজরের নামাজ পড়ুন।",
+		libraryDeed4Hadith:
+			"যে ব্যক্তি জামাতে ফজর পড়ে, সে যেন সারারাত নামাজ পড়েছে। (মুসলিম)",
+
+		// ProfileSection
+		profileBadge: "শেয়ারযোগ্য প্রোফাইল",
+		profileHeading: "আধ্যাত্মিক পোর্টফোলিও",
+		profileHeadingHighlight: "অনুপ্রেরণার জন্য",
+		profileDesc:
+			"ইখলাস বিসর্জন না দিয়ে অগ্রগতি শেয়ার করুন। প্রতিটি মুমিন hasanat.app/@username-এ একটি প্রোফাইল পাবেন। পরিবার ও বন্ধুদের ভালোর দৌড়ে আমন্ত্রণ জানান।",
+		profileFeature1Title: "নূর স্ট্রিক",
+		profileFeature1Desc:
+			"ধারাবাহিক আমলের দিনগুলো ট্র্যাক করুন। প্রতিটি অটুট দিনে আপনার নূর শক্তিশালী হয় — একটা মিস হলে পুনর্গঠনের তাগিদ আসবে।",
+		profileFeature2Title: "প্রথমে গোপনীয়তা (ইখলাস)",
+		profileFeature2Desc:
+			"আলাদা আমল বা পুরো প্রোফাইল লুকিয়ে রাখুন। দৃশ্যমানতার আগে ইখলাস — শুধু যা চান তাই শেয়ার করুন।",
+		profileStatStreak: "নূর স্ট্রিক",
+		profileStatDeeds: "আমল",
+		profileStatPoints: "পয়েন্ট",
+		profileAmalGraph: "আমল গ্রাফ",
+		profileDeed1: "সূরা আল-কাহফ পড়ুন",
+		profileDeed2: "গোপন সাদাকাহ",
+
+		// LandingFooter
+		footerDesc:
+			"মুসলিমদের ধারাবাহিকতা তৈরি, দৈনিক আমল ট্র্যাক এবং উম্মাহকে অনুপ্রাণিত করতে সাহায্য করার আধ্যাত্মিক প্রোডাক্টিভিটি প্ল্যাটফর্ম।",
+		footerProductHeading: "পণ্য",
+		footerComingSoonHeading: "শীঘ্রই আসছে",
+		footerLegalHeading: "আইনি ও গোপনীয়তা",
+		footerUpcomingBadge: "আসছে",
+		footerLinkFeatures: "ফিচার",
+		footerLinkSpiritualGap: "আধ্যাত্মিক ব্যবধান",
+		footerLinkDeedsLibrary: "আমল লাইব্রেরি",
+		footerLinkLeaderboard: "লিডারবোর্ড",
+		footerLinkRamadanMode: "রমজান মোড",
+		footerLinkAmalGraph: "আমল গ্রাফ",
+		footerLinkProfileShare: "প্রোফাইল শেয়ার",
+		footerUpcoming1: "আমল সিটি",
+		footerUpcoming2: "জবাবদিহি সার্কেল",
+		footerUpcoming3: "রমজান মোড",
+		footerUpcoming4: "খারাপ কাজ ট্র্যাকার",
+		footerUpcoming5: "কাফফারা ক্যালকুলেটর",
+		footerPrivacyPolicy: "গোপনীয়তা নীতি",
+		footerTermsOfService: "সেবার শর্তাবলি",
+		footerFatwa: "ফতোয়া ও নির্দেশিকা",
+		footerCopyright: "© ২০২৫ হাসানাত / আমলট্র্যাক। সর্বস্বত্ব সংরক্ষিত।",
+		footerNiyyah:
+			"নিয়ত: আমরা এই প্ল্যাটফর্ম ব্যবহার করি একমাত্র আল্লাহর সন্তুষ্টির জন্য ইখলাসের সাথে ধারাবাহিকতা গড়তে।",
+		footerPointsDisclaimer:
+			"পয়েন্ট ও স্ট্রিক শুধু অনুপ্রেরণার জন্য। প্রকৃত পুরস্কার আল্লাহর কাছেই আছে।",
 	},
 } as const;
 

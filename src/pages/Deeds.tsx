@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, BookOpen, AlertCircle } from "lucide-react";
@@ -64,6 +65,12 @@ const Deeds = () => {
 	};
 
 	return (
+		<>
+		<Helmet>
+			<title>Deed Library | Hasanat</title>
+			<meta name="description" content="Browse 80+ verified Islamic good deeds from Quran and Sunnah. Track Salah, Quran, Sadaqah, Dhikr, and more." />
+			<link rel="canonical" href="https://hasanat.app/deeds" />
+		</Helmet>
 		<motion.div
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
@@ -191,6 +198,7 @@ const Deeds = () => {
 				/>
 			)}
 		</motion.div>
+		</>
 	);
 };
 

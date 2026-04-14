@@ -132,11 +132,23 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	);
 
 	const shouldSuppressAutoNotifications = useCallback(() => {
-		if (typeof window === "undefined") return false;
-		const match = window.location.pathname.match(/^\/profile\/([^/]+)$/);
-		if (!match) return false;
-		const viewedUserId = decodeURIComponent(match[1]);
-		return !user || viewedUserId !== user.uid;
+		if (typeof window === "undefined") return true;
+		if (!user) return true;
+		const pathname = window.location.pathname;
+		const authenticatedRoutes = [
+			"/dashboard",
+			"/amal-graph",
+			"/my-city",
+			"/deeds",
+			"/circles",
+			"/leaderboard",
+			"/ramadan",
+			"/settings",
+		];
+		// Allow only on authenticated app routes (not /profile/:otherId public share)
+		if (authenticatedRoutes.some((r) => pathname.startsWith(r))) return false;
+		if (pathname === "/profile") return false;
+		return true;
 	}, [user]);
 
 	// Auto deed tips every 2 minutes if enabled
