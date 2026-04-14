@@ -1,41 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
     // Helper function to check if a profile is public
     function isPublicProfile(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)) &&
-        get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true;
+      return get(/databases/$(database)/documents/users/$(userId)).data.isPublic == true;
     }
     
-    // Users — owner can always read/write; others can read only if profile is public
+    // Users — readable for profile header metadata; write own only
     match /users/{userId} {
-      allow read: if isOwner(userId) || resource.data.isPublic == true;
-      allow write: if isOwner(userId);
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Todos — user owns their own todos
     match /todos/{todoId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     // Deed logs — read own OR from public profiles
     match /deed_logs/{logId} {
-      allow read: if (isSignedIn() && resource.data.userId == request.auth.uid) ||
+      allow read: if (request.auth != null && resource.data.userId == request.auth.uid) ||
         isPublicProfile(resource.data.userId);
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update: if false;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     // Preset deeds — public read, no client writes
@@ -44,38 +35,38 @@ service cloud.firestore {
       allow write: if false;
     }
     
-    // Custom deeds — owner can read/write; public custom deeds are readable by signed-in users
+    // Custom deeds — private deeds only readable by owner
     match /custom_deeds/{deedId} {
-      allow read: if isSignedIn() && 
+      allow read: if request.auth != null && 
         (resource.data.userId == request.auth.uid || resource.data.visibility == "public");
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
     // Streaks — read own OR from public profiles
     match /streaks/{userId} {
       allow read: if isPublicProfile(userId) ||
-        (isSignedIn() && request.auth.uid == userId);
-      allow write: if isSignedIn() && request.auth.uid == userId;
+        (request.auth != null && request.auth.uid == userId);
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Circles — any auth user can read/create; only admin can update/delete
     match /circles/{circleId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && resource.data.adminId == request.auth.uid;
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.adminId == request.auth.uid;
       
       match /members/{userId} {
-        allow read: if isSignedIn();
-        allow write: if isSignedIn() && request.auth.uid == userId;
+        allow read: if request.auth != null;
+        allow write: if request.auth != null && request.auth.uid == userId;
       }
     }
     
     // Leaderboard — read all; write own only
     match /leaderboard/{userId} {
       allow read: if true;
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

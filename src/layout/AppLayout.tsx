@@ -85,7 +85,7 @@ const AppLayout = () => {
 					"fixed top-0 left-0 right-0 z-50 border-x-0 border-t-0 transition-all duration-300",
 					scrolled
 						? "glass-panel"
-						: "bg-background/90 backdrop-blur-xl border-none border-border shadow-none",
+						: "bg-transparent backdrop-blur-0 border-none border-transparent shadow-none",
 				)}
 			>
 				<div className="container mx-auto flex h-14 items-center justify-between px-4">
