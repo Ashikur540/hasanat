@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { MosqueLogo } from "@/components/brand/MosqueLogo";
+import { AppLogo } from "@/common/icons/AppLogo";
+import { useAuth } from "@/features/auth";
 
 const NAV_LINKS = [
 	{ label: "Features", href: "#features" },
@@ -13,14 +13,8 @@ const NAV_LINKS = [
 ];
 
 const LandingNav = () => {
-	const [scrolled, setScrolled] = useState(false);
 	const { theme, setTheme } = useTheme();
-
-	useEffect(() => {
-		const onScroll = () => setScrolled(window.scrollY > 20);
-		window.addEventListener("scroll", onScroll, { passive: true });
-		return () => window.removeEventListener("scroll", onScroll);
-	}, []);
+	const { user } = useAuth();
 
 	const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
@@ -29,17 +23,12 @@ const LandingNav = () => {
 			initial={{ y: -20, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
 			transition={{ duration: 0.4 }}
-			className={[
-				"fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-				scrolled
-					? "border-b border-border dark:border-white/[0.05] bg-white/80 dark:bg-[#040d09]/90 backdrop-blur-xl shadow-sm dark:shadow-none"
-					: "border-b border-transparent bg-transparent",
-			].join(" ")}
+			className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-panel border-x-0 border-t-0"
 		>
 			<div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6 md:px-12">
 				{/* Logo */}
 				<Link to="/" className="flex items-center gap-2.5 group">
-					<MosqueLogo className="h-9 w-9 group-hover:brightness-110 transition-[filter]" iconClassName="h-[18px] w-[18px]" />
+					<AppLogo className="h-9 w-9 group-hover:brightness-110 transition-[filter]" />
 					<span className="text-xl font-bold text-foreground dark:text-white tracking-tight">
 						Hasanat
 					</span>
@@ -74,7 +63,9 @@ const LandingNav = () => {
 					</button>
 
 					<Button size="sm" className="rounded-full px-5" asChild>
-						<Link to="/auth">Get Started</Link>
+						<Link to={user ? "/dashboard" : "/auth"}>
+							{user ? "Go to Dashboard" : "Get Started"}
+						</Link>
 					</Button>
 				</div>
 			</div>

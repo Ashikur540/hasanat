@@ -57,6 +57,7 @@ const DEED_COUNTS: Record<number, string> = {
 };
 
 const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
+const FULL_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const AmalGraphDemo = () => {
   return (
@@ -78,6 +79,7 @@ const AmalGraphDemo = () => {
               <Tooltip key={dayIdx} delayDuration={100}>
                 <TooltipTrigger asChild>
                   <div
+                    aria-label={`${FULL_DAY_NAMES[dayIdx]}, week ${weekIdx + 1}: ${DEED_COUNTS[level]}`}
                     className={`w-3.5 h-3.5 rounded-[3px] cursor-pointer transition-transform hover:scale-125 hover:z-10 ${LEVEL_CLASSES[level]} ${
                       level === 4 ? "dark:shadow-[0_0_6px_hsl(var(--heatmap-4)/0.7)]" : ""
                     }`}

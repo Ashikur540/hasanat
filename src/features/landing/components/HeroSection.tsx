@@ -4,6 +4,7 @@ import { ArrowRight, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fadeUp, stagger } from "../animations";
 import HeroDashboardMockup from "./HeroDashboardMockup";
+import { useAuth } from "@/features/auth";
 
 const AVATAR_INITIALS = [
   { initials: "A", bg: "bg-slate-500 dark:bg-slate-700" },
@@ -14,6 +15,7 @@ const AVATAR_INITIALS = [
 ];
 
 const HeroSection = () => {
+  const { user } = useAuth();
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden landing-hero-mesh">
       {/* Background circuit pattern */}
@@ -82,21 +84,11 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.05 }}
             className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
           >
-            {/* BUILD YOUR */}
-            <span className="text-foreground dark:text-white">BUILD YOUR</span>
+            <span className="text-foreground dark:text-white">Build Your Legacy.</span>
             <br />
-            {/* LEGACY. — gradient text */}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground dark:from-white dark:to-gray-400">
-              LEGACY.
-            </span>
-            <br />
-            {/* ONE DEED — emerald with glow in dark */}
             <span className="text-primary dark:text-emerald-custom dark:drop-shadow-[0_0_15px_rgba(80,200,120,0.5)]">
-              ONE DEED
+              Track Your Amal.
             </span>
-            <br />
-            {/* AT A TIME */}
-            <span className="text-foreground dark:text-white">AT A TIME.</span>
           </motion.h1>
 
           {/* Subtext */}
@@ -105,8 +97,8 @@ const HeroSection = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-xl"
           >
-            The GitHub for your spiritual life. Track your daily Amal (good deeds), visualize your
-            consistency, and inspire the Ummah with every action.
+            The spiritual heatmap for the modern Muslim. Log your worship, visualize your
+            consistency, and transform small actions into a lifelong legacy.
           </motion.p>
 
           {/* CTAs */}
@@ -120,8 +112,8 @@ const HeroSection = () => {
               className="rounded-full px-8 py-6 text-base font-semibold w-full sm:w-auto"
               asChild
             >
-              <Link to="/auth">
-                Get Started — It's Free
+              <Link to={user ? "/dashboard" : "/auth"}>
+                {user ? "Go to Dashboard" : "Start My Journey — It's Free"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -156,8 +148,8 @@ const HeroSection = () => {
             </div>
             <p className="text-sm text-muted-foreground dark:text-gray-400">
               Join{" "}
-              <span className="text-foreground dark:text-white font-semibold">10,000+</span>{" "}
-              believers tracking their deeds.
+              <span className="text-foreground dark:text-white font-semibold">5,000+</span>{" "}
+              believers building their spiritual momentum.
             </p>
           </motion.div>
         </motion.div>

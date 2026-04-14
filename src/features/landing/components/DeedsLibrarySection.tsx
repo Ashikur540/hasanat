@@ -71,14 +71,11 @@ const DeedsLibrarySection = () => {
 
             {/* Section title — shiny in dark mode */}
             <h2 className="text-4xl md:text-5xl font-bold text-foreground dark:text-white leading-tight">
-              The Library of{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground dark:from-white dark:to-gray-300">
-                Light
-              </span>
+              80+ Verified Deeds from Quran & Sunnah
             </h2>
             <p className="text-muted-foreground dark:text-gray-400 mt-4 text-base md:text-lg leading-relaxed">
-              A curated database of 80+ Islamic deeds categorized by difficulty, complete with
-              authentic Quran and Hadith references to ensure pure intentions.
+              Never wonder what to do next. Access a curated library of Sunnah prayers, Adhkar,
+              and Sadaqah, all backed by authentic references.
             </p>
           </div>
 

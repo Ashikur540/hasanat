@@ -53,8 +53,8 @@ const AmalGraphSection = () => {
             transition={{ duration: 0.4 }}
             className="text-muted-foreground dark:text-gray-400 text-base md:text-lg max-w-2xl mx-auto"
           >
-            Your spiritual journey, visualized. Just like a GitHub contribution graph — every square
-            is a day, every color is a deed. Build the habit you can see.
+            The same dopamine loop that drives world-class developers is now repurposed for your
+            Akhirah. Watch your green dots grow day by day.
           </motion.p>
         </motion.div>
 
@@ -105,16 +105,16 @@ const AmalGraphSection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-8">
           {[
             {
-              title: "52-Week View",
-              desc: "A full year of your spiritual journey at a glance — every day accounted for.",
+              title: "365-Day Heatmap",
+              desc: "A full-year view of your worship rhythm so consistency is visible at a glance.",
             },
             {
-              title: "Streak Tracking",
-              desc: "Consecutive day streaks motivate you to keep your Noor (light) burning.",
+              title: "Streak Multipliers",
+              desc: "Protect your momentum with streak-driven boosts that reward daily consistency.",
             },
             {
-              title: "Deed Intensity",
-              desc: "5 color levels from empty to exceptional — see your most devoted days shine.",
+              title: "Consistency Analytics",
+              desc: "See patterns in your strongest weeks and identify where your routine needs support.",
             },
           ].map((f) => (
             <motion.div

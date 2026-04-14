@@ -20,6 +20,12 @@ export const router = createBrowserRouter([
 	{ path: "/", element: <Index /> },
 	{ path: "/auth", element: <Auth /> },
 	{ path: "/profile/:userId", element: <Profile /> },
+	// Public routes — accessible without login (AppLayout handles unauth state)
+	{
+		element: <AppLayout />,
+		children: [{ path: "/deeds", element: <Deeds /> }],
+	},
+	// Protected routes — redirect to /auth if not logged in
 	{
 		element: <ProtectedRoute />,
 		children: [
@@ -29,7 +35,6 @@ export const router = createBrowserRouter([
 					{ path: "/dashboard", element: <Dashboard /> },
 					{ path: "/amal-graph", element: <AmalGraph /> },
 					// { path: "/my-city", element: <MyCity /> },
-					{ path: "/deeds", element: <Deeds /> },
 					{ path: "/profile", element: <Profile /> },
 					{ path: "/settings", element: <Settings /> },
 					{ path: "/leaderboard", element: <Leaderboard /> },

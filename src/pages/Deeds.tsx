@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, BookOpen, AlertCircle } from "lucide-react";
@@ -18,10 +19,13 @@ import DeedsDifficultyFilter from "@/features/deeds/components/DeedsDifficultyFi
 import { useI18n } from "@/i18n/I18nProvider";
 import { DeedsListSkeleton } from "@/features/deeds/components/DeedsListSkeleton";
 import type { Deed } from "@/data/deeds";
+import { useAuth } from "@/features/auth";
 
 const Deeds = () => {
 	const [createOpen, setCreateOpen] = useState(false);
 	const { t } = useI18n();
+	const navigate = useNavigate();
+	const { user } = useAuth();
 	const { addDeedToToday } = useTodayTodos();
 
 	const { allDeeds, isLoading, isError } = useDeedQuery();
@@ -41,6 +45,10 @@ const Deeds = () => {
 	} = useDeedFilters({ deeds: allDeeds });
 
 	const handleAddFromDeedCard = async (deed: Deed) => {
+		if (!user) {
+			navigate("/auth");
+			return;
+		}
 		await addDeedToToday(mapDeedToTodayTodoInput(deed));
 	};
 
@@ -76,9 +84,11 @@ const Deeds = () => {
 						{allDeeds.length} {t("deedLibraryDesc")}
 					</p>
 				</div>
-				<Button className="gap-2" onClick={() => setCreateOpen(true)}>
-					<Plus className="h-4 w-4" /> {t("deedCreateCustom")}
-				</Button>
+				{user && (
+					<Button className="gap-2" onClick={() => setCreateOpen(true)}>
+						<Plus className="h-4 w-4" /> {t("deedCreateCustom")}
+					</Button>
+				)}
 			</motion.div>
 
 			<motion.div
@@ -173,11 +183,13 @@ const Deeds = () => {
 				</>
 			)}
 
-			<CreateDeedDialog
-				open={createOpen}
-				onOpenChange={setCreateOpen}
-				onCreateSuccess={handleCreatedDeed}
-			/>
+			{user && (
+				<CreateDeedDialog
+					open={createOpen}
+					onOpenChange={setCreateOpen}
+					onCreateSuccess={handleCreatedDeed}
+				/>
+			)}
 		</motion.div>
 	);
 };

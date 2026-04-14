@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { Twitter, Instagram, Github, Linkedin } from "lucide-react";
-import { MosqueLogo } from "@/components/brand/MosqueLogo";
+import { AppLogo } from "@/common/icons/AppLogo";
 
 const CURRENT_LINKS = [
 	{ label: "Features", href: "#features" },
+	{ label: "Spiritual Gap", href: "#spiritual-gap" },
 	{ label: "Deeds Library", href: "#library" },
 	{ label: "Leaderboard", href: "#leaderboard" },
+	{ label: "Ramadan Mode", href: "/ramadan" },
 	{ label: "Amal Graph", href: "#features" },
 	{ label: "Profile Share", href: "#" },
 ];
@@ -46,7 +48,7 @@ const LandingFooter = () => {
 					{/* Brand column (span 2) */}
 					<div className="sm:col-span-2">
 						<Link to="/" className="flex items-center gap-2.5 mb-4 w-fit">
-							<MosqueLogo className="h-9 w-9" iconClassName="h-4 w-4" />
+							<AppLogo className="h-9 w-9" />
 							<span className="text-lg font-bold text-foreground dark:text-white">
 								Hasanat
 							</span>
@@ -134,8 +136,10 @@ const LandingFooter = () => {
 						© 2025 Hasanat / AmalTrack. All rights reserved.
 					</p>
 					<p className="text-xs text-muted-foreground dark:text-gray-500 italic text-center">
-						Points and streaks are for motivation only. The true reward is with
-						Allah (SWT).
+						Niyyah: We use this platform to build consistency with sincerity for Allah alone.
+					</p>
+					<p className="text-xs text-muted-foreground dark:text-gray-500 italic text-center">
+						Points and streaks are for motivation only. The true reward is with Allah (SWT).
 					</p>
 				</div>
 			</div>
