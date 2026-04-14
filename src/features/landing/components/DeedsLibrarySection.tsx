@@ -8,8 +8,8 @@ import LandingDeedCard from "./LandingDeedCard";
 const DEEDS = [
   {
     icon: BookOpen,
-    iconColorClass: "text-blue-400",
-    iconBgClass: "bg-blue-900/40 dark:bg-blue-900/50",
+    iconColorClass: "text-blue-700 dark:text-blue-400",
+    iconBgClass: "bg-blue-100 dark:bg-blue-900/50",
     difficulty: "Hard" as const,
     title: "Read Surah Al-Kahf",
     description: "Read the entire Surah Al-Kahf on Friday to gain a light between the two Fridays.",
@@ -19,8 +19,8 @@ const DEEDS = [
   },
   {
     icon: Heart,
-    iconColorClass: "text-rose-400",
-    iconBgClass: "bg-rose-900/40 dark:bg-rose-900/50",
+    iconColorClass: "text-rose-700 dark:text-rose-400",
+    iconBgClass: "bg-rose-100 dark:bg-rose-900/50",
     difficulty: "Medium" as const,
     title: "Forgive Someone",
     description:
@@ -31,8 +31,8 @@ const DEEDS = [
   },
   {
     icon: Coins,
-    iconColorClass: "text-amber-400",
-    iconBgClass: "bg-amber-900/40 dark:bg-amber-900/50",
+    iconColorClass: "text-amber-700 dark:text-amber-400",
+    iconBgClass: "bg-amber-100 dark:bg-amber-900/50",
     difficulty: "Easy" as const,
     title: "Hidden Sadaqah",
     description:
@@ -43,8 +43,8 @@ const DEEDS = [
   },
   {
     icon: Sun,
-    iconColorClass: "text-emerald-400",
-    iconBgClass: "bg-emerald-900/40 dark:bg-emerald-900/50",
+    iconColorClass: "text-emerald-700 dark:text-emerald-400",
+    iconBgClass: "bg-emerald-100 dark:bg-emerald-900/50",
     difficulty: "Exceptional" as const,
     title: "Fajr in Congregation",
     description: "Pray the Fajr prayer in congregation at the Masjid.",

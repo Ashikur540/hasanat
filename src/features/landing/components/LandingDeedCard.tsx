@@ -41,7 +41,7 @@ const LandingDeedCard = ({
       {/* Icon + difficulty */}
       <div className="flex items-start justify-between">
         <div
-          className={`w-12 h-12 rounded-2xl ${iconBgClass} flex items-center justify-center border border-white/10`}
+          className={`w-12 h-12 rounded-2xl ${iconBgClass} flex items-center justify-center border border-black/5 dark:border-white/10`}
         >
           <Icon className={`w-5 h-5 ${iconColorClass}`} />
         </div>
