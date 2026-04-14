@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import {
 	BarChart3,
 	Building2,
@@ -29,9 +29,11 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useTheme } from "next-themes";
 import { useAuth, useAuthActions } from "@/features/auth";
+import { AppLogo } from "@/common/icons/AppLogo";
 
 const AppLayout = () => {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const { t, language, setLanguage } = useI18n();
 	const { theme, setTheme } = useTheme();
 	const { user } = useAuth();
@@ -71,14 +73,12 @@ const AppLayout = () => {
 	return (
 		<div className="min-h-screen bg-background bg-gradient-mesh flex flex-col">
 			<div className="fixed inset-0 bg-circuit-pattern pattern-fade-bottom pointer-events-none z-0 opacity-55" />
-			<nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl">
+			<nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-x-0 border-t-0">
 				<div className="container mx-auto flex h-14 items-center justify-between px-4">
-					<Link to="/dashboard" className="flex items-center gap-2">
-						<div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center ">
-							<HasanatLogo className="size-6" />
-						</div>
-						<span className="text-lg font-bold mt-1 text-foreground">
-							{t("appName")}
+					<Link to="/dashboard" className="flex items-center gap-2.5 group">
+						<AppLogo className="h-9 w-9 group-hover:brightness-110 transition-[filter]" />
+						<span className="text-xl font-bold text-foreground dark:text-white tracking-tight">
+							Hasanat
 						</span>
 					</Link>
 
@@ -164,48 +164,60 @@ const AppLayout = () => {
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="hidden md:inline-flex h-8 w-8"
-							asChild
-						>
-							<Link to="/settings">
-								<Settings className="h-4 w-4" />
-							</Link>
-						</Button>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Avatar className="h-8 w-8 cursor-pointer">
-									<AvatarImage
-										src={user?.photoURL ?? undefined}
-										alt={user?.displayName ?? "User"}
-									/>
-									<AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-										{userInitials}
-									</AvatarFallback>
-								</Avatar>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-48">
-								<DropdownMenuItem asChild>
-									<Link to="/profile" className="flex items-center gap-2">
-										<User className="h-4 w-4" /> Profile
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuItem asChild>
-									<Link to="/my-deeds" className="flex items-center gap-2">
-										<BookHeart className="h-4 w-4" /> My Deeds
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onClick={handleSignOut}
-									className="text-destructive focus:text-destructive gap-2"
+						{user ? (
+							<>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hidden md:inline-flex h-8 w-8"
+									asChild
 								>
-									<LogOut className="h-4 w-4" /> Sign out
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+									<Link to="/settings">
+										<Settings className="h-4 w-4" />
+									</Link>
+								</Button>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Avatar className="h-8 w-8 cursor-pointer">
+											<AvatarImage
+												src={user.photoURL ?? undefined}
+												alt={user.displayName ?? "User"}
+											/>
+											<AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+												{userInitials}
+											</AvatarFallback>
+										</Avatar>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end" className="w-48">
+										<DropdownMenuItem asChild>
+											<Link to="/profile" className="flex items-center gap-2">
+												<User className="h-4 w-4" /> Profile
+											</Link>
+										</DropdownMenuItem>
+										<DropdownMenuItem asChild>
+											<Link to="/my-deeds" className="flex items-center gap-2">
+												<BookHeart className="h-4 w-4" /> My Deeds
+											</Link>
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem
+											onClick={handleSignOut}
+											className="text-destructive focus:text-destructive gap-2"
+										>
+											<LogOut className="h-4 w-4" /> Sign out
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</>
+						) : (
+							<Button
+								size="sm"
+								className="h-8 gap-1.5"
+								onClick={() => navigate("/auth")}
+							>
+								Sign In
+							</Button>
+						)}
 					</div>
 				</div>
 			</nav>

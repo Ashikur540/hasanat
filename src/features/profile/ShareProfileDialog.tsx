@@ -190,7 +190,7 @@ const ShareProfileDialog = ({
 					</Button>
 
 					{/* Download card button */}
-					<Button
+					{/* <Button
 						variant="default"
 						className="w-full gap-2 text-xs"
 						onClick={handleDownloadCard}
@@ -198,7 +198,7 @@ const ShareProfileDialog = ({
 					>
 						<Download className="h-3.5 w-3.5" />{" "}
 						{downloading ? "Generating..." : "Download Card"}
-					</Button>
+					</Button> */}
 				</div>
 
 				<ProfileShareCard
