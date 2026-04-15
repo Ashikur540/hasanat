@@ -1,13 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const CityPreview = () => {
   const { t } = useI18n();
   return (
-    <Card className="border-border bg-card overflow-hidden h-full flex flex-col">
+    <Card className="border-border bg-card overflow-hidden h-full flex flex-col opacity-70 pointer-events-none">
       <CardContent className="p-0 flex flex-col flex-1">
         {/* City scene — grows to fill available card height */}
         <div className="relative bg-gradient-to-b from-sky-300 via-sky-200 to-emerald-400 dark:from-sky-900 dark:via-sky-800 dark:to-emerald-900 flex-1 min-h-[160px] overflow-hidden">
@@ -48,11 +47,11 @@ const CityPreview = () => {
             variant="default"
             size="sm"
             className="gap-1.5 rounded-full h-8 px-4 text-xs shrink-0"
-            asChild
+            disabled
           >
-            <Link to="/my-city">
-              {t("cityPreviewVisit")} <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            <>
+              {t("cityPreviewComingSoon")} <ArrowRight className="h-3.5 w-3.5" />
+            </>
           </Button>
         </div>
       </CardContent>
