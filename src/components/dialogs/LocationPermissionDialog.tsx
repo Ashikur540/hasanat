@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useLocationService } from '@/hooks/useLocationService';
+import { getLocationFromIP } from '@/lib/location/getLocationFromIP';
 import {
   Dialog,
   DialogContent,
@@ -74,7 +75,22 @@ export function LocationPermissionDialog({
         setIsRetrying(false);
         onOpenChange(false);
       },
-      (positionError) => {
+      async (positionError) => {
+        const ipLocation = await getLocationFromIP();
+        if (ipLocation) {
+          setCachedLocation(
+            ipLocation.lat,
+            ipLocation.lng,
+            false,
+            ipLocation.city,
+            ipLocation.country,
+            'ip',
+          );
+          setIsRetrying(false);
+          onOpenChange(false);
+          return;
+        }
+
         if (positionError.code === positionError.PERMISSION_DENIED) {
           setError('Location permission was denied. Please enter manually or check your browser settings.');
         } else {
