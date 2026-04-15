@@ -49,6 +49,7 @@ export const translations = {
 		cityPreviewTitle: "Your DeedCity",
 		cityPreviewSub: "Village · Garden: Healthy 🌿",
 		cityPreviewVisit: "Visit",
+		cityPreviewComingSoon: "Coming Soon",
 
 		// TodaysDeeds
 		todaysDeedsTitle: "Today's Deeds",
@@ -582,6 +583,7 @@ export const translations = {
 		cityPreviewTitle: "আপনার আমল শহর",
 		cityPreviewSub: "গ্রাম · বাগান: সুস্থ 🌿",
 		cityPreviewVisit: "দেখুন",
+		cityPreviewComingSoon: "শীঘ্রই আসছে",
 
 		// TodaysDeeds
 		todaysDeedsTitle: "আজকের আমল",

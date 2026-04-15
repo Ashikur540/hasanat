@@ -6,6 +6,7 @@ export { default as StatsBar } from "./StatsBar";
 export { default as StreakCard } from "./StreakCard";
 export { default as TodaysDeeds } from "./TodaysDeeds";
 export { default as CityPreview } from "./CityPreview";
+export { default as DashboardHeader } from "./DashboardHeader";
 export { useTodayTodos } from "./hooks/useTodayTodos";
 export { useStreak } from "./hooks/useStreak";
 export { useWeekGraph } from "./hooks/useWeekGraph";
