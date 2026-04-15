@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocationService } from '@/hooks/useLocationService';
+import { getPrayerTimes } from '@/lib/prayer/prayerEngine';
 
 export interface PrayerTime {
   id: string;
@@ -19,67 +21,84 @@ const DEFAULT_SCHEDULE: PrayerTime[] = [
 ];
 
 export const usePrayerTimes = () => {
+  const { lat, lng, loading: locationLoading } = useLocationService();
   const [schedule, setSchedule] = useState<PrayerTime[]>(DEFAULT_SCHEDULE);
-  const [sunrise, setSunrise] = useState("06:14");
-  const [sunset, setSunset] = useState("18:05");
+  const [sunrise, setSunrise] = useState('06:14');
+  const [sunset, setSunset] = useState('18:05');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTimes = async (lat: number, lng: number) => {
-      try {
-        const timestamp = Math.floor(Date.now() / 1000);
-        const res = await fetch(`https://api.aladhan.com/v1/timings/${timestamp}?latitude=${lat}&longitude=${lng}&method=2`);
-        const data = await res.json();
-        
-        if (data && data.data && data.data.timings) {
-          const t = data.data.timings;
-          
-          setSunrise(t.Sunrise);
-          setSunset(t.Sunset);
-          
-          setSchedule([
-            { id: "fajr", en: "Fajr", bn: "ফজর", emoji: "🌙", start: t.Fajr, end: t.Sunrise },
-            { id: "duha", en: "Duha", bn: "ইশরাক/চাশত", emoji: "🌅", start: t.Sunrise, end: t.Dhuhr },
-            { id: "dhuhr", en: "Dhuhr", bn: "যুহর", emoji: "☀️", start: t.Dhuhr, end: t.Asr },
-            { id: "asr", en: "Asr", bn: "আসর", emoji: "🌤️", start: t.Asr, end: t.Maghrib },
-            { id: "maghrib", en: "Maghrib", bn: "মাগরিব", emoji: "🌇", start: t.Maghrib, end: t.Isha },
-            { id: "isha", en: "Isha", bn: "ইশা", emoji: "🌙", start: t.Isha, end: "23:59" },
-          ]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch prayer times:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Check for manually saved location first
-    const savedLocation = localStorage.getItem("prayer-location");
-    if (savedLocation) {
-      try {
-        const { lat, lng } = JSON.parse(savedLocation);
-        fetchTimes(lat, lng);
-        return;
-      } catch {
-        // Invalid stored data, fall through to geolocation
-      }
+    if (locationLoading) {
+      setLoading(true);
+      return;
     }
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchTimes(position.coords.latitude, position.coords.longitude);
+    if (lat === null || lng === null) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const prayerTimes = getPrayerTimes(lat, lng);
+      setSunrise(prayerTimes.sunrise);
+      setSunset(prayerTimes.sunset);
+
+      setSchedule([
+        {
+          id: 'fajr',
+          en: 'Fajr',
+          bn: 'ফজর',
+          emoji: '🌙',
+          start: prayerTimes.fajr,
+          end: prayerTimes.sunrise,
         },
-        () => {
-          // Keep default schedule when geolocation is unavailable/blocked.
-          setLoading(false);
+        {
+          id: 'duha',
+          en: 'Duha',
+          bn: 'ইশরাক/চাশত',
+          emoji: '🌅',
+          start: prayerTimes.sunrise,
+          end: prayerTimes.dhuhr,
         },
-        { timeout: 10000 },
-      );
-    } else {
+        {
+          id: 'dhuhr',
+          en: 'Dhuhr',
+          bn: 'যুহর',
+          emoji: '☀️',
+          start: prayerTimes.dhuhr,
+          end: prayerTimes.asr,
+        },
+        {
+          id: 'asr',
+          en: 'Asr',
+          bn: 'আসর',
+          emoji: '🌤️',
+          start: prayerTimes.asr,
+          end: prayerTimes.maghrib,
+        },
+        {
+          id: 'maghrib',
+          en: 'Maghrib',
+          bn: 'মাগরিব',
+          emoji: '🌇',
+          start: prayerTimes.maghrib,
+          end: prayerTimes.isha,
+        },
+        {
+          id: 'isha',
+          en: 'Isha',
+          bn: 'ইশা',
+          emoji: '🌙',
+          start: prayerTimes.isha,
+          end: '23:59',
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to calculate prayer times:', error);
+    } finally {
       setLoading(false);
     }
-  }, []);
+  }, [lat, lng, locationLoading]);
 
   return { schedule, sunrise, sunset, loading };
 };

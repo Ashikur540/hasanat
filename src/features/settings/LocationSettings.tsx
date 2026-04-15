@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { MapPin } from "lucide-react";
+
 import {
 	Card,
 	CardContent,
@@ -7,14 +10,13 @@ import {
 	CardTitle,
 	CardDescription,
 } from "@/components/ui/card";
+import { fadeUp } from "./animations";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
-import { MapPin } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useToast } from "@/hooks/use-toast";
 import { useLocationService } from "@/hooks/useLocationService";
-import { fadeUp } from "./animations";
+import { getLocationFromIP } from "@/lib/location/getLocationFromIP";
 import { LocationPermissionDialog } from "@/components/dialogs/LocationPermissionDialog";
 
 const LocationSettings = () => {
@@ -23,13 +25,29 @@ const LocationSettings = () => {
 	const {
 		lat,
 		lng,
+		source,
+		city,
+		country,
 		loading: locationLoading,
 		setCachedLocation,
 	} = useLocationService();
 	const [locationDialogOpen, setLocationDialogOpen] = useState(false);
 
-	const handleRetryGeolocation = () => {
+	const handleRetryGeolocation = async () => {
 		if (!navigator.geolocation) {
+			const ipLocation = await getLocationFromIP();
+			if (ipLocation) {
+				setCachedLocation(
+					ipLocation.lat,
+					ipLocation.lng,
+					false,
+					ipLocation.city,
+					ipLocation.country,
+					"ip",
+				);
+				toast({ title: "Location updated from IP fallback" });
+				return;
+			}
 			toast({ title: "Geolocation is not supported", variant: "destructive" });
 			return;
 		}
@@ -38,10 +56,26 @@ const LocationSettings = () => {
 			(position) => {
 				const { latitude, longitude } = position.coords;
 				setCachedLocation(latitude, longitude, false);
-				toast({ title: "Location updated successfully" });
+				toast({ title: "Location updated successfully (GPS)" });
 			},
-			() => {
-				toast({ title: "Unable to get location", variant: "destructive" });
+			async () => {
+				const ipLocation = await getLocationFromIP();
+				if (ipLocation) {
+					setCachedLocation(
+						ipLocation.lat,
+						ipLocation.lng,
+						false,
+						ipLocation.city,
+						ipLocation.country,
+						"ip",
+					);
+					toast({ title: "GPS unavailable, updated from IP fallback" });
+					return;
+				}
+				toast({
+					title: "Unable to get location. Please set manually.",
+					variant: "destructive",
+				});
 			},
 			{ timeout: 10000 },
 		);
@@ -103,6 +137,16 @@ const LocationSettings = () => {
 											<p className="text-sm font-mono text-foreground">
 												{lat.toFixed(4)}°, {lng.toFixed(4)}°
 											</p>
+											{(city || country) && (
+												<p className="text-xs text-muted-foreground">
+													{[city, country].filter(Boolean).join(", ")}
+												</p>
+											)}
+											{source && (
+												<p className="text-xs text-muted-foreground">
+													Source: {source.toUpperCase()}
+												</p>
+											)}
 											{getCachedLocationTimestamp() && (
 												<p className="text-xs text-muted-foreground">
 													{t("settingsLocationLastUpdated")}:{" "}

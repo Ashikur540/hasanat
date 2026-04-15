@@ -97,7 +97,7 @@ const fetchPrayerTimesFromAPI = async (
 	const timeoutId = setTimeout(() => controller.abort(), 10000);
 
 	try {
-		const url = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`;
+		const url = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=4`;
 		const response = await fetch(url, { signal: controller.signal });
 
 		clearTimeout(timeoutId);
@@ -136,6 +136,10 @@ const fetchPrayerTimesFromAPI = async (
 	}
 };
 
+/**
+ * @deprecated Primary dashboard flow now uses adhan-js local calculation.
+ * Keep this hook only for legacy or explicit API-based scenarios.
+ */
 export const useAlAdhanPrayerTimes = (
 	latitude: number | null,
 	longitude: number | null,
