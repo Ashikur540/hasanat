@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dev-dist
 *.local
 .env
 .env.*
@@ -35,9 +36,5 @@ DATABASE_PLAN.md
 serviceAccount.json
 
 # AI agent files
-.github/copilot-instructions.md
-CLAUDE.md
-AGENTS.md
-.claude/
-.agents/
-.agent/
+
+.playwright-cli/

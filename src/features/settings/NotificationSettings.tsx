@@ -1,122 +1,115 @@
 import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
+import { Bell, Bug } from "lucide-react";
+
 import {
 	Card,
 	CardContent,
+	CardDescription,
 	CardHeader,
 	CardTitle,
-	CardDescription,
 } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Send } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useNotifications } from "@/hooks/useNotifications";
-import { fadeUp } from "./animations";
-import type { SettingsFormValues, NotificationSettingsData } from "./types";
 
-type ToggleKey = Exclude<keyof NotificationSettingsData, "reminderTime">;
-const COMING_SOON_KEYS: ToggleKey[] = [
-	"streakAlerts",
-	"circleUpdates",
-	"weeklyReport",
-];
+import { fadeUp } from "./animations";
+import type { SettingsFormValues } from "./types";
+import {
+	NOTIFICATION_ITEMS,
+	type TestKind,
+	type ToggleKey,
+} from "./notifications/notificationItems";
+import NotificationToggleRow from "./notifications/NotificationToggleRow";
+import PermissionRow from "./notifications/PermissionRow";
+import PlatformHelp from "./notifications/PlatformHelp";
 
 const NotificationSettings = () => {
 	const { t } = useI18n();
-	// Only used for test notification toasts — state is owned by the form
-	const { sendTestNotification } = useNotifications();
+	const {
+		sendTestNotification,
+		permissionStatus,
+		requestPermission,
+		runSchedulerCheck,
+		platformHint,
+		devicePlatform,
+	} = useNotifications();
+	const isDev = import.meta.env.DEV;
+
 	const { watch, setValue } = useFormContext<SettingsFormValues>();
 	const notifications = watch("notifications");
 
-	const items: Array<{
-		key: ToggleKey;
-		label: string;
-		desc: string;
-		test?: "reminder" | "streak" | "tip" | "weekly";
-	}> = [
-		{
-			key: "dailyReminder",
-			label: t("settingsDailyReminder"),
-			desc: t("settingsDailyReminderDesc"),
-			test: "reminder",
-		},
-		{
-			key: "streakAlerts",
-			label: t("settingsStreakAlerts"),
-			desc: t("settingsStreakAlertsDesc"),
-			test: "streak",
-		},
-		{
-			key: "deedTips",
-			label: t("settingsDeedTips"),
-			desc: t("settingsDeedTipsDesc"),
-			test: "tip",
-		},
-		{
-			key: "circleUpdates",
-			label: t("settingsCircleUpdates"),
-			desc: t("settingsCircleUpdatesDesc"),
-		},
-		{
-			key: "weeklyReport",
-			label: t("settingsWeeklyReport"),
-			desc: t("settingsWeeklyReportDesc"),
-			test: "weekly",
-		},
-	];
+	const handleToggleChange = (key: ToggleKey, value: boolean) => {
+		setValue(`notifications.${key}`, value, { shouldDirty: true });
+		const needsPermission =
+			value &&
+			(key === "dailyReminder" || key === "deedTips") &&
+			permissionStatus !== "granted";
+		if (needsPermission) void requestPermission();
+	};
+
+	const handleTest = (kind: TestKind) => void sendTestNotification(kind);
 
 	return (
 		<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
 			<Card className="border-border bg-card">
 				<CardHeader className="pb-3">
 					<CardTitle className="text-base flex items-center gap-2">
-						<Bell className="h-4 w-4 text-primary" /> {t("settingsNotifications")}
+						<Bell className="h-4 w-4 text-primary" />
+						{t("settingsNotifications")}
 					</CardTitle>
 					<CardDescription>{t("settingsNotifDesc")}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					{items.map(({ key, label, desc, test }) => (
-						<div key={key} className="flex items-center justify-between">
-							<div className="space-y-0.5 flex-1">
-								<div className="flex items-center gap-2">
-									<Label className="text-sm font-medium">{label}</Label>
-									{COMING_SOON_KEYS.includes(key) && (
-										<Badge variant="outline" className="text-[10px]">
-											{t("settingsComingSoon")}
-										</Badge>
-									)}
-								</div>
-								<p className="text-xs text-muted-foreground">{desc}</p>
-							</div>
-							<div className="flex items-center gap-2">
-								{test &&
-									notifications[key] &&
-									!COMING_SOON_KEYS.includes(key) && (
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-7 w-7"
-										onClick={() => sendTestNotification(test)}
-										title="Test notification"
-									>
-										<Send className="h-3 w-3" />
-									</Button>
-									)}
-								<Switch
-									checked={notifications[key]}
-									disabled={COMING_SOON_KEYS.includes(key)}
-									onCheckedChange={(v) =>
-										setValue(`notifications.${key}`, v, { shouldDirty: true })
-									}
-								/>
-							</div>
-						</div>
+					{NOTIFICATION_ITEMS.map((item) => (
+						<NotificationToggleRow
+							key={item.key}
+							item={item}
+							checked={notifications[item.key]}
+							onToggle={(next) => handleToggleChange(item.key, next)}
+							onTest={handleTest}
+						/>
 					))}
+
+					<Separator />
+
+					<PermissionRow
+						permissionStatus={permissionStatus}
+						onRequest={() => void requestPermission()}
+					/>
+
+					<PlatformHelp
+						platform={devicePlatform}
+						platformHint={platformHint}
+						permissionSupported={permissionStatus !== "unsupported"}
+					/>
+
+					{isDev && (
+						<>
+							<Separator />
+							<div className="flex items-center justify-between">
+								<div className="space-y-0.5 flex-1">
+									<Label className="text-sm font-medium">
+										{t("settingsNotifDevDebug")}
+									</Label>
+									<p className="text-xs text-muted-foreground">
+										{t("settingsNotifDevDebugDesc")}
+									</p>
+								</div>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => void runSchedulerCheck()}
+								>
+									<Bug className="h-3 w-3 mr-1" /> Run
+								</Button>
+							</div>
+						</>
+					)}
 
 					<Separator />
 

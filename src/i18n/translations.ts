@@ -268,7 +268,8 @@ export const translations = {
 		settingsNotifications: "Notifications",
 		settingsNotifDesc: "Manage what alerts you receive",
 		settingsDailyReminder: "Daily reminder",
-		settingsDailyReminderDesc: "Get reminded to log your deeds",
+		settingsDailyReminderDesc:
+			"Get prayer reminders when a prayer is close to ending",
 		settingsStreakAlerts: "Streak alerts",
 		settingsStreakAlertsDesc: "Warned before losing a streak",
 		settingsCircleUpdates: "Circle updates",
@@ -276,10 +277,84 @@ export const translations = {
 		settingsWeeklyReport: "Weekly report",
 		settingsWeeklyReportDesc: "Summary of your weekly progress",
 		settingsDeedTips: "Deed tips",
-		settingsDeedTipsDesc: "Receive inspiring deed suggestions",
+		settingsDeedTipsDesc:
+			"Receive 3 inspiring deed suggestions (morning, evening, night)",
 		settingsReminderTime: "Reminder time",
 		settingsReminderTimeDesc: "When to send daily reminders",
 		settingsComingSoon: "Coming Soon",
+		settingsNotifTestButton: "Test notification",
+		settingsNotifPermissionTitle: "Browser notification permission",
+		settingsNotifPermissionDesc:
+			"System reminders require browser notification permission.",
+		settingsNotifEnablePermission: "Enable",
+		settingsNotifPermissionGranted: "Allowed",
+		settingsNotifPermissionDefault: "Not set",
+		settingsNotifPermissionDenied: "Blocked",
+		settingsNotifPermissionDeniedDesc:
+			"Notification permission is blocked. Enable it from your browser settings.",
+		settingsNotifPermissionUnsupported: "Unsupported",
+		settingsNotifPermissionUnsupportedDesc:
+			"This device or browser does not support notification reminders.",
+		settingsNotifPermissionRequired: "Permission required",
+		settingsNotifPermissionRequiredDesc:
+			"Please allow notifications to receive reminder alerts.",
+		settingsNotifSendFailed: "Notification failed",
+		settingsNotifSendFailedDesc:
+			"Could not send notification through the system channel.",
+		settingsNotifBlockedByOS: "Allowed in browser, blocked by system",
+		settingsNotifBlockedByOSDesc:
+			"Open macOS System Settings → Notifications, find your browser, and allow notifications.",
+		settingsNotifSafariNeedsPwa: "Install required for Safari",
+		settingsNotifSafariNeedsPwaDesc:
+			"On macOS Safari, notifications work only after installing the app via Share → Add to Dock.",
+		settingsNotifBlockedByBrowser: "Notification could not be shown",
+		settingsNotifBlockedByBrowserDesc:
+			"The browser refused to display the notification. Check site permission and Focus mode.",
+		settingsNotifMacHelp: "Mac troubleshooting",
+		settingsNotifMacHelpItem1:
+			"macOS System Settings → Notifications → your browser must allow alerts.",
+		settingsNotifMacHelpItem2:
+			"Turn off Do Not Disturb / Focus mode while testing.",
+		settingsNotifMacHelpItem3:
+			"For Safari, use Share → Add to Dock and launch from Dock.",
+		settingsNotifWindowsHelp: "Windows troubleshooting",
+		settingsNotifWindowsHelpItem1:
+			"Settings → System → Notifications → make sure notifications are ON for your browser.",
+		settingsNotifWindowsHelpItem2:
+			"Turn off Focus Assist (Settings → System → Focus) while testing.",
+		settingsNotifWindowsHelpItem3:
+			"Confirm site permission in browser address bar (lock icon → Notifications → Allow).",
+		settingsNotifAndroidHelp: "Android troubleshooting",
+		settingsNotifAndroidHelpItem1:
+			"Settings → Apps → Chrome (or your browser) → Notifications must be enabled.",
+		settingsNotifAndroidHelpItem2:
+			"Turn off Do Not Disturb. Some battery savers also block background notifications.",
+		settingsNotifAndroidHelpItem3:
+			"For best results, install the app: Chrome menu → Install app, then open from home screen.",
+		settingsNotifIosHelp: "iOS troubleshooting",
+		settingsNotifIosHelpItem1:
+			"Web notifications work only in installed PWA on iOS 16.4+.",
+		settingsNotifIosHelpItem2:
+			"Open in Safari → Share → Add to Home Screen, then launch from the home screen icon.",
+		settingsNotifIosHelpItem3:
+			"After install, enable notifications when first prompted, and check Settings → Notifications → Hasanat.",
+		settingsNotifLinuxHelp: "Linux troubleshooting",
+		settingsNotifLinuxHelpItem1:
+			"Confirm a notification daemon is running (e.g. dunst, GNOME, KDE built-in).",
+		settingsNotifLinuxHelpItem2:
+			"Browser site permission must be Allowed (lock icon → Notifications).",
+		settingsNotifLinuxHelpItem3:
+			"Disable Do Not Disturb in your desktop environment.",
+		settingsNotifGenericHelp: "Troubleshooting",
+		settingsNotifGenericHelpItem1:
+			"Browser site permission must be Allowed (lock icon → Notifications).",
+		settingsNotifGenericHelpItem2:
+			"Turn off any system-wide Do Not Disturb / Focus mode.",
+		settingsNotifGenericHelpItem3:
+			"Try installing the app for more reliable delivery.",
+		settingsNotifDevDebug: "Run scheduler check (dev)",
+		settingsNotifDevDebugDesc:
+			"Force the prayer + tip scheduler to run once with current state.",
 		settingsLocation: "Prayer Location",
 		settingsLocationDesc: "Set your city for accurate prayer times",
 		settingsLocationPlaceholder: "e.g. Dhaka, London, Mecca",
@@ -802,7 +877,8 @@ export const translations = {
 		settingsNotifications: "বিজ্ঞপ্তি",
 		settingsNotifDesc: "কোন সতর্কতা পাবেন তা নিয়ন্ত্রণ করুন",
 		settingsDailyReminder: "দৈনিক রিমাইন্ডার",
-		settingsDailyReminderDesc: "আপনার আমল লগ করতে মনে করিয়ে দেওয়া হবে",
+		settingsDailyReminderDesc:
+			"নামাজের ওয়াক্ত শেষ হওয়ার আগে আপনাকে মনে করিয়ে দেওয়া হবে",
 		settingsStreakAlerts: "ধারাবাহিকতা সতর্কতা",
 		settingsStreakAlertsDesc: "ধারাবাহিকতা হারানোর আগে সতর্ক করা হবে",
 		settingsCircleUpdates: "সার্কেল আপডেট",
@@ -810,10 +886,84 @@ export const translations = {
 		settingsWeeklyReport: "সাপ্তাহিক রিপোর্ট",
 		settingsWeeklyReportDesc: "আপনার সাপ্তাহিক অগ্রগতির সারাংশ",
 		settingsDeedTips: "আমল টিপস",
-		settingsDeedTipsDesc: "অনুপ্রেরণামূলক আমলের পরামর্শ পান",
+		settingsDeedTipsDesc:
+			"প্রতিদিন ৩টি অনুপ্রেরণামূলক আমল টিপস পান (সকাল, সন্ধ্যা, রাত)",
 		settingsReminderTime: "রিমাইন্ডার সময়",
 		settingsReminderTimeDesc: "দৈনিক রিমাইন্ডার কখন পাঠাবে",
 		settingsComingSoon: "শীঘ্রই আসছে",
+		settingsNotifTestButton: "টেস্ট নোটিফিকেশন",
+		settingsNotifPermissionTitle: "ব্রাউজার নোটিফিকেশন অনুমতি",
+		settingsNotifPermissionDesc:
+			"সিস্টেম রিমাইন্ডারের জন্য ব্রাউজারের নোটিফিকেশন অনুমতি প্রয়োজন।",
+		settingsNotifEnablePermission: "সক্রিয় করুন",
+		settingsNotifPermissionGranted: "অনুমোদিত",
+		settingsNotifPermissionDefault: "সেট করা নেই",
+		settingsNotifPermissionDenied: "ব্লক করা",
+		settingsNotifPermissionDeniedDesc:
+			"নোটিফিকেশন অনুমতি ব্লক করা আছে। ব্রাউজার সেটিংস থেকে চালু করুন।",
+		settingsNotifPermissionUnsupported: "সমর্থিত নয়",
+		settingsNotifPermissionUnsupportedDesc:
+			"এই ডিভাইস বা ব্রাউজারে নোটিফিকেশন রিমাইন্ডার সমর্থিত নয়।",
+		settingsNotifPermissionRequired: "অনুমতি প্রয়োজন",
+		settingsNotifPermissionRequiredDesc:
+			"রিমাইন্ডার পেতে অনুগ্রহ করে নোটিফিকেশন অনুমতি দিন।",
+		settingsNotifSendFailed: "নোটিফিকেশন পাঠানো যায়নি",
+		settingsNotifSendFailedDesc:
+			"সিস্টেম চ্যানেলের মাধ্যমে নোটিফিকেশন পাঠানো যায়নি।",
+		settingsNotifBlockedByOS: "ব্রাউজারে অনুমোদিত, সিস্টেম দ্বারা ব্লক করা",
+		settingsNotifBlockedByOSDesc:
+			"macOS সিস্টেম সেটিংস → Notifications-এ গিয়ে আপনার ব্রাউজারের নোটিফিকেশন চালু করুন।",
+		settingsNotifSafariNeedsPwa: "Safari-এর জন্য ইনস্টল করতে হবে",
+		settingsNotifSafariNeedsPwaDesc:
+			"macOS Safari-তে নোটিফিকেশন পেতে Share → Add to Dock দিয়ে অ্যাপ ইনস্টল করুন।",
+		settingsNotifBlockedByBrowser: "নোটিফিকেশন প্রদর্শন করা যায়নি",
+		settingsNotifBlockedByBrowserDesc:
+			"ব্রাউজার নোটিফিকেশন প্রদর্শনে অস্বীকার করেছে। সাইট অনুমতি এবং ফোকাস মোড পরীক্ষা করুন।",
+		settingsNotifMacHelp: "ম্যাক ট্রাবলশুটিং",
+		settingsNotifMacHelpItem1:
+			"macOS সিস্টেম সেটিংস → Notifications → আপনার ব্রাউজারের অ্যালার্ট চালু থাকতে হবে।",
+		settingsNotifMacHelpItem2:
+			"টেস্ট করার সময় Do Not Disturb / Focus মোড বন্ধ রাখুন।",
+		settingsNotifMacHelpItem3:
+			"Safari-র জন্য Share → Add to Dock ব্যবহার করুন এবং Dock থেকে চালু করুন।",
+		settingsNotifWindowsHelp: "উইন্ডোজ ট্রাবলশুটিং",
+		settingsNotifWindowsHelpItem1:
+			"Settings → System → Notifications → আপনার ব্রাউজারের নোটিফিকেশন চালু রাখুন।",
+		settingsNotifWindowsHelpItem2:
+			"টেস্টের সময় Focus Assist বন্ধ রাখুন (Settings → System → Focus)।",
+		settingsNotifWindowsHelpItem3:
+			"ব্রাউজার অ্যাড্রেস বারে সাইট অনুমতি যাচাই করুন (লক আইকন → Notifications → Allow)।",
+		settingsNotifAndroidHelp: "অ্যান্ড্রয়েড ট্রাবলশুটিং",
+		settingsNotifAndroidHelpItem1:
+			"Settings → Apps → Chrome (বা আপনার ব্রাউজার) → Notifications চালু থাকতে হবে।",
+		settingsNotifAndroidHelpItem2:
+			"Do Not Disturb বন্ধ রাখুন। কিছু ব্যাটারি সেভার ব্যাকগ্রাউন্ড নোটিফিকেশন ব্লক করে।",
+		settingsNotifAndroidHelpItem3:
+			"সেরা ফলাফলের জন্য অ্যাপ ইনস্টল করুন: Chrome menu → Install app, তারপর হোম স্ক্রিন থেকে খুলুন।",
+		settingsNotifIosHelp: "iOS ট্রাবলশুটিং",
+		settingsNotifIosHelpItem1:
+			"iOS-এ ওয়েব নোটিফিকেশন শুধু ইনস্টল করা PWA-তে কাজ করে (iOS 16.4+)।",
+		settingsNotifIosHelpItem2:
+			"Safari-তে খুলুন → Share → Add to Home Screen, তারপর হোম স্ক্রিন আইকন থেকে চালু করুন।",
+		settingsNotifIosHelpItem3:
+			"ইনস্টল করার পর প্রথম প্রম্পটে নোটিফিকেশন অনুমতি দিন। Settings → Notifications → Hasanat যাচাই করুন।",
+		settingsNotifLinuxHelp: "লিনাক্স ট্রাবলশুটিং",
+		settingsNotifLinuxHelpItem1:
+			"নোটিফিকেশন ডেমন চলছে কিনা নিশ্চিত করুন (যেমন dunst, GNOME, KDE)।",
+		settingsNotifLinuxHelpItem2:
+			"ব্রাউজার সাইট অনুমতি Allowed হতে হবে (লক আইকন → Notifications)।",
+		settingsNotifLinuxHelpItem3:
+			"আপনার ডেস্কটপ এনভায়রনমেন্টে Do Not Disturb বন্ধ রাখুন।",
+		settingsNotifGenericHelp: "ট্রাবলশুটিং",
+		settingsNotifGenericHelpItem1:
+			"ব্রাউজার সাইট অনুমতি Allowed হতে হবে (লক আইকন → Notifications)।",
+		settingsNotifGenericHelpItem2:
+			"যেকোনো সিস্টেম Do Not Disturb / Focus মোড বন্ধ রাখুন।",
+		settingsNotifGenericHelpItem3:
+			"আরো নির্ভরযোগ্য ডেলিভারির জন্য অ্যাপ ইনস্টল করুন।",
+		settingsNotifDevDebug: "শিডিউলার চেক চালান (dev)",
+		settingsNotifDevDebugDesc:
+			"বর্তমান অবস্থায় প্রার্থনা + টিপ শিডিউলার একবার চালান।",
 		settingsLocation: "নামাজের অবস্থান",
 		settingsLocationDesc: "সঠিক নামাজের সময়ের জন্য আপনার শহর সেট করুন",
 		settingsLocationPlaceholder: "যেমন: ঢাকা, লন্ডন, মক্কা",
