@@ -69,6 +69,7 @@ export default defineConfig(({ mode }) => ({
     hmr: {
       overlay: false,
     },
+    allowedHosts: true,
   },
   preview: {
     host: "::",
@@ -161,7 +162,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       devOptions: {
-        enabled: false,
+        enabled: true,
+        type: "module",
+        navigateFallback: "index.html",
       },
     }),
     mode === "development" && componentTagger(),

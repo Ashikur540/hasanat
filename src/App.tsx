@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/i18n/I18nProvider";
-import { NotificationProvider } from "@/hooks/useNotifications";
+import { NotificationProvider } from "@/hooks/NotificationProvider";
 import ConnectivityBanner from "@/common/components/ConnectivityBanner";
 import { AuthProvider } from "@/features/auth";
 import { router } from "@/routes";
