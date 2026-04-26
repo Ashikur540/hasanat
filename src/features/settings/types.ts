@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
 	soundEffects: true,
 	timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 	notifications: {
-		dailyReminder: true,
+		dailyReminder: false,
 		streakAlerts: true,
 		circleUpdates: false,
 		weeklyReport: true,
