@@ -69,7 +69,7 @@ const LocationSettings = () => {
 						ipLocation.country,
 						"ip",
 					);
-					toast({ title: "GPS unavailable, updated from IP fallback" });
+					toast({ title: "Location updated" });
 					return;
 				}
 				toast({

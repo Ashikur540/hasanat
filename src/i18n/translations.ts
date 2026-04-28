@@ -479,7 +479,7 @@ export const translations = {
 		heroDesc:
 			"The spiritual heatmap for the modern Muslim. Log your worship, visualize your consistency, and transform small actions into a lifelong legacy.",
 		heroCTAPrimary: "Start My Journey — It's Free",
-		heroCTADashboard: "Go to Dashboard",
+		heroCTADashboard: "Dashboard",
 		heroCTADemo: "View Demo",
 		heroSocialProofBefore: "Join",
 		heroSocialProofAfter: "believers building their spiritual momentum.",
