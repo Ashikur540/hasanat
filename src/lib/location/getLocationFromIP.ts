@@ -5,35 +5,66 @@ export interface IPLocationData {
 	country: string;
 }
 
-interface IPAPIResponse {
+interface IPWhoIsResponse {
+	success?: boolean;
 	latitude?: number;
 	longitude?: number;
 	city?: string;
-	country_name?: string;
+	country?: string;
 }
 
-export async function getLocationFromIP(): Promise<IPLocationData | null> {
-	try {
-		const response = await fetch("https://ipapi.co/json/");
-		if (!response.ok) {
-			return null;
-		}
+interface GeoJSResponse {
+	latitude?: string;
+	longitude?: string;
+	city?: string;
+	country?: string;
+}
 
-		const data = (await response.json()) as IPAPIResponse;
-		if (
-			typeof data.latitude !== "number" ||
-			typeof data.longitude !== "number"
-		) {
-			return null;
-		}
+type Provider = () => Promise<IPLocationData | null>;
 
-		return {
-			lat: data.latitude,
-			lng: data.longitude,
-			city: data.city || "",
-			country: data.country_name || "",
-		};
-	} catch {
+const fromIpWhoIs: Provider = async () => {
+	const response = await fetch("https://ipwho.is/");
+	if (!response.ok) return null;
+	const data = (await response.json()) as IPWhoIsResponse;
+	if (
+		data.success === false ||
+		typeof data.latitude !== "number" ||
+		typeof data.longitude !== "number"
+	) {
 		return null;
 	}
+	return {
+		lat: data.latitude,
+		lng: data.longitude,
+		city: data.city || "",
+		country: data.country || "",
+	};
+};
+
+const fromGeoJS: Provider = async () => {
+	const response = await fetch("https://get.geojs.io/v1/ip/geo.json");
+	if (!response.ok) return null;
+	const data = (await response.json()) as GeoJSResponse;
+	const lat = parseFloat(data.latitude || "");
+	const lng = parseFloat(data.longitude || "");
+	if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+	return {
+		lat,
+		lng,
+		city: data.city || "",
+		country: data.country || "",
+	};
+};
+
+export async function getLocationFromIP(): Promise<IPLocationData | null> {
+	const providers: Provider[] = [fromIpWhoIs, fromGeoJS];
+	for (const provider of providers) {
+		try {
+			const result = await provider();
+			if (result) return result;
+		} catch {
+			// try next
+		}
+	}
+	return null;
 }
