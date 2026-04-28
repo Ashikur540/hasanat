@@ -51,15 +51,15 @@ export function getGridStart(date: Date): Date {
   return addDays(date, -(dayOfWeek - 1));
 }
 
-// Internal: same Hijri algorithm as useHijriDate hook — returns month number 1–12
+// Umm al-Qura month number 1–12 via Intl.
 function getHijriMonthForDate(date: Date): number {
-  const gregorianDays = Math.floor(
-    (date.getTime() - new Date(622, 6, 16).getTime()) / 86400000,
-  );
-  const hijriYear = Math.floor((30 * gregorianDays + 10646) / 10631);
-  const daysInYear =
-    gregorianDays - Math.floor((10631 * hijriYear - 10617) / 30);
-  return Math.min(12, Math.ceil((daysInYear - 0.5) / 29.5));
+  const parts = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+    month: "numeric",
+    numberingSystem: "latn",
+  }).formatToParts(date);
+  const monthStr = parts.find((p) => p.type === "month")?.value ?? "1";
+  const month = parseInt(monthStr, 10);
+  return Math.min(12, Math.max(1, month));
 }
 
 // Returns all Gregorian dates in gregorianYear that fall in Ramadan (Hijri month 9)

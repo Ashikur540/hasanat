@@ -1,39 +1,43 @@
 export interface IPLocationData {
-	lat: number;
-	lng: number;
-	city: string;
-	country: string;
+  lat: number;
+  lng: number;
+  city: string;
+  country: string;
 }
 
-interface IPAPIResponse {
-	latitude?: number;
-	longitude?: number;
-	city?: string;
-	country_name?: string;
+interface GeoJSResponse {
+  latitude?: string;
+  longitude?: string;
+  city?: string;
+  country?: string;
 }
+
+type Provider = () => Promise<IPLocationData | null>;
+
+const fromGeoJS: Provider = async () => {
+  const response = await fetch("https://get.geojs.io/v1/ip/geo.json");
+  if (!response.ok) return null;
+  const data = (await response.json()) as GeoJSResponse;
+  const lat = parseFloat(data.latitude || "");
+  const lng = parseFloat(data.longitude || "");
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return {
+    lat,
+    lng,
+    city: data.city || "",
+    country: data.country || "",
+  };
+};
 
 export async function getLocationFromIP(): Promise<IPLocationData | null> {
-	try {
-		const response = await fetch("https://ipapi.co/json/");
-		if (!response.ok) {
-			return null;
-		}
-
-		const data = (await response.json()) as IPAPIResponse;
-		if (
-			typeof data.latitude !== "number" ||
-			typeof data.longitude !== "number"
-		) {
-			return null;
-		}
-
-		return {
-			lat: data.latitude,
-			lng: data.longitude,
-			city: data.city || "",
-			country: data.country_name || "",
-		};
-	} catch {
-		return null;
-	}
+  const providers: Provider[] = [fromGeoJS];
+  for (const provider of providers) {
+    try {
+      const result = await provider();
+      if (result) return result;
+    } catch {
+      // try next
+    }
+  }
+  return null;
 }
