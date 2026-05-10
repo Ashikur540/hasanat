@@ -12,6 +12,7 @@ const Deeds = lazy(() => import("@/pages/Deeds"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const Leaderboard = lazy(() => import("@/pages/Leaderboard"));
+const Quran = lazy(() => import("@/pages/Quran"));
 const MyCustomDeeds = lazy(() => import("@/pages/MyCustomDeeds"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
 					{ path: "/profile", element: withRouteSuspense(<Profile />) },
 					{ path: "/settings", element: withRouteSuspense(<Settings />) },
 					{ path: "/leaderboard", element: withRouteSuspense(<Leaderboard />) },
+					{ path: "/quran", element: withRouteSuspense(<Quran />) },
 					// { path: "/circles", element: <Circles /> },
 					// { path: "/ramadan", element: <Ramadan /> },
 					{ path: "/my-deeds", element: withRouteSuspense(<MyCustomDeeds />) },

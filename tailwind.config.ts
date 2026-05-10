@@ -17,6 +17,7 @@ export default {
         sans: ["Inter", "sans-serif"],
         serif: ["Playfair Display", "Georgia", "serif"],
         arabic: ["Noto Naskh Arabic", "serif"],
+        quran: ["Al Majeed Quranic", "Noto Naskh Arabic", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

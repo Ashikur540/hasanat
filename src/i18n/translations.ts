@@ -8,6 +8,7 @@ export const translations = {
 		navAmalGraph: "Amal Graph",
 		navDeedsCity: "DeedsCity",
 		navDeeds: "Deeds",
+		navQuran: "Quran",
 		navCircles: "Circles",
 		navHome: "Home",
 		navGraph: "Graph",
@@ -100,6 +101,34 @@ export const translations = {
 		deedDeed: "deed",
 		deedDeeds: "deeds",
 		deedNoMatch: "No deeds match your filters. Try adjusting your search.",
+
+		// Quran Reader
+		quranReaderTitle: "Quran Reader",
+		quranReaderSubtitle:
+			"Read by surah, continue from your last ayah, and save bookmarks.",
+		quranStartReading: "Start Reading",
+		quranSearchSurah: "Search surah...",
+		quranNoSurahFound: "No surah found for your search.",
+		quranSurah: "Surah",
+		quranSelectSurah: "Select surah",
+		quranAyah: "Ayah",
+		quranLoading: "Loading ayahs...",
+		quranLoadError: "Failed to load Quran content. Please try again.",
+		quranTranslationLabel: "Translation:",
+		quranTranslationEnglish: "English",
+		quranTranslationBangla: "Bangla",
+		quranResumeLastAyah: "Resume from last ayah",
+		quranResumeAction: "Resume",
+		quranMarkRead: "Mark as read",
+		quranBookmarks: "Bookmarks",
+		quranNoBookmarks: "No bookmarks yet.",
+		quranJumpToAyah: "Go to ayah",
+		quranAddBookmark: "Bookmark",
+		quranRemoveBookmark: "Remove",
+		quranBookmarkNotePrompt: "Optional bookmark note",
+		quranSyncIssueTitle: "Sync issue",
+		quranSyncIssueDesc:
+			"Saved locally. Cloud sync will retry when connection is stable.",
 
 		// Amal Graph
 		amalGraphTitle: "Amal Graph",
@@ -616,6 +645,7 @@ export const translations = {
 		navAmalGraph: "আমল গ্রাফ",
 		navDeedsCity: "আমল শহর",
 		navDeeds: "আমলসমূহ",
+		navQuran: "কুরআন",
 		navCircles: "সার্কেল",
 		navHome: "হোম",
 		navGraph: "গ্রাফ",
@@ -709,6 +739,34 @@ export const translations = {
 		deedDeeds: "আমল",
 		deedNoMatch:
 			"আপনার ফিল্টারের সাথে কোনো আমল মেলেনি। অনুসন্ধান পরিবর্তন করুন।",
+
+		// Quran Reader
+		quranReaderTitle: "কুরআন রিডার",
+		quranReaderSubtitle:
+			"সূরা অনুযায়ী পড়ুন, শেষ আয়াত থেকে শুরু করুন, এবং বুকমার্ক রাখুন।",
+		quranStartReading: "পড়া শুরু করুন",
+		quranSearchSurah: "সূরা খুঁজুন...",
+		quranNoSurahFound: "আপনার অনুসন্ধানে কোনো সূরা পাওয়া যায়নি।",
+		quranSurah: "সূরা",
+		quranSelectSurah: "সূরা নির্বাচন করুন",
+		quranAyah: "আয়াত",
+		quranLoading: "আয়াত লোড হচ্ছে...",
+		quranLoadError: "কুরআনের ডেটা লোড হয়নি। আবার চেষ্টা করুন।",
+		quranTranslationLabel: "অনুবাদ:",
+		quranTranslationEnglish: "ইংরেজি",
+		quranTranslationBangla: "বাংলা",
+		quranResumeLastAyah: "শেষ আয়াত থেকে শুরু করুন",
+		quranResumeAction: "শুরু করুন",
+		quranMarkRead: "পড়া হয়েছে",
+		quranBookmarks: "বুকমার্ক",
+		quranNoBookmarks: "এখনও কোনো বুকমার্ক নেই।",
+		quranJumpToAyah: "আয়াতে যান",
+		quranAddBookmark: "বুকমার্ক করুন",
+		quranRemoveBookmark: "সরান",
+		quranBookmarkNotePrompt: "ঐচ্ছিক নোট",
+		quranSyncIssueTitle: "সিঙ্ক সমস্যা",
+		quranSyncIssueDesc:
+			"লোকালভাবে সংরক্ষিত হয়েছে। নেটওয়ার্ক স্থিতিশীল হলে ক্লাউড সিঙ্ক আবার চেষ্টা করবে।",
 
 		// Amal Graph
 		amalGraphTitle: "আমল গ্রাফ",

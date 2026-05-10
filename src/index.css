@@ -125,6 +125,15 @@
   src: url("/fonts/noto-naskh-arabic-v44-latin-700.woff2") format("woff2");
 }
 
+/* IndoPak Quran font */
+@font-face {
+  font-family: "Al Majeed Quranic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/font.woff2") format("woff2");
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

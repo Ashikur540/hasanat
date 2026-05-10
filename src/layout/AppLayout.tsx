@@ -12,6 +12,7 @@ import {
 	Monitor,
 	Languages,
 	BookHeart,
+	BookMarked,
 	LogOut,
 	Leaf,
 } from "lucide-react";
@@ -56,6 +57,7 @@ const AppLayout = () => {
 		{ to: "/amal-graph", label: t("navAmalGraph"), icon: BarChart3 },
 		// { to: "/my-city", label: t("navDeedsCity"), icon: Building2 },
 		{ to: "/deeds", label: t("navDeeds"), icon: BookOpen },
+		{ to: "/quran", label: t("navQuran"), icon: BookMarked },
 		{ to: "/leaderboard", label: t("navLeaderboard"), icon: Trophy },
 		// { to: "/circles", label: t("navCircles"), icon: Users },
 	];
@@ -66,6 +68,7 @@ const AppLayout = () => {
 	];
 
 	const mobileRightLinks = [
+		{ to: "/quran", label: t("navQuran"), icon: BookMarked },
 		{ to: "/profile", label: t("navProfile"), icon: User },
 		{ to: "/settings", label: t("navSettings"), icon: Settings },
 	];
