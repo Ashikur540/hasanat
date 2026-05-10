@@ -58,80 +58,13 @@
   src: url("/fonts/inter-v20-latin-800.woff2") format("woff2");
 }
 
-/* Playfair Display */
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/playfair-display-v40-latin-regular.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/playfair-display-v40-latin-600.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/playfair-display-v40-latin-700.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("/fonts/playfair-display-v40-latin-800.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Playfair Display";
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url("/fonts/playfair-display-v40-latin-900.woff2") format("woff2");
-}
-
-/* Noto Naskh Arabic */
-@font-face {
-  font-family: "Noto Naskh Arabic";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/noto-naskh-arabic-v44-latin-regular.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Noto Naskh Arabic";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/noto-naskh-arabic-v44-latin-500.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Noto Naskh Arabic";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("/fonts/noto-naskh-arabic-v44-latin-600.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Noto Naskh Arabic";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/noto-naskh-arabic-v44-latin-700.woff2") format("woff2");
-}
-
-/* IndoPak Quran font */
+/* Arabic (IndoPak Quran) */
 @font-face {
   font-family: "Al Majeed Quranic";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/font.woff2") format("woff2");
+  src: url("/fonts/al-majeed-quranic.woff2") format("woff2");
 }
 
 @tailwind base;
@@ -139,438 +72,438 @@
 @tailwind utilities;
 
 @layer base {
-	:root {
-		--background: 170 20% 90%;
-		--foreground: 177 42% 15%;
+  :root {
+    --background: 170 20% 90%;
+    --foreground: 177 42% 15%;
 
-		--card: 0 0% 100%;
-		--card-foreground: 177 42% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 177 42% 15%;
 
-		--popover: 0 0% 100%;
-		--popover-foreground: 177 42% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 177 42% 15%;
 
-		--primary: 171 74% 24%;
-		--primary-foreground: 48 30% 98%;
+    --primary: 171 74% 24%;
+    --primary-foreground: 48 30% 98%;
 
-		--secondary: 170 38% 92%;
-		--secondary-foreground: 177 42% 15%;
+    --secondary: 170 38% 92%;
+    --secondary-foreground: 177 42% 15%;
 
-		--muted: 165 20% 93%;
-		--muted-foreground: 177 18% 34%;
+    --muted: 165 20% 93%;
+    --muted-foreground: 177 18% 34%;
 
-		--accent: 37 97% 62%;
-		--accent-foreground: 181 55% 12%;
+    --accent: 37 97% 62%;
+    --accent-foreground: 181 55% 12%;
 
-		--destructive: 0 84% 60%;
-		--destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-		--border: 169 20% 84%;
-		--input: 169 20% 84%;
-		--ring: 37 97% 62%;
+    --border: 169 20% 84%;
+    --input: 169 20% 84%;
+    --ring: 37 97% 62%;
 
-		--radius: 0.75rem;
+    --radius: 0.75rem;
 
-		--sidebar-background: 171 80% 22%;
-		--sidebar-foreground: 48 26% 95%;
-		--sidebar-primary: 37 97% 62%;
-		--sidebar-primary-foreground: 181 55% 12%;
-		--sidebar-accent: 169 70% 28%;
-		--sidebar-accent-foreground: 48 26% 95%;
-		--sidebar-border: 170 50% 30%;
-		--sidebar-ring: 37 97% 62%;
+    --sidebar-background: 171 80% 22%;
+    --sidebar-foreground: 48 26% 95%;
+    --sidebar-primary: 37 97% 62%;
+    --sidebar-primary-foreground: 181 55% 12%;
+    --sidebar-accent: 169 70% 28%;
+    --sidebar-accent-foreground: 48 26% 95%;
+    --sidebar-border: 170 50% 30%;
+    --sidebar-ring: 37 97% 62%;
 
-		--success: 159 66% 39%;
-		--success-foreground: 0 0% 100%;
-		--gold: 37 97% 62%;
-		--gold-foreground: 181 55% 12%;
+    --success: 159 66% 39%;
+    --success-foreground: 0 0% 100%;
+    --gold: 37 97% 62%;
+    --gold-foreground: 181 55% 12%;
 
-		--heatmap-0: 165 20% 92%;
-		--heatmap-1: 164 44% 78%;
-		--heatmap-2: 164 55% 60%;
-		--heatmap-3: 165 66% 42%;
-		--heatmap-4: 171 74% 24%;
-	}
+    --heatmap-0: 165 20% 92%;
+    --heatmap-1: 164 44% 78%;
+    --heatmap-2: 164 55% 60%;
+    --heatmap-3: 165 66% 42%;
+    --heatmap-4: 171 74% 24%;
+  }
 
-	.dark {
-		--background: 184 56% 6%;
-		--foreground: 52 32% 93%;
+  .dark {
+    --background: 184 56% 6%;
+    --foreground: 52 32% 93%;
 
-		--card: 183 45% 15%;
-		--card-foreground: 52 32% 93%;
+    --card: 183 45% 15%;
+    --card-foreground: 52 32% 93%;
 
-		--popover: 183 45% 15%;
-		--popover-foreground: 52 32% 93%;
+    --popover: 183 45% 15%;
+    --popover-foreground: 52 32% 93%;
 
-		--primary: 165 73% 42%;
-		--primary-foreground: 183 64% 9%;
+    --primary: 165 73% 42%;
+    --primary-foreground: 183 64% 9%;
 
-		--secondary: 182 32% 21%;
-		--secondary-foreground: 52 32% 93%;
+    --secondary: 182 32% 21%;
+    --secondary-foreground: 52 32% 93%;
 
-		--muted: 182 32% 19%;
-		--muted-foreground: 171 17% 73%;
+    --muted: 182 32% 19%;
+    --muted-foreground: 171 17% 73%;
 
-		--accent: 37 96% 63%;
-		--accent-foreground: 181 55% 12%;
+    --accent: 37 96% 63%;
+    --accent-foreground: 181 55% 12%;
 
-		--destructive: 0 65% 45%;
-		--destructive-foreground: 220 15% 95%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 220 15% 95%;
 
-		--border: 182 28% 26%;
-		--input: 182 28% 26%;
-		--ring: 37 96% 63%;
+    --border: 182 28% 26%;
+    --input: 182 28% 26%;
+    --ring: 37 96% 63%;
 
-		--sidebar-background: 183 64% 11%;
-		--sidebar-foreground: 52 32% 93%;
-		--sidebar-primary: 37 96% 63%;
-		--sidebar-primary-foreground: 181 55% 12%;
-		--sidebar-accent: 182 38% 23%;
-		--sidebar-accent-foreground: 52 32% 93%;
-		--sidebar-border: 182 28% 26%;
-		--sidebar-ring: 37 96% 63%;
+    --sidebar-background: 183 64% 11%;
+    --sidebar-foreground: 52 32% 93%;
+    --sidebar-primary: 37 96% 63%;
+    --sidebar-primary-foreground: 181 55% 12%;
+    --sidebar-accent: 182 38% 23%;
+    --sidebar-accent-foreground: 52 32% 93%;
+    --sidebar-border: 182 28% 26%;
+    --sidebar-ring: 37 96% 63%;
 
-		--success: 164 70% 44%;
-		--success-foreground: 0 0% 100%;
-		--gold: 37 96% 63%;
-		--gold-foreground: 181 55% 12%;
+    --success: 164 70% 44%;
+    --success-foreground: 0 0% 100%;
+    --gold: 37 96% 63%;
+    --gold-foreground: 181 55% 12%;
 
-		--heatmap-0: 183 34% 18%;
-		--heatmap-1: 164 36% 30%;
-		--heatmap-2: 164 48% 38%;
-		--heatmap-3: 165 60% 45%;
-		--heatmap-4: 165 73% 53%;
-	}
+    --heatmap-0: 183 34% 18%;
+    --heatmap-1: 164 36% 30%;
+    --heatmap-2: 164 48% 38%;
+    --heatmap-3: 165 60% 45%;
+    --heatmap-4: 165 73% 53%;
+  }
 }
 
 @layer base {
-	* {
-		@apply border-border;
-	}
+  * {
+    @apply border-border;
+  }
 
-	body {
-		@apply bg-background text-foreground font-sans antialiased;
-		font-family: "Inter", sans-serif;
-	}
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: "Inter", sans-serif;
+  }
 
-	.font-arabic {
-		font-family: "Noto Naskh Arabic", serif;
-	}
+  .font-arabic {
+    font-family: "Al Majeed Quranic", serif;
+  }
 }
 
 /* Background patterns */
 .bg-grid-pattern {
-	background-image:
-		linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
-		linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
-	background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 .bg-rect-pattern {
-	background-image:
-		linear-gradient(to right, hsl(var(--primary) / 0.08) 1px, transparent 1px),
-		linear-gradient(to bottom, hsl(var(--primary) / 0.08) 1px, transparent 1px);
-	background-size: 48px 48px;
+  background-image:
+    linear-gradient(to right, hsl(var(--primary) / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--primary) / 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .bg-circuit-pattern {
-	background-image:
-		repeating-linear-gradient(
-			0deg,
-			transparent,
-			transparent 99px,
-			hsl(var(--primary) / 0.1) 99px,
-			hsl(var(--primary) / 0.1) 100px,
-			transparent 100px,
-			transparent 199px,
-			hsl(var(--primary) / 0.1) 199px,
-			hsl(var(--primary) / 0.1) 200px
-		),
-		repeating-linear-gradient(
-			90deg,
-			transparent,
-			transparent 99px,
-			hsl(var(--primary) / 0.1) 99px,
-			hsl(var(--primary) / 0.1) 100px,
-			transparent 100px,
-			transparent 199px,
-			hsl(var(--primary) / 0.1) 199px,
-			hsl(var(--primary) / 0.1) 200px
-		),
-		radial-gradient(
-			circle at 100px 100px,
-			hsl(var(--primary) / 0.14) 3px,
-			transparent 3px
-		),
-		radial-gradient(
-			circle at 200px 200px,
-			hsl(var(--primary) / 0.14) 3px,
-			transparent 3px
-		);
-	background-size: 200px 200px;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 99px,
+      hsl(var(--primary) / 0.1) 99px,
+      hsl(var(--primary) / 0.1) 100px,
+      transparent 100px,
+      transparent 199px,
+      hsl(var(--primary) / 0.1) 199px,
+      hsl(var(--primary) / 0.1) 200px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 99px,
+      hsl(var(--primary) / 0.1) 99px,
+      hsl(var(--primary) / 0.1) 100px,
+      transparent 100px,
+      transparent 199px,
+      hsl(var(--primary) / 0.1) 199px,
+      hsl(var(--primary) / 0.1) 200px
+    ),
+    radial-gradient(
+      circle at 100px 100px,
+      hsl(var(--primary) / 0.14) 3px,
+      transparent 3px
+    ),
+    radial-gradient(
+      circle at 200px 200px,
+      hsl(var(--primary) / 0.14) 3px,
+      transparent 3px
+    );
+  background-size: 200px 200px;
 }
 
 .pattern-fade-bottom {
-	-webkit-mask-image: linear-gradient(
-		to bottom,
-		transparent 0%,
-		black 12%,
-		black 82%,
-		transparent 100%
-	);
-	mask-image: linear-gradient(
-		to bottom,
-		transparent 0%,
-		black 12%,
-		black 82%,
-		transparent 100%
-	);
-	-webkit-mask-repeat: no-repeat;
-	mask-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 82%,
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .bg-dot-pattern {
-	background-image: radial-gradient(
-		circle,
-		hsl(var(--border) / 0.5) 1px,
-		transparent 1px
-	);
-	background-size: 24px 24px;
+  background-image: radial-gradient(
+    circle,
+    hsl(var(--border) / 0.5) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
 }
 
 .bg-gradient-mesh {
-	background-image:
-		radial-gradient(
-			at 50% -10%,
-			hsl(var(--primary) / 0.14) 0px,
-			transparent 58%
-		),
-		radial-gradient(
-			at 14% 88%,
-			hsl(var(--primary) / 0.12) 0px,
-			transparent 55%
-		),
-		radial-gradient(at 84% 82%, hsl(var(--accent) / 0.07) 0px, transparent 52%),
-		linear-gradient(
-			to bottom,
-			hsl(var(--background) / 0.98),
-			hsl(var(--background))
-		);
+  background-image:
+    radial-gradient(
+      at 50% -10%,
+      hsl(var(--primary) / 0.14) 0px,
+      transparent 58%
+    ),
+    radial-gradient(
+      at 14% 88%,
+      hsl(var(--primary) / 0.12) 0px,
+      transparent 55%
+    ),
+    radial-gradient(at 84% 82%, hsl(var(--accent) / 0.07) 0px, transparent 52%),
+    linear-gradient(
+      to bottom,
+      hsl(var(--background) / 0.98),
+      hsl(var(--background))
+    );
 }
 
 .dark .bg-rect-pattern {
-	background-image:
-		linear-gradient(to right, hsl(var(--primary) / 0.14) 1px, transparent 1px),
-		linear-gradient(to bottom, hsl(var(--primary) / 0.14) 1px, transparent 1px);
-	background-size: 48px 48px;
+  background-image:
+    linear-gradient(to right, hsl(var(--primary) / 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--primary) / 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .dark .bg-circuit-pattern {
-	background-image:
-		repeating-linear-gradient(
-			0deg,
-			transparent,
-			transparent 99px,
-			hsl(var(--primary) / 0.2) 99px,
-			hsl(var(--primary) / 0.2) 100px,
-			transparent 100px,
-			transparent 199px,
-			hsl(var(--primary) / 0.2) 199px,
-			hsl(var(--primary) / 0.2) 200px
-		),
-		repeating-linear-gradient(
-			90deg,
-			transparent,
-			transparent 99px,
-			hsl(var(--primary) / 0.2) 99px,
-			hsl(var(--primary) / 0.2) 100px,
-			transparent 100px,
-			transparent 199px,
-			hsl(var(--primary) / 0.2) 199px,
-			hsl(var(--primary) / 0.2) 200px
-		),
-		radial-gradient(
-			circle at 100px 100px,
-			hsl(var(--primary) / 0.25) 2px,
-			transparent 2px
-		),
-		radial-gradient(
-			circle at 200px 200px,
-			hsl(var(--primary) / 0.25) 2px,
-			transparent 2px
-		);
-	background-size: 200px 200px;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 99px,
+      hsl(var(--primary) / 0.2) 99px,
+      hsl(var(--primary) / 0.2) 100px,
+      transparent 100px,
+      transparent 199px,
+      hsl(var(--primary) / 0.2) 199px,
+      hsl(var(--primary) / 0.2) 200px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 99px,
+      hsl(var(--primary) / 0.2) 99px,
+      hsl(var(--primary) / 0.2) 100px,
+      transparent 100px,
+      transparent 199px,
+      hsl(var(--primary) / 0.2) 199px,
+      hsl(var(--primary) / 0.2) 200px
+    ),
+    radial-gradient(
+      circle at 100px 100px,
+      hsl(var(--primary) / 0.25) 2px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle at 200px 200px,
+      hsl(var(--primary) / 0.25) 2px,
+      transparent 2px
+    );
+  background-size: 200px 200px;
 }
 
 .dark .bg-gradient-mesh {
-	background-image:
-		radial-gradient(
-			at 50% -8%,
-			hsl(var(--primary) / 0.24) 0px,
-			transparent 58%
-		),
-		radial-gradient(
-			at 12% 88%,
-			hsl(var(--primary) / 0.16) 0px,
-			transparent 55%
-		),
-		radial-gradient(at 84% 82%, hsl(var(--accent) / 0.1) 0px, transparent 54%),
-		linear-gradient(
-			to bottom,
-			hsl(var(--background) / 0.98),
-			hsl(var(--background))
-		);
+  background-image:
+    radial-gradient(
+      at 50% -8%,
+      hsl(var(--primary) / 0.24) 0px,
+      transparent 58%
+    ),
+    radial-gradient(
+      at 12% 88%,
+      hsl(var(--primary) / 0.16) 0px,
+      transparent 55%
+    ),
+    radial-gradient(at 84% 82%, hsl(var(--accent) / 0.1) 0px, transparent 54%),
+    linear-gradient(
+      to bottom,
+      hsl(var(--background) / 0.98),
+      hsl(var(--background))
+    );
 }
 
 .glass-panel {
-	background: rgba(255, 255, 255, 0.03);
-	backdrop-filter: blur(16px);
-	-webkit-backdrop-filter: blur(16px);
-	border: 1px solid rgba(255, 255, 255, 0.08);
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Landing page dark mode glass card effects */
 .dark .landing-deed-card {
-	background: linear-gradient(
-		180deg,
-		rgba(255, 255, 255, 0.04) 0%,
-		rgba(255, 255, 255, 0.01) 100%
-	);
-	border-color: rgba(255, 255, 255, 0.08);
-	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-	backdrop-filter: blur(12px);
-	-webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .dark .landing-deed-card:hover {
-	border-color: rgba(80, 200, 120, 0.3);
-	background: linear-gradient(
-		180deg,
-		rgba(80, 200, 120, 0.08) 0%,
-		rgba(255, 255, 255, 0.02) 100%
-	);
+  border-color: rgba(80, 200, 120, 0.3);
+  background: linear-gradient(
+    180deg,
+    rgba(80, 200, 120, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
 }
 
 /* Landing hero mesh background */
 .dark .landing-hero-mesh {
-	background-color: #040d09;
-	background-image:
-		radial-gradient(at 50% -10%, rgba(80, 200, 120, 0.15) 0px, transparent 60%),
-		radial-gradient(at 90% 50%, rgba(26, 122, 74, 0.1) 0px, transparent 50%);
+  background-color: #040d09;
+  background-image:
+    radial-gradient(at 50% -10%, rgba(80, 200, 120, 0.15) 0px, transparent 60%),
+    radial-gradient(at 90% 50%, rgba(26, 122, 74, 0.1) 0px, transparent 50%);
 }
 
 /* Float animations for hero mockup elements */
 @keyframes float {
-	0%,
-	100% {
-		transform: translateY(0px);
-	}
-	50% {
-		transform: translateY(-12px);
-	}
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
 }
 @keyframes floatAlt {
-	0%,
-	100% {
-		transform: translateY(0px);
-	}
-	50% {
-		transform: translateY(-8px);
-	}
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 @keyframes pulseGlow {
-	0%,
-	100% {
-		opacity: 1;
-		box-shadow: 0 0 20px 0px rgba(80, 200, 120, 0.4);
-	}
-	50% {
-		opacity: 0.7;
-		box-shadow: 0 0 8px 0px rgba(80, 200, 120, 0.2);
-	}
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 20px 0px rgba(80, 200, 120, 0.4);
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 8px 0px rgba(80, 200, 120, 0.2);
+  }
 }
 @keyframes heroIconShine {
-	0%,
-	22% {
-		transform: translateX(-180%) rotate(20deg);
-		opacity: 0;
-	}
-	30% {
-		opacity: 0.35;
-	}
-	48% {
-		transform: translateX(210%) rotate(20deg);
-		opacity: 0;
-	}
-	100% {
-		transform: translateX(210%) rotate(20deg);
-		opacity: 0;
-	}
+  0%,
+  22% {
+    transform: translateX(-180%) rotate(20deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.35;
+  }
+  48% {
+    transform: translateX(210%) rotate(20deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(210%) rotate(20deg);
+    opacity: 0;
+  }
 }
 .animate-float {
-	animation: float 6s ease-in-out infinite;
-	will-change: transform;
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
 }
 .animate-float-delayed {
-	animation: float 6s ease-in-out 2s infinite;
-	will-change: transform;
+  animation: float 6s ease-in-out 2s infinite;
+  will-change: transform;
 }
 .animate-float-slow {
-	animation: floatAlt 8s ease-in-out 1s infinite;
-	will-change: transform;
+  animation: floatAlt 8s ease-in-out 1s infinite;
+  will-change: transform;
 }
 .animate-pulse-glow {
-	animation: pulseGlow 4s ease-in-out infinite;
-	will-change: opacity, box-shadow;
+  animation: pulseGlow 4s ease-in-out infinite;
+  will-change: opacity, box-shadow;
 }
 
 .hero-float-icon {
-	position: absolute;
-	overflow: hidden;
-	isolation: isolate;
+  position: absolute;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 /* 3D perspective card — promote composited layer upfront to avoid reflow on first paint */
 .hero-3d-card {
-	will-change: transform;
-	transform: rotateX(8deg) rotateY(-8deg) rotateZ(2deg);
+  will-change: transform;
+  transform: rotateX(8deg) rotateY(-8deg) rotateZ(2deg);
 }
 
 .hero-float-icon::before {
-	content: "";
-	position: absolute;
-	inset: 1px;
-	border-radius: inherit;
-	background: linear-gradient(
-		to bottom,
-		rgba(255, 255, 255, 0.14),
-		rgba(255, 255, 255, 0)
-	);
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
 }
 
 .hero-float-icon::after {
-	content: "";
-	position: absolute;
-	top: -40%;
-	left: -55%;
-	width: 60%;
-	height: 180%;
-	background: linear-gradient(
-		to right,
-		transparent,
-		rgba(255, 255, 255, 0.55),
-		transparent
-	);
-	transform: translateX(-180%) rotate(20deg);
-	animation: heroIconShine 4.8s ease-in-out infinite;
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -55%;
+  width: 60%;
+  height: 180%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-180%) rotate(20deg);
+  animation: heroIconShine 4.8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .hero-float-icon-delay-1::after {
-	animation-delay: 0.8s;
+  animation-delay: 0.8s;
 }
 
 .hero-float-icon-delay-2::after {
-	animation-delay: 1.6s;
+  animation-delay: 1.6s;
 }

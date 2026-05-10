@@ -15,9 +15,9 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
-        serif: ["Playfair Display", "Georgia", "serif"],
-        arabic: ["Noto Naskh Arabic", "serif"],
-        quran: ["Al Majeed Quranic", "Noto Naskh Arabic", "serif"],
+        serif: ["Inter", "sans-serif"],
+        arabic: ["Al Majeed Quranic", "serif"],
+        quran: ["Al Majeed Quranic", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
