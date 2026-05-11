@@ -102,7 +102,7 @@ export const ProfileShareCard = forwardRef<
 							fontSize: "20px",
 							fontWeight: "bold",
 							color: "#1A7A4A",
-							fontFamily: '"Noto Naskh Arabic", serif',
+							fontFamily: '"Al Majeed Quranic", serif',
 						}}
 					>
 						حَسَنَات
