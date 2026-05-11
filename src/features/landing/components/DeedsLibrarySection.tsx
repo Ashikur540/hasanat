@@ -72,7 +72,7 @@ const DeedsLibrarySection = () => {
 						</div>
 
 						{/* Section title */}
-						<h2 className="text-4xl md:text-5xl font-bold text-foreground dark:text-white leading-tight font-serif">
+						<h2 className="text-4xl md:text-5xl font-bold text-foreground dark:text-white leading-tight font-sans">
 							{t("libraryHeading")}
 						</h2>
 						<p className="text-muted-foreground dark:text-gray-400 mt-4 text-base md:text-lg leading-relaxed">

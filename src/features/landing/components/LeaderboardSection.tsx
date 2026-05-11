@@ -83,7 +83,7 @@ const LeaderboardSection = () => {
 					<motion.h2
 						variants={fadeUp}
 						transition={{ duration: 0.4 }}
-						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white mb-4 font-serif"
+						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white mb-4 font-sans"
 					>
 						Compete in{" "}
 						<span className="text-primary dark:text-emerald-custom dark:drop-shadow-[0_0_10px_rgba(80,200,120,0.4)]">

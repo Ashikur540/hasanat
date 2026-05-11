@@ -35,7 +35,7 @@ const SpiritualGapSection = () => {
 					</motion.p>
 					<motion.h2
 						variants={fadeUp}
-						className="mt-6 text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white font-serif"
+						className="mt-6 text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white font-sans"
 					>
 						{t("gapHeading")}
 					</motion.h2>
