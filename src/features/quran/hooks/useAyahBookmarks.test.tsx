@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAyahBookmarks } from "./useAyahBookmarks";
 import {
@@ -17,6 +19,15 @@ const mockedFetchCloudBookmarks = vi.mocked(fetchCloudBookmarks);
 const mockedRemoveCloudBookmark = vi.mocked(removeCloudBookmark);
 const mockedUpsertCloudBookmark = vi.mocked(upsertCloudBookmark);
 
+const createWrapper = () => {
+	const client = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
+	return ({ children }: { children: ReactNode }) => (
+		<QueryClientProvider client={client}>{children}</QueryClientProvider>
+	);
+};
+
 describe("useAyahBookmarks", () => {
 	beforeEach(() => {
 		localStorage.clear();
@@ -27,26 +38,34 @@ describe("useAyahBookmarks", () => {
 	});
 
 	it("adds bookmarks with optional note", async () => {
-		const { result } = renderHook(() => useAyahBookmarks("uid-1"));
+		const { result } = renderHook(() => useAyahBookmarks("uid-1"), {
+			wrapper: createWrapper(),
+		});
 		await waitFor(() =>
 			expect(mockedFetchCloudBookmarks).toHaveBeenCalledWith("uid-1"),
 		);
-		act(() => {
+		await act(async () => {
 			result.current.addBookmark(2, 255, "Ayatul Kursi");
 		});
 
-		expect(result.current.bookmarks[0]).toEqual(
-			expect.objectContaining({
-				surahNumber: 2,
-				ayahNumber: 255,
-				note: "Ayatul Kursi",
-			}),
+		await waitFor(() =>
+			expect(result.current.bookmarks[0]).toEqual(
+				expect.objectContaining({
+					surahNumber: 2,
+					ayahNumber: 255,
+					note: "Ayatul Kursi",
+				}),
+			),
 		);
-		expect(mockedUpsertCloudBookmark).toHaveBeenCalledTimes(1);
+		await waitFor(() =>
+			expect(mockedUpsertCloudBookmark).toHaveBeenCalledTimes(1),
+		);
 	});
 
 	it("removes bookmark by id", async () => {
-		const { result } = renderHook(() => useAyahBookmarks("uid-1"));
+		const { result } = renderHook(() => useAyahBookmarks("uid-1"), {
+			wrapper: createWrapper(),
+		});
 		await waitFor(() =>
 			expect(mockedFetchCloudBookmarks).toHaveBeenCalledWith("uid-1"),
 		);
@@ -60,6 +79,8 @@ describe("useAyahBookmarks", () => {
 		});
 
 		expect(result.current.bookmarks).toHaveLength(0);
-		expect(mockedRemoveCloudBookmark).toHaveBeenCalledWith("uid-1", addedId);
+		await waitFor(() =>
+			expect(mockedRemoveCloudBookmark).toHaveBeenCalledWith("uid-1", addedId),
+		);
 	});
 });

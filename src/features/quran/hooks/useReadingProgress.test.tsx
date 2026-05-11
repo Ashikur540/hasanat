@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useReadingProgress } from "./useReadingProgress";
 import {
@@ -14,6 +16,17 @@ vi.mock("@/features/quran/services/quranSyncService", () => ({
 const mockedFetchCloudProgress = vi.mocked(fetchCloudProgress);
 const mockedSaveCloudProgress = vi.mocked(saveCloudProgress);
 
+const STORAGE_KEY = "hasanat_quran.progress.current";
+
+const createWrapper = () => {
+	const client = new QueryClient({
+		defaultOptions: { queries: { retry: false } },
+	});
+	return ({ children }: { children: ReactNode }) => (
+		<QueryClientProvider client={client}>{children}</QueryClientProvider>
+	);
+};
+
 describe("useReadingProgress", () => {
 	beforeEach(() => {
 		localStorage.clear();
@@ -23,7 +36,7 @@ describe("useReadingProgress", () => {
 
 	it("hydrates progress from local storage first", async () => {
 		localStorage.setItem(
-			"quran.progress.current",
+			STORAGE_KEY,
 			JSON.stringify({
 				surahNumber: 2,
 				ayahNumber: 255,
@@ -33,26 +46,32 @@ describe("useReadingProgress", () => {
 		);
 		mockedFetchCloudProgress.mockResolvedValueOnce(null);
 
-		const { result } = renderHook(() => useReadingProgress("uid-1"));
+		const { result } = renderHook(() => useReadingProgress("uid-1"), {
+			wrapper: createWrapper(),
+		});
 		await waitFor(() => expect(result.current.progress?.ayahNumber).toBe(255));
 	});
 
 	it("writes local and cloud when saving progress", async () => {
 		mockedFetchCloudProgress.mockResolvedValueOnce(null);
-		const { result } = renderHook(() => useReadingProgress("uid-1"));
-		act(() => {
+		const { result } = renderHook(() => useReadingProgress("uid-1"), {
+			wrapper: createWrapper(),
+		});
+		await act(async () => {
 			result.current.saveProgress(3, 18, "bn");
 		});
 
-		const raw = localStorage.getItem("quran.progress.current");
+		const raw = localStorage.getItem(STORAGE_KEY);
 		expect(raw).toBeTruthy();
-		expect(mockedSaveCloudProgress).toHaveBeenCalledWith(
-			"uid-1",
-			expect.objectContaining({
-				surahNumber: 3,
-				ayahNumber: 18,
-				language: "bn",
-			}),
+		await waitFor(() =>
+			expect(mockedSaveCloudProgress).toHaveBeenCalledWith(
+				"uid-1",
+				expect.objectContaining({
+					surahNumber: 3,
+					ayahNumber: 18,
+					language: "bn",
+				}),
+			),
 		);
 	});
 });

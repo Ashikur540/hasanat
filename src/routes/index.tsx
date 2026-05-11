@@ -51,6 +51,7 @@ export const router = createBrowserRouter([
 					{ path: "/settings", element: withRouteSuspense(<Settings />) },
 					{ path: "/leaderboard", element: withRouteSuspense(<Leaderboard />) },
 					{ path: "/quran", element: withRouteSuspense(<Quran />) },
+					{ path: "/quran/:surahNumber", element: withRouteSuspense(<Quran />) },
 					// { path: "/circles", element: <Circles /> },
 					// { path: "/ramadan", element: <Ramadan /> },
 					{ path: "/my-deeds", element: withRouteSuspense(<MyCustomDeeds />) },

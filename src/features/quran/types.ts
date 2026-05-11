@@ -19,6 +19,9 @@ export interface ReadingProgress {
 	ayahNumber: number;
 	language: ReaderLanguage;
 	updatedAt: number;
+	surahNameArabic?: string;
+	surahNameEnglish?: string;
+	ayahPreview?: string;
 }
 
 export interface AyahBookmark {

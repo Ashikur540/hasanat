@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import type { AyahBookmark } from "@/features/quran/types";
 import {
 	fetchCloudBookmarks,
@@ -8,7 +9,7 @@ import {
 
 const STORAGE_KEY = "quran.bookmarks";
 
-const readLocalBookmarks = (): AyahBookmark[] => {
+const readLocal = (): AyahBookmark[] => {
 	const raw = localStorage.getItem(STORAGE_KEY);
 	if (!raw) return [];
 	try {
@@ -18,47 +19,79 @@ const readLocalBookmarks = (): AyahBookmark[] => {
 	}
 };
 
+const writeLocal = (bookmarks: AyahBookmark[]) => {
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarks));
+};
+
+const sortByUpdated = (items: AyahBookmark[]) =>
+	[...items].sort((a, b) => b.updatedAt - a.updatedAt);
+
 const mergeBookmarks = (
-	localBookmarks: AyahBookmark[],
-	cloudBookmarks: AyahBookmark[],
+	local: AyahBookmark[],
+	cloud: AyahBookmark[],
 ): AyahBookmark[] => {
 	const merged = new Map<string, AyahBookmark>();
-
-	for (const item of localBookmarks) merged.set(item.id, item);
-
-	for (const item of cloudBookmarks) {
-		const local = merged.get(item.id);
-		if (!local || item.updatedAt > local.updatedAt) {
+	for (const item of local) merged.set(item.id, item);
+	for (const item of cloud) {
+		const existing = merged.get(item.id);
+		if (!existing || item.updatedAt > existing.updatedAt) {
 			merged.set(item.id, item);
 		}
 	}
-
-	return Array.from(merged.values()).sort((a, b) => b.updatedAt - a.updatedAt);
+	return sortByUpdated(Array.from(merged.values()));
 };
 
+const bookmarksKey = (uid?: string) =>
+	["quran", "bookmarks", uid ?? "anon"] as const;
+
 export function useAyahBookmarks(uid?: string) {
-	const [bookmarks, setBookmarks] = useState<AyahBookmark[]>(readLocalBookmarks);
+	const queryClient = useQueryClient();
 	const [syncError, setSyncError] = useState<string | null>(null);
 
-	useEffect(() => {
-		if (!uid) return;
-		void fetchCloudBookmarks(uid)
-			.then((cloudBookmarks) => {
-				setBookmarks((localBookmarks) => {
-					const next = mergeBookmarks(localBookmarks, cloudBookmarks);
-					localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-					return next;
-				});
-			})
-			.catch(() => {
+	const query = useQuery({
+		queryKey: bookmarksKey(uid),
+		queryFn: async () => {
+			if (!uid) return readLocal();
+			try {
+				const cloud = await fetchCloudBookmarks(uid);
+				const merged = mergeBookmarks(readLocal(), cloud);
+				writeLocal(merged);
+				setSyncError(null);
+				return merged;
+			} catch {
 				setSyncError("cloud-bookmarks-read-failed");
-			});
-	}, [uid]);
+				return readLocal();
+			}
+		},
+		initialData: readLocal,
+		initialDataUpdatedAt: 0,
+		staleTime: 5 * 60 * 1000,
+		refetchOnWindowFocus: false,
+	});
 
-	const persist = (next: AyahBookmark[]) => {
-		setBookmarks(next);
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+	const bookmarks = query.data ?? [];
+
+	const setCache = (next: AyahBookmark[]) => {
+		const sorted = sortByUpdated(next);
+		queryClient.setQueryData<AyahBookmark[]>(bookmarksKey(uid), sorted);
+		writeLocal(sorted);
 	};
+
+	const addMutation = useMutation({
+		mutationFn: async (bookmark: AyahBookmark) => {
+			if (!uid) return;
+			await upsertCloudBookmark(uid, bookmark);
+		},
+		onError: () => setSyncError("cloud-bookmarks-write-failed"),
+	});
+
+	const removeMutation = useMutation({
+		mutationFn: async (bookmarkId: string) => {
+			if (!uid) return;
+			await removeCloudBookmark(uid, bookmarkId);
+		},
+		onError: () => setSyncError("cloud-bookmarks-delete-failed"),
+	});
 
 	const addBookmark = (
 		surahNumber: number,
@@ -66,32 +99,24 @@ export function useAyahBookmarks(uid?: string) {
 		note?: string,
 	): AyahBookmark => {
 		const now = Date.now();
+		const id = `${surahNumber}-${ayahNumber}`;
+		const existing = bookmarks.find((item) => item.id === id);
 		const bookmark: AyahBookmark = {
-			id: `${surahNumber}-${ayahNumber}-${now}`,
+			id,
 			surahNumber,
 			ayahNumber,
 			note: note?.trim() ? note.trim() : undefined,
-			createdAt: now,
+			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
 		};
-		const next = [bookmark, ...bookmarks];
-		persist(next);
-		if (uid) {
-			void upsertCloudBookmark(uid, bookmark).catch(() => {
-				setSyncError("cloud-bookmarks-write-failed");
-			});
-		}
+		setCache([bookmark, ...bookmarks.filter((item) => item.id !== id)]);
+		addMutation.mutate(bookmark);
 		return bookmark;
 	};
 
 	const removeBookmark = (bookmarkId: string) => {
-		const next = bookmarks.filter((item) => item.id !== bookmarkId);
-		persist(next);
-		if (uid) {
-			void removeCloudBookmark(uid, bookmarkId).catch(() => {
-				setSyncError("cloud-bookmarks-delete-failed");
-			});
-		}
+		setCache(bookmarks.filter((item) => item.id !== bookmarkId));
+		removeMutation.mutate(bookmarkId);
 	};
 
 	const findBookmark = (surahNumber: number, ayahNumber: number) =>

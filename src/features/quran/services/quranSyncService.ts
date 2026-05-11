@@ -6,6 +6,7 @@ import {
 	getDocs,
 	serverTimestamp,
 	setDoc,
+	Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type {
@@ -23,6 +24,9 @@ interface FirestoreProgressDoc {
 	ayahNumber: number;
 	language: ReaderLanguage;
 	updatedAt?: FirestoreTimestampLike;
+	surahNameArabic?: string;
+	surahNameEnglish?: string;
+	ayahPreview?: string;
 }
 
 interface FirestoreBookmarkDoc {
@@ -59,6 +63,9 @@ export async function fetchCloudProgress(
 		ayahNumber: data.ayahNumber,
 		language: data.language,
 		updatedAt: toMillis(data.updatedAt),
+		surahNameArabic: data.surahNameArabic,
+		surahNameEnglish: data.surahNameEnglish,
+		ayahPreview: data.ayahPreview,
 	};
 }
 
@@ -71,6 +78,9 @@ export async function saveCloudProgress(
 		ayahNumber: progress.ayahNumber,
 		language: progress.language,
 		updatedAt: serverTimestamp(),
+		surahNameArabic: progress.surahNameArabic ?? null,
+		surahNameEnglish: progress.surahNameEnglish ?? null,
+		ayahPreview: progress.ayahPreview ?? null,
 	});
 }
 
@@ -99,7 +109,7 @@ export async function upsertCloudBookmark(
 		surahNumber: bookmark.surahNumber,
 		ayahNumber: bookmark.ayahNumber,
 		note: bookmark.note ?? null,
-		createdAt: serverTimestamp(),
+		createdAt: Timestamp.fromMillis(bookmark.createdAt),
 		updatedAt: serverTimestamp(),
 	});
 }

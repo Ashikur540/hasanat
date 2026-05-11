@@ -1,37 +1,33 @@
+import { Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ReaderLanguage } from "@/features/quran/types";
+import type { SurahMeta } from "@/features/quran/types";
 import { useI18n } from "@/i18n/I18nProvider";
 
 interface ReaderToolbarProps {
-	language: ReaderLanguage;
-	onLanguageChange: (language: ReaderLanguage) => void;
+	surah?: SurahMeta;
+	onOpenSettings: () => void;
 }
 
-const ReaderToolbar = ({ language, onLanguageChange }: ReaderToolbarProps) => {
+const ReaderToolbar = ({ surah, onOpenSettings }: ReaderToolbarProps) => {
 	const { t } = useI18n();
 
 	return (
-		<div className="flex flex-wrap items-center gap-2">
-			<span className="text-xs text-white/80">
-				{t("quranTranslationLabel")}
-			</span>
+		<div className="flex items-center justify-between gap-3">
+			<div className="text-xs text-white/85">
+				{surah
+					? `${surah.ayahCount} ${surah.ayahCount === 1 ? t("quranAyah") : t("quranAyahs")}`
+					: ""}
+			</div>
 			<Button
 				type="button"
 				size="sm"
-				className="h-8"
-				variant={language === "en" ? "secondary" : "outline"}
-				onClick={() => onLanguageChange("en")}
+				variant="secondary"
+				onClick={onOpenSettings}
+				className="h-8 gap-1.5 bg-white/15 text-white hover:bg-white/25 border-0"
+				aria-label={t("quranSettings")}
 			>
-				{t("quranTranslationEnglish")}
-			</Button>
-			<Button
-				type="button"
-				size="sm"
-				className="h-8"
-				variant={language === "bn" ? "secondary" : "outline"}
-				onClick={() => onLanguageChange("bn")}
-			>
-				{t("quranTranslationBangla")}
+				<Settings2 className="h-4 w-4" />
+				<span className="hidden sm:inline text-xs">{t("quranSettings")}</span>
 			</Button>
 		</div>
 	);
