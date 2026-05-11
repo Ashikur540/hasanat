@@ -38,3 +38,4 @@ serviceAccount.json
 # AI agent files
 
 .playwright-cli/
+.worktrees/

@@ -85,7 +85,7 @@ const HeroSection = () => {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.5, delay: 0.05 }}
-            className="font-serif text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
+            className="font-sans text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
           >
             <span className="text-foreground dark:text-white">{t("heroTitle")}</span>
             <br />

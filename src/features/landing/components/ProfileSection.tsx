@@ -90,7 +90,7 @@ const ProfileSection = () => {
 					<motion.h2
 						variants={fadeUp}
 						transition={{ duration: 0.4 }}
-						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white leading-tight font-serif"
+						className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground dark:text-white leading-tight font-sans"
 					>
 						{t("profileHeading")}
 						<br />
@@ -207,7 +207,7 @@ const ProfileSection = () => {
 									<div className="flex flex-col items-center text-center py-8">
 										<div className="relative mb-3">
 											<div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-900 to-slate-900 border-2 border-emerald-custom/50 flex items-center justify-center">
-												<span className="text-2xl font-serif text-white">
+												<span className="text-2xl font-sans text-white">
 													AR
 												</span>
 											</div>
