@@ -21,13 +21,14 @@ const SurahList = ({
 	onOpenSurah,
 }: SurahListProps) => {
 	const { t } = useI18n();
-	const normalizedSearch = searchQuery.trim().toLowerCase();
+	const trimmedSearch = searchQuery.trim();
+	const normalizedSearch = trimmedSearch.toLowerCase();
 
 	const filteredSurahs = surahs.filter((surah) => {
 		if (!normalizedSearch) return true;
 		return (
 			surah.nameEnglish.toLowerCase().includes(normalizedSearch) ||
-			surah.nameArabic.includes(searchQuery) ||
+			surah.nameArabic.includes(trimmedSearch) ||
 			String(surah.number).includes(normalizedSearch)
 		);
 	});

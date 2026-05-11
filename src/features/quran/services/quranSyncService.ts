@@ -105,13 +105,22 @@ export async function upsertCloudBookmark(
 	uid: string,
 	bookmark: AyahBookmark,
 ): Promise<void> {
-	await setDoc(bookmarkDocRef(uid, bookmark.id), {
+	const ref = bookmarkDocRef(uid, bookmark.id);
+	const snap = await getDoc(ref);
+	const base = {
 		surahNumber: bookmark.surahNumber,
 		ayahNumber: bookmark.ayahNumber,
 		note: bookmark.note ?? null,
-		createdAt: Timestamp.fromMillis(bookmark.createdAt),
 		updatedAt: serverTimestamp(),
-	});
+	};
+	if (!snap.exists()) {
+		await setDoc(ref, {
+			...base,
+			createdAt: Timestamp.fromMillis(bookmark.createdAt),
+		});
+		return;
+	}
+	await setDoc(ref, base, { merge: true });
 }
 
 export async function removeCloudBookmark(
