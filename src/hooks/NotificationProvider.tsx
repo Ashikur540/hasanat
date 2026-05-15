@@ -24,6 +24,10 @@ import {
 	type DevicePlatform,
 } from "@/lib/notifications/platform";
 import { getRandomTip } from "@/lib/notifications/deedTips";
+import {
+	registerFcmToken,
+	setupForegroundMessageListener,
+} from "@/lib/notifications/fcmToken";
 import { useReminderRunners } from "@/hooks/useReminderRunners";
 import type { TranslationKey } from "@/i18n/translations";
 import {
@@ -170,6 +174,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 			document.removeEventListener("visibilitychange", sync);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!user?.uid || permissionStatus !== "granted") return;
+		void registerFcmToken(user.uid);
+	}, [user?.uid, permissionStatus]);
+
+	useEffect(() => {
+		void setupForegroundMessageListener(({ title, body }) => {
+			if (!title && !body) return;
+			toast({ title: title ?? "Hasanat", description: body });
+		});
+	}, [toast]);
 
 	useEffect(() => {
 		if (!user?.uid) return;

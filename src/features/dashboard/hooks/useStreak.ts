@@ -2,22 +2,12 @@ import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth";
-import { checkStreakReset } from "@/lib/firestore/streakService";
 import type { Streak } from "../types";
 
 export function useStreak() {
 	const { user } = useAuth();
 	const [streak, setStreak] = useState<Streak | null>(null);
 	const [loading, setLoading] = useState(true);
-
-	// Check for streak reset on mount (replaces midnight Firebase Function)
-	useEffect(() => {
-		if (!user) return;
-
-		checkStreakReset(user.uid).catch((err) => {
-			console.error("Failed to check streak reset:", err);
-		});
-	}, [user]);
 
 	useEffect(() => {
 		if (!user) return;

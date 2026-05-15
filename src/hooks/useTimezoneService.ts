@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/features/auth";
 
 export interface TimezoneServiceReturn {
 	timezone: string;
@@ -47,7 +50,16 @@ function autoDetectTimezone(): string {
 	}
 }
 
+const syncTimezoneToFirestore = (uid: string, tz: string) => {
+	setDoc(doc(db, "users", uid), { timezone: tz }, { merge: true }).catch(
+		(error: unknown) => {
+			console.warn("Failed to sync timezone to Firestore:", error);
+		},
+	);
+};
+
 export function useTimezoneService(): TimezoneServiceReturn {
+	const { user } = useAuth();
 	const [timezone, setTimezoneState] = useState<string>("UTC");
 	const [isAutoDetected, setIsAutoDetected] = useState<boolean>(true);
 
@@ -64,10 +76,16 @@ export function useTimezoneService(): TimezoneServiceReturn {
 		}
 	}, []);
 
+	useEffect(() => {
+		if (!user?.uid || !timezone || timezone === "UTC") return;
+		syncTimezoneToFirestore(user.uid, timezone);
+	}, [user?.uid, timezone]);
+
 	const setTimezone = (tz: string) => {
 		setTimezoneState(tz);
 		setIsAutoDetected(false);
 		localStorage.setItem(STORAGE_KEY, tz);
+		if (user?.uid) syncTimezoneToFirestore(user.uid, tz);
 	};
 
 	return {
