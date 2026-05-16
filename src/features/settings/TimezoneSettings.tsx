@@ -1,4 +1,3 @@
-import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 import {
 	Card,
@@ -17,23 +16,26 @@ import {
 } from "@/components/ui/select";
 import { Clock } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
-import { COMMON_TIMEZONES } from "@/hooks/useTimezoneService";
+import {
+	COMMON_TIMEZONES,
+	useTimezoneService,
+} from "@/hooks/useTimezoneService";
 import { fadeUp } from "./animations";
-import type { SettingsFormValues } from "./types";
 
 const TimezoneSettings = () => {
 	const { t } = useI18n();
-	const { watch, setValue } = useFormContext<SettingsFormValues>();
-	const timeZone = watch("timeZone");
-	const isAutoDetected =
-		timeZone === Intl.DateTimeFormat().resolvedOptions().timeZone;
+	// Top-level users/{uid}.timezone is the single source of truth.
+	// Cloud Functions (tipDispatch, prayerReminderDispatch, streakDailyEvaluate)
+	// read this field — never the deprecated settings.timeZone.
+	const { timezone, isAutoDetected, setTimezone } = useTimezoneService();
 
 	return (
 		<motion.div variants={fadeUp} transition={{ duration: 0.4 }}>
 			<Card className="border-border bg-card">
 				<CardHeader className="pb-3">
 					<CardTitle className="text-base flex items-center gap-2">
-						<Clock className="h-4 w-4 text-primary" /> {t("settingsTimezoneTitle")}
+						<Clock className="h-4 w-4 text-primary" />{" "}
+						{t("settingsTimezoneTitle")}
 					</CardTitle>
 					<CardDescription>Manage your timezone settings</CardDescription>
 				</CardHeader>
@@ -45,7 +47,7 @@ const TimezoneSettings = () => {
 								{isAutoDetected
 									? `${t("settingsTimezoneAuto")}: `
 									: `${t("settingsTimezoneManual")}: `}
-								<span className="font-mono">{timeZone}</span>
+								<span className="font-mono">{timezone}</span>
 							</p>
 						</div>
 					</div>
@@ -54,12 +56,7 @@ const TimezoneSettings = () => {
 						<Label htmlFor="timezone-select" className="text-sm font-medium">
 							Select Timezone
 						</Label>
-						<Select
-							value={timeZone}
-							onValueChange={(v) =>
-								setValue("timeZone", v, { shouldDirty: true })
-							}
-						>
+						<Select value={timezone} onValueChange={(v) => setTimezone(v)}>
 							<SelectTrigger id="timezone-select" className="w-full">
 								<SelectValue />
 							</SelectTrigger>

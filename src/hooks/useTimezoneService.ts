@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth";
 
@@ -50,36 +50,55 @@ function autoDetectTimezone(): string {
 	}
 }
 
-const syncTimezoneToFirestore = (uid: string, tz: string) => {
-	setDoc(doc(db, "users", uid), { timezone: tz }, { merge: true }).catch(
-		(error: unknown) => {
-			console.warn("Failed to sync timezone to Firestore:", error);
-		},
-	);
-};
+function syncTimezoneToFirestore(uid: string, tz: string) {
+	setDoc(
+		doc(db, "users", uid),
+		{ timezone: tz, timezoneUpdatedAt: serverTimestamp() },
+		{ merge: true },
+	).catch((error: unknown) => {
+		console.warn("Failed to sync timezone to Firestore:", error);
+	});
+}
 
 export function useTimezoneService(): TimezoneServiceReturn {
 	const { user } = useAuth();
-	const [timezone, setTimezoneState] = useState<string>("UTC");
-	const [isAutoDetected, setIsAutoDetected] = useState<boolean>(true);
+	const [timezone, setTimezoneState] = useState<string>(() => {
+		// First paint: read cache to avoid UTC flash. Firestore overrides shortly.
+		return localStorage.getItem(STORAGE_KEY) ?? autoDetectTimezone();
+	});
+	const [isAutoDetected, setIsAutoDetected] = useState<boolean>(() => {
+		return !localStorage.getItem(STORAGE_KEY);
+	});
 
+	// On auth resolve, hydrate from Firestore (source of truth).
 	useEffect(() => {
-		const storedTimezone = localStorage.getItem(STORAGE_KEY);
-
-		if (storedTimezone) {
-			setTimezoneState(storedTimezone);
-			setIsAutoDetected(false);
-		} else {
-			const detectedTz = autoDetectTimezone();
-			setTimezoneState(detectedTz);
-			setIsAutoDetected(true);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (!user?.uid || !timezone || timezone === "UTC") return;
-		syncTimezoneToFirestore(user.uid, timezone);
-	}, [user?.uid, timezone]);
+		if (!user?.uid) return;
+		let cancelled = false;
+		void (async () => {
+			try {
+				const snap = await getDoc(doc(db, "users", user.uid));
+				if (cancelled || !snap.exists()) return;
+				const remote = (snap.data() as { timezone?: string }).timezone;
+				if (typeof remote === "string" && remote.length > 0) {
+					setTimezoneState((prev) => {
+						if (prev === remote) return prev;
+						localStorage.setItem(STORAGE_KEY, remote);
+						return remote;
+					});
+					setIsAutoDetected(false);
+				} else {
+					// No remote value — backfill from local detection
+					const fallback = autoDetectTimezone();
+					syncTimezoneToFirestore(user.uid, fallback);
+				}
+			} catch (err) {
+				console.warn("Failed to read timezone from Firestore:", err);
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
+	}, [user?.uid]);
 
 	const setTimezone = (tz: string) => {
 		setTimezoneState(tz);

@@ -1,4 +1,4 @@
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import {
 	DEFAULT_SETTINGS,
@@ -49,9 +49,15 @@ export async function patchSettings(
 	uid: string,
 	data: SettingsFormValues,
 ): Promise<void> {
-	// Keep legacy profile visibility (`users.isPublic`) synced with settings privacy.
-	await updateDoc(userRef(uid), {
-		settings: data,
-		isPublic: data.privacy.profileVisibility !== "private",
-	});
+	// setDoc({merge:true}) is upsert-safe; stamp settingsUpdatedAt for
+	// last-write-wins conflict resolution across devices.
+	await setDoc(
+		userRef(uid),
+		{
+			settings: data,
+			isPublic: data.privacy.profileVisibility !== "private",
+			settingsUpdatedAt: serverTimestamp(),
+		},
+		{ merge: true },
+	);
 }
