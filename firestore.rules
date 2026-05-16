@@ -18,6 +18,14 @@ service cloud.firestore {
       match /quran_bookmarks/{bookmarkId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      match /devices/{deviceId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /notifications/{notifId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Todos — user owns their own todos

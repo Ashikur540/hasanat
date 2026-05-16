@@ -184,3 +184,65 @@ Private groups of 2–50 (halaqah model). Join by invite link/code only — no o
 - Background: `#FAFAF8` (warm off-white)
 
 **Typography:** Inter/Plus Jakarta Sans for Latin; Noto Naskh Arabic for Arabic text (deed names, hadith, bismillah).
+
+---
+
+## Comment style
+
+Default: write **no comment**. Code + names should explain "what".
+
+When the "why" isn't obvious (workaround, hidden constraint, subtle invariant), add a JSDoc-style block comment:
+
+- Use `/** … */` blocks, never single `//` runs longer than one line.
+- 2–3 lines max. Tight, plain English.
+- Explain WHY, never WHAT. The code shows what.
+- No jargon (`setDoc merge:true`, "ISP gateway leaks"). Frame in user/business terms ("when the user moves", "ISP, not the user").
+- No call-site references ("used by X.tsx") or task references ("added for ticket #123"). Those rot — put them in PR descriptions.
+- Never narrate parameters or flags inside the body comment. Trust TypeScript types.
+
+### Good vs Bad
+
+**Bad** (jargon, dense):
+```ts
+// IP-sourced cache treated as stale — force re-attempt of GPS each session.
+// IP geo often returns ISP gateway, not user's real location.
+if (parsed.source === "ip") return null;
+```
+
+**Good** (plain English, multiline block):
+```ts
+/**
+ * We don't trust IP-based locations — they usually point to the user's
+ * internet provider, not where the user actually is. So we ignore any
+ * old IP entry and let the browser ask for GPS again.
+ */
+if (parsed.source === "ip") return null;
+```
+
+**Bad** (states what code already shows):
+```ts
+// Set timezone state to detected value
+setTimezoneState(detectedTz);
+```
+
+**Good** (no comment — code is self-explanatory):
+```ts
+setTimezoneState(detectedTz);
+```
+
+**Bad** (lists implementation + flags):
+```ts
+// Apply a resolved location: update state, cache locally, optionally mirror remote.
+// `syncRemote=false` avoids the redundant write when we just READ from Firestore.
+const applyLocation = useCallback(...)
+```
+
+**Good** (purpose + non-obvious edge case):
+```ts
+/**
+ * Saves a freshly resolved location everywhere it needs to live: React
+ * state, the local cache, and (if signed in) Firestore. We skip Firestore
+ * for IP-based guesses since they're unreliable.
+ */
+const applyLocation = useCallback(...)
+```

@@ -20,6 +20,7 @@ import {
 	serverTimestamp,
 } from "firebase/firestore";
 import { getUserPhotoURL } from "@/lib/userAvatar";
+import { runPreferencesMigration } from "@/lib/preferencesMigration";
 
 interface AuthContextType {
 	user: User | null;
@@ -50,6 +51,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 						const userSnap = await getDoc(userRef);
 						const resolvedPhotoURL = getUserPhotoURL(firebaseUser);
 						if (!userSnap.exists()) {
+							// Auto-detect browser timezone so Cloud Functions
+							// (tipDispatch, prayerReminderDispatch, streakDailyEvaluate)
+							// have the field from day 1. User can override in Settings.
+							let detectedTz = "UTC";
+							try {
+								detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+							} catch {
+								// Fallback: UTC
+							}
 							await setDoc(userRef, {
 								uid: firebaseUser.uid,
 								name: firebaseUser.displayName,
@@ -59,6 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 								isPublic: true,
 								isOnLeaderboard: false,
 								createdAt: serverTimestamp(),
+								timezone: detectedTz,
+								timezoneUpdatedAt: serverTimestamp(),
 							});
 						} else if (
 							resolvedPhotoURL &&
@@ -66,6 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 						) {
 							await updateDoc(userRef, { photoURL: resolvedPhotoURL });
 						}
+						// One-shot localStorage → Firestore preferences migration.
+						// Idempotent via marker key; skips fields already on remote.
+						void runPreferencesMigration(firebaseUser.uid);
 					}
 					setUser(firebaseUser);
 				} catch (err) {

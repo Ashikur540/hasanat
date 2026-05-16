@@ -11,10 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { DeedCategory } from "@/data/deeds";
-import {
-	completeDeedWithEffects,
-	uncompleteDeedWithEffects,
-} from "./streakService";
+import { updateUserPoints } from "./streakService";
 import {
 	updateLeaderboard,
 	decrementLeaderboard,
@@ -33,20 +30,17 @@ export interface DeedLogInput {
 }
 
 /**
- * Create deed_log AND update points + check streak
- * Replaces Firebase Function logic
+ * Create deed_log AND add points. Streak is evaluated nightly by the
+ * `streakDailyEvaluate` Cloud Function — not here.
  */
 export async function createDeedLog(input: DeedLogInput): Promise<void> {
-	// 1. Create the deed_log
 	await addDoc(collection(db, "deed_logs"), {
 		...input,
 		loggedAt: serverTimestamp(),
 	});
 
-	// 2. Update points + check streak (client-side)
-	await completeDeedWithEffects(input.userId, input.pointsAtLogTime);
+	await updateUserPoints(input.userId, input.pointsAtLogTime);
 
-	// 3. Update leaderboard
 	const userRef = doc(db, "users", input.userId);
 	const userSnap = await getFirestoreDoc(userRef);
 	const displayName = userSnap.data()?.name || "Anonymous";
@@ -57,7 +51,6 @@ export async function createDeedLog(input: DeedLogInput): Promise<void> {
  * Deletes the deed_log associated with a todo AND subtracts points.
  * Called when a user unchecks a todo on the same day.
  * Same-day enforcement is handled by the caller (useTodayTodos).
- * Note: Does NOT revert streak (once earned, stays until midnight)
  */
 export async function deleteDeedLogByTodoId(
 	userId: string,
@@ -70,18 +63,14 @@ export async function deleteDeedLogByTodoId(
 	);
 	const snap = await getDocs(q);
 
-	// Get points from the deed_log before deleting
 	const points = snap.docs[0]?.data()?.pointsAtLogTime ?? 0;
 
-	// Delete the deed_log(s)
 	await Promise.all(
 		snap.docs.map((d) => deleteDoc(doc(db, "deed_logs", d.id))),
 	);
 
-	// Subtract points (don't revert streak)
 	if (points > 0) {
-		await uncompleteDeedWithEffects(userId, points);
-		// Decrement leaderboard
+		await updateUserPoints(userId, -points);
 		await decrementLeaderboard(userId, points);
 	}
 }

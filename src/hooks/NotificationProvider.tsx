@@ -11,6 +11,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { useSettingsApi } from "@/features/settings/hooks/useSettingsApi";
 import { useAuth } from "@/features/auth";
 import { usePrayerTimes } from "@/hooks/usePrayerTimes";
+import { useTimezoneService } from "@/hooks/useTimezoneService";
 import { LOCATION_CACHE_KEY } from "@/hooks/useLocationService";
 import {
 	dispatchSystemNotification,
@@ -24,6 +25,10 @@ import {
 	type DevicePlatform,
 } from "@/lib/notifications/platform";
 import { getRandomTip } from "@/lib/notifications/deedTips";
+import {
+	registerFcmToken,
+	setupForegroundMessageListener,
+} from "@/lib/notifications/fcmToken";
 import { useReminderRunners } from "@/hooks/useReminderRunners";
 import type { TranslationKey } from "@/i18n/translations";
 import {
@@ -62,6 +67,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	const { user } = useAuth();
 	const { settings: appSettings } = useSettingsApi();
 	const { schedule } = usePrayerTimes();
+	const { timezone } = useTimezoneService();
 
 	const [permissionStatus, setPermissionStatus] =
 		useState<NotificationPermissionStatus>(getInitialPermissionStatus);
@@ -172,9 +178,21 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	useEffect(() => {
+		if (!user?.uid || permissionStatus !== "granted") return;
+		void registerFcmToken(user.uid);
+	}, [user?.uid, permissionStatus]);
+
+	useEffect(() => {
+		void setupForegroundMessageListener(({ title, body }) => {
+			if (!title && !body) return;
+			toast({ title: title ?? "Hasanat", description: body });
+		});
+	}, [toast]);
+
+	useEffect(() => {
 		if (!user?.uid) return;
 		void runReminderChecks();
-	}, [appSettings.timeZone, runReminderChecks, schedule, user?.uid]);
+	}, [timezone, runReminderChecks, schedule, user?.uid]);
 
 	useEffect(() => {
 		const handleVisibility = () => {

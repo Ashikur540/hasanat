@@ -481,6 +481,19 @@ export const translations = {
 		settingsTimezoneAuto: "Auto-detected",
 		settingsTimezoneManual: "Manual",
 
+		// Hijri Offset Settings
+		settingsHijriOffsetTitle: "Hijri Date Adjustment",
+		settingsHijriOffsetDesc:
+			"Adjust the Hijri date if it doesn't match your local moon-sighting committee.",
+		settingsHijriOffsetLabel: "Day offset",
+		settingsHijriOffsetHint:
+			"Default 0 follows the Saudi Umm al-Qura calendar. Bangladesh users typically pick −1.",
+		settingsHijriOffsetMinus2: "−2 days (Behind Saudi by 2)",
+		settingsHijriOffsetMinus1: "−1 day (Bangladesh / common local sighting)",
+		settingsHijriOffsetZero: "0 (Saudi Umm al-Qura, default)",
+		settingsHijriOffsetPlus1: "+1 day (Ahead by 1)",
+		settingsHijriOffsetPlus2: "+2 days (Ahead by 2)",
+
 		// Cache/Offline Indicators
 		dataLastUpdated: "Last updated: {date}",
 		dataOffline: "Showing cached data",
@@ -1147,6 +1160,19 @@ export const translations = {
 		settingsTimezoneTitle: "সময় অঞ্চল",
 		settingsTimezoneAuto: "স্বয়ংক্রিয়ভাবে সনাক্ত করা",
 		settingsTimezoneManual: "ম্যানুয়াল",
+
+		// Hijri Offset Settings
+		settingsHijriOffsetTitle: "হিজরি তারিখ সমন্বয়",
+		settingsHijriOffsetDesc:
+			"আপনার স্থানীয় চাঁদ দেখা কমিটির সাথে না মিললে হিজরি তারিখ সমন্বয় করুন।",
+		settingsHijriOffsetLabel: "দিন সমন্বয়",
+		settingsHijriOffsetHint:
+			"ডিফল্ট ০ সৌদি উম্মুল কুরা ক্যালেন্ডার অনুসরণ করে। বাংলাদেশের ব্যবহারকারীরা সাধারণত −১ বেছে নেন।",
+		settingsHijriOffsetMinus2: "−২ দিন (সৌদি থেকে ২ দিন পিছনে)",
+		settingsHijriOffsetMinus1: "−১ দিন (বাংলাদেশ / সাধারণ স্থানীয় দর্শন)",
+		settingsHijriOffsetZero: "০ (সৌদি উম্মুল কুরা, ডিফল্ট)",
+		settingsHijriOffsetPlus1: "+১ দিন (১ দিন আগে)",
+		settingsHijriOffsetPlus2: "+২ দিন (২ দিন আগে)",
 
 		// Cache/Offline Indicators
 		dataLastUpdated: "সর্বশেষ আপডেট: {date}",
