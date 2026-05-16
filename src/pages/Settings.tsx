@@ -6,6 +6,7 @@ import {
 	NotificationSettings,
 	LocationSettings,
 	TimezoneSettings,
+	HijriOffsetSettings,
 	PrivacySettings,
 	PwaInstallSettings,
 	AccountSettings,
@@ -45,6 +46,7 @@ const Settings = () => {
 						<NotificationSettings />
 						<LocationSettings />
 						<TimezoneSettings />
+						<HijriOffsetSettings />
 						<PrivacySettings />
 						<PwaInstallSettings />
 						<AccountSettings />

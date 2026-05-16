@@ -18,7 +18,7 @@ export interface SettingsFormValues {
 	language: Language;
 	appearance: "light" | "dark" | "system";
 	soundEffects: boolean;
-	timeZone: string;
+	hijriOffset: number;
 	notifications: NotificationSettingsData;
 	privacy: PrivacySettingsData;
 }
@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
 	language: "en",
 	appearance: "system",
 	soundEffects: true,
-	timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+	hijriOffset: 0,
 	notifications: {
 		dailyReminder: false,
 		streakAlerts: true,

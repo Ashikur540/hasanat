@@ -25,5 +25,6 @@ export interface LeaderboardDocument {
 	allTimePoints: number;
 	allTimeDeeds: number;
 	currentStreak: number;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	updatedAt: any;
 }

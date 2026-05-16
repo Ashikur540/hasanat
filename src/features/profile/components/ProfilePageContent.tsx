@@ -109,10 +109,12 @@ export function ProfilePageContent({
 									{data.bio}
 								</p>
 								<div className="flex gap-3 text-xs text-muted-foreground mt-1.5">
-									<span className="flex items-center gap-1">
-										<MapPin className="h-3 w-3" />
-										{data.location}
-									</span>
+									{data.location && (
+										<span className="flex items-center gap-1">
+											<MapPin className="h-3 w-3" />
+											{data.location}
+										</span>
+									)}
 									<span className="flex items-center gap-1">
 										<Calendar className="h-3 w-3" />
 										{t("profileJoined")} {data.createdAt}

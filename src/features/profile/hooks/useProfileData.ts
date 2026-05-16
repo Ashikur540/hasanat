@@ -21,11 +21,22 @@ import { computeLevel, ALL_CATEGORIES } from "../types";
 interface UserDoc {
 	name: string;
 	bio?: string;
-	location?: string;
 	isPublic?: boolean;
 	totalPoints: number;
 	photoURL?: string;
 	createdAt: { toDate: () => Date } | null;
+	geo?: {
+		city?: string;
+		country?: string;
+		locationLabel?: string;
+	};
+}
+
+function deriveLocationLabel(geo?: UserDoc["geo"]): string {
+	if (!geo) return "";
+	if (geo.locationLabel) return geo.locationLabel;
+	if (geo.city && geo.country) return `${geo.city}, ${geo.country}`;
+	return geo.city || geo.country || "";
 }
 
 interface StreakDoc {
@@ -248,7 +259,7 @@ export function useProfileData(userId: string) {
 	const data: ProfileData = {
 		name: user.name || "Anonymous",
 		bio: user.bio || "",
-		location: user.location || "",
+		location: deriveLocationLabel(user.geo),
 		isPublic: user.isPublic ?? true,
 		totalPoints: user.totalPoints || 0,
 		photoURL: user.photoURL || viewerPhotoURL || null,
