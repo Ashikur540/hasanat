@@ -49,7 +49,7 @@ function persistGeocodeToFirestore(
 		locationLabel: locationLabel || deleteField(),
 	};
 
-	setDoc(doc(db, "users", uid), { location: payload }, { merge: true }).catch(
+	setDoc(doc(db, "users", uid), { geo: payload }, { merge: true }).catch(
 		(err: unknown) => {
 			console.warn("Failed to sync reverse-geocode to Firestore:", err);
 		},

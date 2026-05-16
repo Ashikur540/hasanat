@@ -14,17 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import type { ProfileData } from "./types";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
-
-interface ProfileData {
-	name: string;
-	bio: string;
-	location: string;
-	isPublic: boolean;
-}
 
 interface EditProfileDialogProps {
 	open: boolean;
@@ -64,7 +58,6 @@ const EditProfileDialog = ({
 			await updateDoc(doc(db, "users", user.uid), {
 				name: form.name,
 				bio: form.bio,
-				location: form.location,
 				isPublic: form.isPublic,
 				"settings.privacy.profileVisibility": form.isPublic
 					? "public"
@@ -139,16 +132,6 @@ const EditProfileDialog = ({
             <p className="text-[10px] text-muted-foreground text-right">
               {form.bio.length}/160
             </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.target.value })}
-              placeholder="City, Country"
-            />
           </div>
 
           <div className="flex items-center justify-between rounded-lg border border-border p-3">

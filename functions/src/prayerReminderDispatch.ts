@@ -49,7 +49,7 @@ async function processUser(
 				notifications?: { dailyReminder?: boolean };
 		  }
 		| undefined;
-	const location = userDoc.get("location") as
+	const geo = userDoc.get("geo") as
 		| { lat?: number; lng?: number }
 		| undefined;
 
@@ -57,7 +57,7 @@ async function processUser(
 	if (!settings?.notifications?.dailyReminder) {
 		return { uid, processed: false, skipReason: "reminders-off" };
 	}
-	if (typeof location?.lat !== "number" || typeof location?.lng !== "number") {
+	if (typeof geo?.lat !== "number" || typeof geo?.lng !== "number") {
 		return { uid, processed: false, skipReason: "no-location" };
 	}
 
@@ -68,7 +68,7 @@ async function processUser(
 		return { uid, processed: false, skipReason: "invalid-timezone" };
 	}
 
-	const windows = getPrayerWindows(location.lat, location.lng, now);
+	const windows = getPrayerWindows(geo.lat, geo.lng, now);
 	const candidates = getNearClosePrayers(windows, now, BUFFER_MINUTES);
 	if (candidates.length === 0) {
 		return { uid, processed: true, skipReason: "no-window", sentPrayers: [] };

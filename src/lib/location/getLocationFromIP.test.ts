@@ -11,7 +11,7 @@ describe("getLocationFromIP", () => {
 					latitude: 23.8103,
 					longitude: 90.4125,
 					city: "Dhaka",
-					country_name: "Bangladesh",
+					country: "Bangladesh",
 				}),
 			}),
 		);

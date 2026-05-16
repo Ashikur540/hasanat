@@ -8,7 +8,7 @@ const LOCATION_KEY = "hasanat-location";
 
 interface RemoteUser {
 	timezone?: string;
-	location?: { lat?: number; lng?: number };
+	geo?: { lat?: number; lng?: number };
 	settings?: { language?: string; timeZone?: string };
 }
 
@@ -71,8 +71,8 @@ export async function runPreferencesMigration(uid: string): Promise<void> {
 		}
 		if (
 			parsedLocation &&
-			(typeof remote.location?.lat !== "number" ||
-				typeof remote.location?.lng !== "number")
+			(typeof remote.geo?.lat !== "number" ||
+				typeof remote.geo?.lng !== "number")
 		) {
 			const loc: Record<string, unknown> = {
 				lat: parsedLocation.lat,
@@ -85,7 +85,7 @@ export async function runPreferencesMigration(uid: string): Promise<void> {
 			if (parsedLocation.locationLabel) {
 				loc.locationLabel = parsedLocation.locationLabel;
 			}
-			payload.location = loc;
+			payload.geo = loc;
 		}
 
 		if (Object.keys(payload).length > 0) {

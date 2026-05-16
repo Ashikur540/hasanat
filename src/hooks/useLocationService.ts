@@ -87,7 +87,18 @@ async function readFirestoreLocation(
   try {
     const snap = await getDoc(doc(db, "users", uid));
     if (!snap.exists()) return null;
-    const remote = (snap.data() as { location?: RemoteLocation }).location;
+    const data = snap.data() as {
+      geo?: RemoteLocation;
+      location?: RemoteLocation | string;
+    };
+    /**
+     * Legacy fallback: earlier builds stored geographic coords on `location`.
+     * If `geo` is missing but `location` is a coord object, treat it as the
+     * geographic record so existing users don't lose prayer-time accuracy.
+     */
+    const remote =
+      data.geo ??
+      (typeof data.location === "object" ? data.location : undefined);
     if (
       !remote ||
       typeof remote.lat !== "number" ||
@@ -181,7 +192,7 @@ async function syncLocationToFirestore(
       country: data.country || deleteField(),
       locationLabel: data.locationLabel || deleteField(),
     };
-    await setDoc(doc(db, "users", uid), { location: payload }, { merge: true });
+    await setDoc(doc(db, "users", uid), { geo: payload }, { merge: true });
   } catch (err) {
     console.error("Firestore location sync failed:", err);
   }
