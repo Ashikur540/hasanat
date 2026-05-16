@@ -1,22 +1,111 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import react from "@vitejs/plugin-react";
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig, loadEnv, type Plugin } from "vite";
+import checker from "vite-plugin-checker";
 import { VitePWA } from "vite-plugin-pwa";
-import { componentTagger } from "lovable-tagger";
 import sitemap from "vite-plugin-sitemap";
 
-// https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
-  esbuild:
-    mode === "production"
-      ? {
-          drop: ["debugger"],
-          pure: ["console.log", "console.debug", "console.info"],
+/**
+ * Generates `firebase-messaging-sw.js` at dev-server start and at build time
+ * by interpolating the same VITE_FIREBASE_* env vars the rest of the app uses.
+ * Keeps the SW file out of source control and lets us swap projects (staging
+ * vs prod) without editing a checked-in script.
+ */
+function firebaseMessagingSwPlugin(env: Record<string, string>): Plugin {
+  const SW_PATH = "/firebase-messaging-sw.js";
+  const SW_FILENAME = "firebase-messaging-sw.js";
+  const swSource = () => `/* global importScripts, firebase, self */
+importScripts(
+  "https://www.gstatic.com/firebasejs/12.10.0/firebase-app-compat.js",
+);
+importScripts(
+  "https://www.gstatic.com/firebasejs/12.10.0/firebase-messaging-compat.js",
+);
+
+firebase.initializeApp({
+  apiKey: ${JSON.stringify(env.VITE_FIREBASE_API_KEY ?? "")},
+  authDomain: ${JSON.stringify(env.VITE_FIREBASE_AUTH_DOMAIN ?? "")},
+  projectId: ${JSON.stringify(env.VITE_FIREBASE_PROJECT_ID ?? "")},
+  storageBucket: ${JSON.stringify(env.VITE_FIREBASE_STORAGE_BUCKET ?? "")},
+  messagingSenderId: ${JSON.stringify(env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? "")},
+  appId: ${JSON.stringify(env.VITE_FIREBASE_APP_ID ?? "")},
+});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  const data = payload.data || {};
+  const notification = payload.notification || {};
+  const title = notification.title || data.title || "Hasanat";
+  const body = notification.body || data.body || "";
+
+  self.registration.showNotification(title, {
+    body,
+    icon: "/web-app-manifest-192x192.png",
+    badge: "/favicon-96x96.png",
+    tag: data.tag || title,
+    data: {
+      url: data.url || "/dashboard",
+      ...data,
+    },
+  });
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(url) && "focus" in client) return client.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    }),
+  );
+});
+`;
+
+  return {
+    name: "firebase-messaging-sw",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.url === SW_PATH) {
+          res.setHeader("Content-Type", "application/javascript");
+          res.setHeader("Service-Worker-Allowed", "/");
+          res.end(swSource());
+          return;
         }
-      : undefined,
+        next();
+      });
+    },
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: SW_FILENAME,
+        source: swSource(),
+      });
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "VITE_FIREBASE_");
+  return {
+  clearScreen: false,
+  logLevel: "info",
   build: {
     target: "esnext",
     cssMinify: true,
+    minify: mode === "production" ? "terser" : false,
+    terserOptions:
+      mode === "production"
+        ? {
+            compress: {
+              drop_debugger: true,
+              pure_funcs: ["console.log", "console.debug", "console.info"],
+            },
+          }
+        : undefined,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -40,7 +129,10 @@ export default defineConfig(({ mode }) => ({
               return "vendor-react";
             }
             // Split Firestore into its own chunk — it only loads after sign-in
-            if (id.includes("firestore") || id.includes("@firebase/firestore")) {
+            if (
+              id.includes("firestore") ||
+              id.includes("@firebase/firestore")
+            ) {
               return "vendor-firestore";
             }
             if (id.includes("firebase")) {
@@ -66,10 +158,19 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    strictPort: false,
     hmr: {
       overlay: false,
     },
     allowedHosts: true,
+    warmup: {
+      clientFiles: [
+        "./src/main.tsx",
+        "./src/App.tsx",
+        "./src/layout/AppLayout.tsx",
+        "./src/pages/Dashboard.tsx",
+      ],
+    },
   },
   preview: {
     host: "::",
@@ -77,10 +178,33 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    firebaseMessagingSwPlugin(env),
+    checker({
+      typescript: true,
+      eslint: {
+        useFlatConfig: true,
+        lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+        dev: { logLevel: ["error"] },
+      },
+      overlay: { initialIsOpen: false, position: "br" },
+      terminal: true,
+      enableBuild: false,
+    }),
     sitemap({
       hostname: "https://hasanat-3375b.web.app",
       dynamicRoutes: ["/deeds"],
-      exclude: ["/dashboard", "/amal-graph", "/settings", "/leaderboard", "/my-deeds", "/profile", "/my-city", "/circles", "/ramadan", "/auth"],
+      exclude: [
+        "/dashboard",
+        "/amal-graph",
+        "/settings",
+        "/leaderboard",
+        "/my-deeds",
+        "/profile",
+        "/my-city",
+        "/circles",
+        "/ramadan",
+        "/auth",
+      ],
     }),
     VitePWA({
       registerType: "autoUpdate",
@@ -162,16 +286,16 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
         type: "module",
         navigateFallback: "index.html",
       },
     }),
-    mode === "development" && componentTagger(),
-  ].filter(Boolean),
+  ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-}));
+  };
+});
