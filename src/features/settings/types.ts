@@ -18,6 +18,7 @@ export interface SettingsFormValues {
 	language: Language;
 	appearance: "light" | "dark" | "system";
 	soundEffects: boolean;
+	hijriOffset: number;
 	notifications: NotificationSettingsData;
 	privacy: PrivacySettingsData;
 }
@@ -26,6 +27,7 @@ export const DEFAULT_SETTINGS: SettingsFormValues = {
 	language: "en",
 	appearance: "system",
 	soundEffects: true,
+	hijriOffset: 0,
 	notifications: {
 		dailyReminder: false,
 		streakAlerts: true,
