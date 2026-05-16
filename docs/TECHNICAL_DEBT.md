@@ -1,6 +1,7 @@
 # Technical Debt — Backend & Infrastructure Gaps
 
 > Audit date: 2026-05-11
+> Last updated: 2026-05-16 — marked gaps #3, #4, #6, #7 as RESOLVED; #10 as PARTIAL.
 > Scope: places where Hasanat relies on hardcoded data, `localStorage`, or client-only logic where a real backend is required.
 
 Hasanat currently has no dedicated backend. Firebase Firestore (client SDK) handles auth + partial sync. Most multi-user, scheduled, and cross-device features are broken, fragile, or fake.
@@ -38,7 +39,7 @@ This document catalogs every gap, grouped by severity, with file references and 
   - Bonus points multiplier
   - Hijri month-boundary reset (server-side; client clock untrusted)
 
-### 3. Push notifications (tips + reminders)
+### 3. Push notifications (tips + reminders) — ✅ RESOLVED (2026-05-16)
 
 - **Files:**
   - `src/lib/notifications/dispatch.ts`
@@ -53,13 +54,26 @@ This document catalogs every gap, grouped by severity, with file references and 
   - Cloud Function: tip scheduler (per-user, per-timezone)
   - Cloud Function: prayer-time reminder dispatcher
   - Firestore: `users/{uid}/notifications/sent` for dedupe
+- **Resolution:**
+  - FCM tokens stored at `users/{uid}/devices/{deviceId}` (web push).
+  - `functions/src/tipDispatch.ts` — `onSchedule("every 30 minutes")`, deterministic tip via `hash(uid+date+slot)`.
+  - `functions/src/prayerReminderDispatch.ts` — `onSchedule("every 5 minutes")`, sends FCM 20 min before prayer window closes.
+  - Dedup via Firestore docs at `users/{uid}/notifications/{notifId}` (idempotent across cron ticks).
+  - Stale tokens auto-pruned by `dispatchToUserDevices` in `functions/src/lib/notify.ts`.
+  - See `docs/NOTIFICATIONS_QA.md` for full flow.
 
-### 4. Streak reset
+### 4. Streak reset — ✅ RESOLVED (2026-05-16)
 
 - **File:** `src/lib/firestore/streakService.ts:43-64`
 - **Problem:** `checkStreakReset()` runs on app mount. If user does not open app at midnight, streak persists incorrectly. No server enforcement.
 - **Backend needed:**
   - Cloud Function (scheduled, per-user timezone) → midnight streak reset + integrity audit
+- **Resolution:**
+  - `functions/src/streakDailyEvaluate.ts` — `onSchedule("every 1 hours")`.
+  - Per user: skip unless local hour == 0 (just crossed midnight in user tz).
+  - Evaluates yesterday's todos + 5 prayer logs via pure `evaluateStreakIncrement`.
+  - Carries incomplete todos forward to today with `carriedFrom` marker.
+  - Client-side `checkStreakReset` + `checkAndUpdateStreak` removed; only `updateUserPoints` kept.
 
 ---
 
@@ -71,17 +85,19 @@ This document catalogs every gap, grouped by severity, with file references and 
 - **Problem:** Hardcoded `LEADERBOARD` demo array. Visible to all visitors.
 - **Backend needed:** Pull from live Firestore leaderboard (top N opt-in users).
 
-### 6. Deed tips schedule
+### 6. Deed tips schedule — ✅ RESOLVED (2026-05-16)
 
 - **File:** `src/lib/notifications/tipSchedule.ts:43-71`
 - **Problem:** Random per device per day. Same user gets different tips at different times on different devices.
 - **Backend needed:** Server-side schedule stored in Firestore; deterministic per user/day.
+- **Resolution:** `functions/src/tipDispatch.ts` selects tip via `hashIndex(\`${uid}|${date}|${slot}\`, pool.length)` → same tip across all devices for same user/day/slot. Three fixed local-time slots (8am/4pm/8pm ±30 min).
 
-### 7. Prayer reminder sent-state
+### 7. Prayer reminder sent-state — ✅ RESOLVED (2026-05-16)
 
 - **File:** `src/lib/notifications/sentState.ts:6,39`
 - **Problem:** Tracks "already sent" in `localStorage`. Multiple tabs = duplicate alerts.
 - **Backend needed:** Firestore doc per user per date.
+- **Resolution:** Dedup doc written at `users/{uid}/notifications/prayer_{date}_{prayerId}` after FCM dispatch. Next cron tick checks `notifRef.exists` and short-circuits. Idempotent.
 
 ---
 
@@ -99,13 +115,16 @@ This document catalogs every gap, grouped by severity, with file references and 
 - **Problem:** Firestore works for some fields, but location cache, timezone, language, reader prefs sit in `localStorage`. Cross-device drift.
 - **Backend needed:** Move all preferences to `users/{uid}/preferences`. Remove `localStorage` fallback.
 
-### 10. Location cache + reverse-geocode
+### 10. Location cache + reverse-geocode — ⚠️ PARTIAL (2026-05-16)
 
 - **Files:**
   - `src/hooks/useLocationService.ts:64,80,177`
   - `src/hooks/useReverseGeocode.ts:32,71`
 - **Problem:** Cached in `localStorage`. User moves city → old cache used on other devices.
 - **Backend needed:** Firestore `users/{uid}/location` with TTL.
+- **Resolution (partial):**
+  - `useLocationService` now mirrors `lat/lng/source/updatedAt` to `users/{uid}.location` whenever it resolves (needed by `prayerReminderDispatch`).
+  - **Still pending:** `localStorage` is still the primary cache + read path; reverse-geocode (`useReverseGeocode`) still localStorage-only; no TTL; no cross-device read.
 
 ### 11. Profile sharing
 
@@ -171,25 +190,25 @@ This document catalogs every gap, grouped by severity, with file references and 
 
 ## Backend Capabilities Required (rolled up)
 
-| Capability | Used by gaps |
-|---|---|
-| **Firebase Cloud Functions** | 3, 4, 6, 7, 14 |
-| **Firebase Cloud Messaging (FCM)** | 3, 6, 7 |
-| **Cloud Scheduler / scheduled functions** | 3, 4, 6, 14 |
-| **New Firestore collections** | 1, 5, 7, 9, 10, 14, 17, 19 |
-| **Server-side validation** | 5, 12 |
-| **Signed tokens** | 11 |
+| Capability | Used by gaps | Status |
+|---|---|---|
+| **Firebase Cloud Functions** | ~~3~~, ~~4~~, ~~6~~, ~~7~~, 14 | ✅ Bootstrapped — `functions/` directory live |
+| **Firebase Cloud Messaging (FCM)** | ~~3~~, ~~6~~, ~~7~~ | ✅ Token storage + dispatch + auto-prune working |
+| **Cloud Scheduler / scheduled functions** | ~~3~~, ~~4~~, ~~6~~, 14 | ✅ 3 jobs running (streak hourly, prayer 5min, tip 30min) |
+| **New Firestore collections** | 1, 5, ~~7~~, 9, 10, 14, 17, 19 | Partial |
+| **Server-side validation** | 5, 12 | Pending |
+| **Signed tokens** | 11 | Pending |
 
 ---
 
 ## Recommended Execution Order
 
-1. **FCM + Cloud Functions bootstrap** (unblocks 3, 4, 6, 7)
-2. **Streak midnight cron** (gap 4 — data integrity)
-3. **Tips + reminders notification pipeline** (gaps 3, 6, 7)
-4. **Circles backend** (gap 1 — entire feature dead)
+1. ~~**FCM + Cloud Functions bootstrap**~~ ✅ DONE (Phase 0 of notification plan)
+2. ~~**Streak midnight cron**~~ ✅ DONE — `functions/src/streakDailyEvaluate.ts`
+3. ~~**Tips + reminders notification pipeline**~~ ✅ DONE — `tipDispatch.ts` + `prayerReminderDispatch.ts`
+4. **Circles backend** (gap 1 — entire feature dead) ← **NEXT**
 5. **Ramadan feature** (gap 2 — stub)
-6. **Settings + location Firestore migration** (gaps 9, 10)
+6. **Settings + location Firestore migration** (gaps 9, 10 — location lat/lng partial)
 7. **Profile share tokens** (gap 11)
 8. **DeedCity server validation** (gap 12)
 9. **`localStorage` fallback cleanup** (gaps 13, 18)

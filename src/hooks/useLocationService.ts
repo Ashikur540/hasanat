@@ -1,5 +1,8 @@
 import { getLocationFromIP } from "@/lib/location/getLocationFromIP";
 import { useEffect, useState } from "react";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { useAuth } from "@/features/auth";
 
 export interface LocationData {
   lat: number;
@@ -50,7 +53,27 @@ function parseLocationCache(raw: string | null): LocationData | null {
   }
 }
 
+async function syncLocationToFirestore(
+  uid: string,
+  lat: number,
+  lng: number,
+  source: LocationData["source"],
+): Promise<void> {
+  try {
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        location: { lat, lng, source, updatedAt: serverTimestamp() },
+      },
+      { merge: true },
+    );
+  } catch (err) {
+    console.error("Failed to sync location to Firestore:", err);
+  }
+}
+
 export function useLocationService(): UseLocationServiceReturn {
+  const { user } = useAuth();
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
   const [source, setSource] = useState<LocationData["source"] | null>(null);
@@ -155,6 +178,13 @@ export function useLocationService(): UseLocationServiceReturn {
       cancelled = true;
     };
   }, []);
+
+  // Mirror current lat/lng to Firestore whenever user + coords are available.
+  // Server-side notifications (prayer reminders) read from users/{uid}.location.
+  useEffect(() => {
+    if (!user || lat == null || lng == null || !source) return;
+    void syncLocationToFirestore(user.uid, lat, lng, source);
+  }, [user, lat, lng, source]);
 
   const setCachedLocation = (
     latitude: number,

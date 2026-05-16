@@ -2,6 +2,8 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
+import { shiftDate, userLocalDate, userLocalHour } from "./lib/time.js";
+
 if (!admin.apps.length) admin.initializeApp();
 
 const REQUIRED_PRAYER_IDS = [
@@ -14,32 +16,7 @@ const REQUIRED_PRAYER_IDS = [
 
 const db = (): admin.firestore.Firestore => admin.firestore();
 
-export function userLocalDate(tz: string, instant: Date): string {
-	return new Intl.DateTimeFormat("en-CA", {
-		timeZone: tz,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-	}).format(instant);
-}
-
-export function userLocalHour(tz: string, instant: Date): number {
-	const formatted = new Intl.DateTimeFormat("en-GB", {
-		timeZone: tz,
-		hour: "2-digit",
-		hour12: false,
-	}).format(instant);
-	// Intl may emit "24" at midnight on some platforms — normalize.
-	const h = Number(formatted);
-	return h === 24 ? 0 : h;
-}
-
-export function shiftDate(yyyyMmDd: string, days: number): string {
-	const [y, m, d] = yyyyMmDd.split("-").map(Number);
-	const dt = new Date(Date.UTC(y, m - 1, d));
-	dt.setUTCDate(dt.getUTCDate() + days);
-	return dt.toISOString().slice(0, 10);
-}
+export { shiftDate, userLocalDate, userLocalHour };
 
 // --- Streak evaluation (pure) ---
 
@@ -63,6 +40,11 @@ export interface IncrementOutcome {
 		| "passed-already-recorded";
 }
 
+/**
+ * Pure decision function: given yesterday's totals + current streak state,
+ * decides whether to increment / start / reset / skip the streak.
+ * No Firestore IO — easy to unit-test boundary cases.
+ */
 export function evaluateStreakIncrement(
 	inputs: IncrementInputs,
 ): IncrementOutcome {
@@ -124,6 +106,11 @@ interface UserResult {
 	skippedReason?: string;
 }
 
+/**
+ * Per-user streak evaluation: only runs at the user's local midnight hour.
+ * Reads yesterday's todos + prayer logs, applies pure eval, writes streak
+ * + leaderboard updates, then carries incomplete todos forward to today.
+ */
 async function processUser(
 	firestore: admin.firestore.Firestore,
 	userDoc: admin.firestore.QueryDocumentSnapshot,
@@ -290,6 +277,10 @@ async function processUser(
 	};
 }
 
+/**
+ * Orchestrator: loads all users, runs `processUser` in parallel chunks of 25.
+ * Returns aggregate counts for logging / metrics.
+ */
 export async function runStreakEvaluateScan(
 	now: Date = new Date(),
 	concurrency = 25,
@@ -336,6 +327,10 @@ export async function runStreakEvaluateScan(
 	};
 }
 
+/**
+ * Cloud Scheduler entry point: runs hourly in UTC.
+ * Inside, each user is only processed when their *local* hour is 0 (midnight).
+ */
 export const streakDailyEvaluate = onSchedule(
 	{
 		schedule: "every 1 hours",

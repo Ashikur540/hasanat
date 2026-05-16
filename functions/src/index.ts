@@ -36,3 +36,5 @@ export const helloHasanat = onRequest((req, res) => {
 });
 
 export { streakDailyEvaluate } from "./streakDailyEvaluate";
+export { prayerReminderDispatch } from "./prayerReminderDispatch.js";
+export { tipDispatch } from "./tipDispatch.js";
