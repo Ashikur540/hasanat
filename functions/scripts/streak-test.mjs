@@ -1,11 +1,13 @@
 // Streak cron smoke test harness.
-// Usage:
-//   node scripts/streak-test.mjs seed-pass
-//   node scripts/streak-test.mjs seed-fail
-//   node scripts/streak-test.mjs inspect
-//   node scripts/streak-test.mjs restore
 //
-// Requires: gcloud auth application-default login (ADC).
+// Usage:
+//   STREAK_TEST_UID=<uid> STREAK_TEST_PROJECT_ID=<project> \
+//     node scripts/streak-test.mjs seed-pass | seed-fail | inspect | restore
+//
+// Recommended: point at the Firestore emulator (FIRESTORE_EMULATOR_HOST=localhost:8080)
+// or a dedicated staging project. Running against the production project mutates
+// a real user's docs and requires an explicit --allow-prod opt-in.
+//
 // All test docs use ID prefix `STREAK_TEST_` so they are easy to find + clean.
 
 import { initializeApp, applicationDefault } from "firebase-admin/app";
@@ -16,10 +18,42 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const UID = "wIm9zfJXlJa3Xpi96RTUu2qK8IM2";
-const PROJECT_ID = "hasanat-3375b";
-const TEST_TZ = "America/Adak";
+// Project IDs treated as production — running against these requires --allow-prod.
+const PROD_PROJECT_IDS = new Set(["hasanat-3375b"]);
+
+const UID = process.env.STREAK_TEST_UID;
+const PROJECT_ID = process.env.STREAK_TEST_PROJECT_ID;
+const TEST_TZ = process.env.STREAK_TEST_TZ ?? "America/Adak";
 const BACKUP_FILE = path.join(__dirname, "streak-test-backup.json");
+const ALLOW_PROD = process.argv.includes("--allow-prod");
+const USING_EMULATOR = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
+
+if (!UID) {
+	console.error("error: STREAK_TEST_UID env var is required.");
+	console.error("       Use a throw-away test account, not your personal uid.");
+	process.exit(1);
+}
+if (!PROJECT_ID) {
+	console.error("error: STREAK_TEST_PROJECT_ID env var is required.");
+	console.error(
+		"       Point at a staging project or set FIRESTORE_EMULATOR_HOST.",
+	);
+	process.exit(1);
+}
+if (PROD_PROJECT_IDS.has(PROJECT_ID) && !USING_EMULATOR && !ALLOW_PROD) {
+	console.error(
+		`error: refusing to run against production project "${PROJECT_ID}".`,
+	);
+	console.error(
+		"       Re-run with --allow-prod to override (mutates real user data).",
+	);
+	process.exit(1);
+}
+if (PROD_PROJECT_IDS.has(PROJECT_ID) && ALLOW_PROD && !USING_EMULATOR) {
+	console.warn(
+		`⚠  WARNING: mutating production project "${PROJECT_ID}" for uid ${UID}`,
+	);
+}
 
 const TEST_DOC_PREFIX = "STREAK_TEST_";
 const PRAYERS = [
