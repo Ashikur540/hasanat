@@ -38,14 +38,35 @@ export async function dispatchToUserDevices(
 		.collection("devices")
 		.get();
 
-	const targets = devicesSnap.docs
-		.map((d) => ({ id: d.id, token: d.get("token") as string | undefined }))
-		.filter((t): t is { id: string; token: string } => Boolean(t.token));
+	let pruned = 0;
 
-	if (targets.length === 0) return { sent: 0, pruned: 0, failed: 0 };
+	/**
+	 * Devices not refreshed in 30+ days are almost certainly stale (data cleared,
+	 * uninstalled PWA, browser switched). Admin SDK can return "success" for
+	 * these tokens, so age-based pruning is needed beyond error-code pruning.
+	 */
+	const STALE_MS = 30 * 24 * 60 * 60 * 1000;
+	const nowMs = Date.now();
+	type Target = { id: string; token: string };
+	const targets: Target[] = [];
+	for (const d of devicesSnap.docs) {
+		const token = d.get("token") as string | undefined;
+		const updatedAt = d.get("updatedAt") as
+			| admin.firestore.Timestamp
+			| undefined;
+		if (!token) continue;
+		if (updatedAt && nowMs - updatedAt.toMillis() > STALE_MS) {
+			await d.ref.delete();
+			pruned++;
+			logger.info("device pruned (stale)", { uid, deviceId: d.id });
+			continue;
+		}
+		targets.push({ id: d.id, token });
+	}
+
+	if (targets.length === 0) return { sent: 0, pruned, failed: 0 };
 
 	let sent = 0;
-	let pruned = 0;
 	let failed = 0;
 
 	await Promise.all(
@@ -55,6 +76,26 @@ export async function dispatchToUserDevices(
 					token,
 					notification,
 					data,
+					/**
+					 * High urgency wakes browsers on locked Android / closed tabs.
+					 * Default is "normal" — battery-savers may delay or drop those.
+					 * TTL caps queue time so a late delivery doesn't surprise users.
+					 */
+					webpush: {
+						headers: { Urgency: "high", TTL: "1800" },
+						notification: {
+							icon: "/web-app-manifest-192x192.png",
+							badge: "/favicon-96x96.png",
+							requireInteraction: false,
+						},
+					},
+					android: {
+						priority: "high",
+						notification: {
+							channelId: "hasanat-reminders",
+							priority: "high",
+						},
+					},
 				});
 				sent++;
 			} catch (err: unknown) {

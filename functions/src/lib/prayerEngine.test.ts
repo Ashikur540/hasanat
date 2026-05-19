@@ -27,6 +27,26 @@ describe("getPrayerWindows", () => {
 		const ishaEndsAfterIshaStartsBy = windows.isha.end.getTime() - windows.isha.start.getTime();
 		expect(ishaEndsAfterIshaStartsBy).toBeGreaterThan(60 * 60 * 1000); // > 1h
 	});
+
+	it("returns upcoming fajr window when near local pre-sunrise (UTC+6 day boundary)", () => {
+		// Bogura ~24.85°N, 89.37°E. now = 23:10 UTC May 17 = ~5:10 AM BDT May 18.
+		// User-local fajr May 18 starts before now and ends at sunrise ~5:25 AM BDT.
+		// Bug-mode would have returned May 17's fajr (24h past). Fix returns the
+		// fajr window containing `now`.
+		const now = new Date("2026-05-17T23:10:00Z");
+		const windows = getPrayerWindows(24.85, 89.37, now);
+		expect(windows.fajr.start.getTime()).toBeLessThanOrEqual(now.getTime());
+		expect(windows.fajr.end.getTime()).toBeGreaterThan(now.getTime());
+	});
+
+	it("returns upcoming isha window after local midnight (UTC+6)", () => {
+		// Bogura, now = 19:00 UTC May 17 = 1:00 AM BDT May 18. Still inside the
+		// May-17-night isha window which ends at fajr ~5:00 AM BDT May 18.
+		const now = new Date("2026-05-17T19:00:00Z");
+		const windows = getPrayerWindows(24.85, 89.37, now);
+		expect(windows.isha.start.getTime()).toBeLessThanOrEqual(now.getTime());
+		expect(windows.isha.end.getTime()).toBeGreaterThan(now.getTime());
+	});
 });
 
 describe("getNearClosePrayers", () => {
