@@ -39,24 +39,63 @@ function computeTimes(
 }
 
 /**
- * Returns 5 prayer windows {start, end} as Date instants for the given location/day.
- * Isha's end uses tomorrow's Fajr so the window spans midnight cleanly.
+ * Returns 5 prayer windows {start, end} as Date instants relative to `date`.
+ *
+ * Adhan computes prayer times per UTC calendar day, so a user east of UTC
+ * (e.g. BDT, UTC+6) sees their morning fajr fall on adhan's "tomorrow" date.
+ * We compute yesterday + today + tomorrow and pick whichever window currently
+ * contains `date`, otherwise the next upcoming one. Fixes day-boundary bug
+ * where fajr/isha reminders were silently skipped near local midnight.
  */
 export function getPrayerWindows(
 	lat: number,
 	lng: number,
 	date: Date = new Date(),
 ): PrayerWindows {
+	const dayMs = 24 * 60 * 60 * 1000;
+	const yesterday = computeTimes(lat, lng, new Date(date.getTime() - dayMs));
 	const today = computeTimes(lat, lng, date);
-	const tomorrowDate = new Date(date.getTime() + 24 * 60 * 60 * 1000);
-	const tomorrow = computeTimes(lat, lng, tomorrowDate);
+	const tomorrow = computeTimes(lat, lng, new Date(date.getTime() + dayMs));
+	const dayAfter = computeTimes(lat, lng, new Date(date.getTime() + 2 * dayMs));
+
+	const pick = (candidates: PrayerWindow[]): PrayerWindow => {
+		const current = candidates.find(
+			(w) => w.start.getTime() <= date.getTime() && date.getTime() <= w.end.getTime(),
+		);
+		if (current) return current;
+		const upcoming = candidates
+			.filter((w) => w.end.getTime() > date.getTime())
+			.sort((a, b) => a.end.getTime() - b.end.getTime());
+		if (upcoming.length > 0) return upcoming[0];
+		return candidates[candidates.length - 1];
+	};
 
 	return {
-		fajr: { start: today.fajr, end: today.sunrise },
-		dhuhr: { start: today.dhuhr, end: today.asr },
-		asr: { start: today.asr, end: today.maghrib },
-		maghrib: { start: today.maghrib, end: today.isha },
-		isha: { start: today.isha, end: tomorrow.fajr },
+		fajr: pick([
+			{ start: yesterday.fajr, end: yesterday.sunrise },
+			{ start: today.fajr, end: today.sunrise },
+			{ start: tomorrow.fajr, end: tomorrow.sunrise },
+		]),
+		dhuhr: pick([
+			{ start: yesterday.dhuhr, end: yesterday.asr },
+			{ start: today.dhuhr, end: today.asr },
+			{ start: tomorrow.dhuhr, end: tomorrow.asr },
+		]),
+		asr: pick([
+			{ start: yesterday.asr, end: yesterday.maghrib },
+			{ start: today.asr, end: today.maghrib },
+			{ start: tomorrow.asr, end: tomorrow.maghrib },
+		]),
+		maghrib: pick([
+			{ start: yesterday.maghrib, end: yesterday.isha },
+			{ start: today.maghrib, end: today.isha },
+			{ start: tomorrow.maghrib, end: tomorrow.isha },
+		]),
+		isha: pick([
+			{ start: yesterday.isha, end: today.fajr },
+			{ start: today.isha, end: tomorrow.fajr },
+			{ start: tomorrow.isha, end: dayAfter.fajr },
+		]),
 	};
 }
 

@@ -256,17 +256,31 @@ export default defineConfig(({ mode }) => {
       },
       workbox: {
         navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/auth/, /^\/__\/auth/],
+        navigateFallbackDenylist: [
+          /^\/auth/,
+          /^\/__\/auth/,
+          /^\/firebase-messaging-sw\.js$/,
+        ],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,json,woff2}"],
+        /**
+         * Workbox must not precache the FCM service worker. A stale FCM SW
+         * silently drops background pushes after env/version changes.
+         */
+        globIgnores: ["**/firebase-messaging-sw.js"],
         runtimeCaching: [
           {
-            urlPattern: ({ request }) =>
-              request.destination === "style" ||
-              request.destination === "script" ||
-              request.destination === "worker",
+            urlPattern: ({ url, request }) => {
+              if (url.pathname === "/firebase-messaging-sw.js") return false;
+              if (url.hostname === "www.gstatic.com") return false;
+              return (
+                request.destination === "style" ||
+                request.destination === "script" ||
+                request.destination === "worker"
+              );
+            },
             handler: "StaleWhileRevalidate",
             options: {
               cacheName: "static-resources",

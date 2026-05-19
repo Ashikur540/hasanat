@@ -10,9 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useSettingsApi } from "@/features/settings/hooks/useSettingsApi";
 import { useAuth } from "@/features/auth";
-import { usePrayerTimes } from "@/hooks/usePrayerTimes";
-import { useTimezoneService } from "@/hooks/useTimezoneService";
-import { LOCATION_CACHE_KEY } from "@/hooks/useLocationService";
 import {
 	dispatchSystemNotification,
 	type SystemNotificationPayload,
@@ -29,7 +26,6 @@ import {
 	registerFcmToken,
 	setupForegroundMessageListener,
 } from "@/lib/notifications/fcmToken";
-import { useReminderRunners } from "@/hooks/useReminderRunners";
 import type { TranslationKey } from "@/i18n/translations";
 import {
 	NotificationContext,
@@ -66,18 +62,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 	const { t, language } = useI18n();
 	const { user } = useAuth();
 	const { settings: appSettings } = useSettingsApi();
-	const { schedule } = usePrayerTimes();
-	const { timezone } = useTimezoneService();
 
 	const [permissionStatus, setPermissionStatus] =
 		useState<NotificationPermissionStatus>(getInitialPermissionStatus);
 
 	const notificationSettings = appSettings.notifications;
 
-	const { runReminderChecks, refreshFirestoreCompleted } = useReminderRunners({
-		settings: notificationSettings,
-		permissionStatus,
-	});
+	/**
+	 * Reminders + tips are dispatched server-side by Cloud Functions
+	 * (`prayerReminderDispatch`, `tipDispatch`) and delivered via FCM.
+	 * Kept as no-op so the dev "Run scheduler" button stays type-stable.
+	 */
+	const runReminderChecks = useCallback(async () => {}, []);
 
 	const requestPermission = useCallback(async (): Promise<NotificationPermissionStatus> => {
 		if (typeof window === "undefined" || !("Notification" in window)) {
@@ -188,41 +184,6 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 			toast({ title: title ?? "Hasanat", description: body });
 		});
 	}, [toast]);
-
-	useEffect(() => {
-		if (!user?.uid) return;
-		void runReminderChecks();
-	}, [timezone, runReminderChecks, schedule, user?.uid]);
-
-	useEffect(() => {
-		const handleVisibility = () => {
-			if (document.visibilityState !== "visible") return;
-			void refreshFirestoreCompleted();
-			void runReminderChecks();
-		};
-		const handleFocus = () => {
-			void refreshFirestoreCompleted();
-			void runReminderChecks();
-		};
-		const handleStorage = (event: StorageEvent) => {
-			if (
-				event.key === LOCATION_CACHE_KEY ||
-				event.key?.startsWith("hasanat-prayers-state-")
-			) {
-				void refreshFirestoreCompleted();
-				void runReminderChecks();
-			}
-		};
-
-		document.addEventListener("visibilitychange", handleVisibility);
-		window.addEventListener("focus", handleFocus);
-		window.addEventListener("storage", handleStorage);
-		return () => {
-			document.removeEventListener("visibilitychange", handleVisibility);
-			window.removeEventListener("focus", handleFocus);
-			window.removeEventListener("storage", handleStorage);
-		};
-	}, [refreshFirestoreCompleted, runReminderChecks]);
 
 	const platformHint = useMemo<NotificationContextType["platformHint"]>(() => {
 		if (typeof window === "undefined") return null;
