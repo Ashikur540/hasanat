@@ -1,13 +1,12 @@
 import { useAuth } from "@/features/auth";
 import { db } from "@/lib/firebase";
-import { getLocationFromIP } from "@/lib/location/getLocationFromIP";
 import {
-  deleteField,
-  doc,
-  getDoc,
-  serverTimestamp,
-  setDoc,
-} from "firebase/firestore";
+  readPrivateCoords,
+  savePrivateCoords,
+  savePublicLabels,
+} from "@/lib/firestore/userLocation";
+import { getLocationFromIP } from "@/lib/location/getLocationFromIP";
+import { deleteField, doc, getDoc, updateDoc } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
 export interface LocationData {
@@ -85,26 +84,41 @@ async function readFirestoreLocation(
   uid: string,
 ): Promise<LocationData | null> {
   try {
-    const snap = await getDoc(doc(db, "users", uid));
-    if (!snap.exists()) return null;
-    const data = snap.data() as {
+    const [coords, snap] = await Promise.all([
+      readPrivateCoords(uid),
+      getDoc(doc(db, "users", uid)),
+    ]);
+    const data = (snap.data() ?? {}) as {
       geo?: RemoteLocation;
       location?: RemoteLocation | string;
     };
     /**
-     * Legacy fallback: earlier builds stored geographic coords on `location`.
-     * If `geo` is missing but `location` is a coord object, treat it as the
-     * geographic record so existing users don't lose prayer-time accuracy.
+     * Older builds saved exact coordinates on the public user document, in
+     * `geo` or even earlier in `location`. If we find them there, we move them
+     * to the private document so other people can no longer read them.
      */
-    const remote =
-      data.geo ??
-      (typeof data.location === "object" ? data.location : undefined);
+    const legacy =
+      data.geo && typeof data.geo.lat === "number"
+        ? data.geo
+        : typeof data.location === "object"
+          ? data.location
+          : undefined;
+    const remote: RemoteLocation | undefined = coords
+      ? { ...data.geo, ...coords }
+      : legacy && { ...data.geo, ...legacy };
     if (
       !remote ||
       typeof remote.lat !== "number" ||
       typeof remote.lng !== "number"
     ) {
       return null;
+    }
+    if (!coords) {
+      void moveLegacyCoords(uid, {
+        lat: remote.lat,
+        lng: remote.lng,
+        source: remote.source,
+      }, remote, typeof data.location === "object");
     }
     /**
      * Same reason we skip IP-sourced cache: these are usually pointing to the
@@ -173,6 +187,23 @@ async function tryIP(): Promise<LocationData | null> {
   };
 }
 
+async function moveLegacyCoords(
+  uid: string,
+  coords: { lat: number; lng: number; source?: LocationData["source"] },
+  labels: RemoteLocation,
+  clearLegacyLocation: boolean,
+): Promise<void> {
+  try {
+    await savePrivateCoords(uid, coords);
+    await savePublicLabels(uid, labels);
+    if (clearLegacyLocation) {
+      await updateDoc(doc(db, "users", uid), { location: deleteField() });
+    }
+  } catch (err) {
+    console.warn("Moving location to the private document failed:", err);
+  }
+}
+
 async function syncLocationToFirestore(
   uid: string,
   data: LocationData,
@@ -183,16 +214,10 @@ async function syncLocationToFirestore(
      * coordinates. We wipe those old labels here so they don't linger —
      * the reverse-geocoder will fill in fresh ones a moment later.
      */
-    const payload: Record<string, unknown> = {
-      lat: data.lat,
-      lng: data.lng,
-      source: data.source,
-      updatedAt: serverTimestamp(),
-      city: data.city || deleteField(),
-      country: data.country || deleteField(),
-      locationLabel: data.locationLabel || deleteField(),
-    };
-    await setDoc(doc(db, "users", uid), { geo: payload }, { merge: true });
+    await Promise.all([
+      savePrivateCoords(uid, data),
+      savePublicLabels(uid, data),
+    ]);
   } catch (err) {
     console.error("Firestore location sync failed:", err);
   }
