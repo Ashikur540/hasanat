@@ -1,5 +1,11 @@
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+	publicGeoPayload,
+	readPrivateCoords,
+	savePrivateCoords,
+	type LocationSource,
+} from "@/lib/firestore/userLocation";
 
 const MIGRATION_MARKER_KEY = "hasanat-migration-v1";
 const LANG_KEY = "hasanat-lang";
@@ -51,8 +57,15 @@ export async function runPreferencesMigration(uid: string): Promise<void> {
 
 	try {
 		const userRef = doc(db, "users", uid);
-		const snap = await getDoc(userRef);
+		const [snap, privateCoords] = await Promise.all([
+			getDoc(userRef),
+			readPrivateCoords(uid),
+		]);
 		const remote = (snap.exists() ? snap.data() : {}) as RemoteUser;
+		const hasRemoteCoords =
+			privateCoords !== null ||
+			(typeof remote.geo?.lat === "number" &&
+				typeof remote.geo?.lng === "number");
 
 		const payload: Record<string, unknown> = {};
 
@@ -69,23 +82,13 @@ export async function runPreferencesMigration(uid: string): Promise<void> {
 				payload.timezoneUpdatedAt = serverTimestamp();
 			}
 		}
-		if (
-			parsedLocation &&
-			(typeof remote.geo?.lat !== "number" ||
-				typeof remote.geo?.lng !== "number")
-		) {
-			const loc: Record<string, unknown> = {
+		if (parsedLocation && !hasRemoteCoords) {
+			await savePrivateCoords(uid, {
 				lat: parsedLocation.lat,
 				lng: parsedLocation.lng,
-				source: parsedLocation.source ?? "manual",
-				updatedAt: serverTimestamp(),
-			};
-			if (parsedLocation.city) loc.city = parsedLocation.city;
-			if (parsedLocation.country) loc.country = parsedLocation.country;
-			if (parsedLocation.locationLabel) {
-				loc.locationLabel = parsedLocation.locationLabel;
-			}
-			payload.geo = loc;
+				source: (parsedLocation.source as LocationSource) ?? "manual",
+			});
+			payload.geo = publicGeoPayload(parsedLocation);
 		}
 
 		if (Object.keys(payload).length > 0) {

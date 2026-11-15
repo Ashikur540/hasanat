@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { deleteField, doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth";
+import { savePublicLabels } from "@/lib/firestore/userLocation";
 import { LOCATION_CACHE_KEY, LocationData } from "@/hooks/useLocationService";
 
 const COORD_THRESHOLD = 0.01; // ~1km — reuse cached label if coords haven't moved more than this
@@ -32,24 +31,11 @@ function buildLabel(address: GeocodeAddress): string {
 
 function persistGeocodeToFirestore(
 	uid: string,
-	lat: number,
-	lng: number,
 	city: string,
 	country: string,
 	locationLabel: string,
 ) {
-	// Explicitly delete absent fields so stale values from prior coords don't
-	// linger in Firestore (setDoc merge:true only updates, never clears).
-	const payload: Record<string, unknown> = {
-		lat,
-		lng,
-		updatedAt: serverTimestamp(),
-		city: city || deleteField(),
-		country: country || deleteField(),
-		locationLabel: locationLabel || deleteField(),
-	};
-
-	setDoc(doc(db, "users", uid), { geo: payload }, { merge: true }).catch(
+	savePublicLabels(uid, { city, country, locationLabel }).catch(
 		(err: unknown) => {
 			console.warn("Failed to sync reverse-geocode to Firestore:", err);
 		},
@@ -141,8 +127,6 @@ export function useReverseGeocode(
 				if (user?.uid) {
 					persistGeocodeToFirestore(
 						user.uid,
-						lat,
-						lng,
 						city,
 						country,
 						label,

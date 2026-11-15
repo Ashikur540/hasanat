@@ -149,9 +149,7 @@ const HeroSection = () => {
               ))}
             </div>
             <p className="text-sm text-muted-foreground dark:text-gray-400">
-              {t("heroSocialProofBefore")}{" "}
-              <span className="text-foreground dark:text-white font-semibold">5,000+</span>{" "}
-              {t("heroSocialProofAfter")}
+              {t("heroSocialProofBefore")} {t("heroSocialProofAfter")}
             </p>
           </motion.div>
         </motion.div>

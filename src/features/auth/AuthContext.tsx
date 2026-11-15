@@ -13,6 +13,7 @@ import {
 } from "firebase/auth";
 import { auth, db, googleProvider } from "@/lib/firebase";
 import {
+	deleteField,
 	doc,
 	setDoc,
 	getDoc,
@@ -63,7 +64,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 							await setDoc(userRef, {
 								uid: firebaseUser.uid,
 								name: firebaseUser.displayName,
-								email: firebaseUser.email,
 								photoURL: resolvedPhotoURL,
 								username: firebaseUser.email?.split("@")[0] ?? firebaseUser.uid,
 								isPublic: true,
@@ -72,11 +72,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 								timezone: detectedTz,
 								timezoneUpdatedAt: serverTimestamp(),
 							});
-						} else if (
-							resolvedPhotoURL &&
-							!(userSnap.data() as { photoURL?: string | null }).photoURL
-						) {
-							await updateDoc(userRef, { photoURL: resolvedPhotoURL });
+						} else {
+							const existing = userSnap.data() as {
+								photoURL?: string | null;
+								email?: string;
+							};
+							const updates: Record<string, unknown> = {};
+							if (resolvedPhotoURL && !existing.photoURL) {
+								updates.photoURL = resolvedPhotoURL;
+							}
+							/**
+							 * Profiles can be opened by anyone, so the email must not live
+							 * here. Older accounts still have it, so we remove it on sign-in.
+							 */
+							if ("email" in existing) updates.email = deleteField();
+							if (Object.keys(updates).length > 0) {
+								await updateDoc(userRef, updates);
+							}
 						}
 						// One-shot localStorage → Firestore preferences migration.
 						// Idempotent via marker key; skips fields already on remote.

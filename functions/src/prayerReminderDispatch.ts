@@ -49,14 +49,22 @@ async function processUser(
 				notifications?: { dailyReminder?: boolean };
 		  }
 		| undefined;
-	const geo = userDoc.get("geo") as
-		| { lat?: number; lng?: number }
-		| undefined;
-
 	if (!tz) return { uid, processed: false, skipReason: "no-timezone" };
 	if (!settings?.notifications?.dailyReminder) {
 		return { uid, processed: false, skipReason: "reminders-off" };
 	}
+
+	/**
+	 * Exact coordinates live in an owner-only document. Accounts that have not
+	 * been moved over yet still have them on the user document.
+	 */
+	const privateSnap = await userDoc.ref
+		.collection("private")
+		.doc("location")
+		.get();
+	const geo = (privateSnap.exists ? privateSnap.data() : userDoc.get("geo")) as
+		| { lat?: number; lng?: number }
+		| undefined;
 	if (typeof geo?.lat !== "number" || typeof geo?.lng !== "number") {
 		return { uid, processed: false, skipReason: "no-location" };
 	}
